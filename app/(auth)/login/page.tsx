@@ -1,18 +1,47 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
 import "./login.css";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: handle login logic
-    console.log({ username, password, rememberMe });
+    setError("");
+    setLoading(true);
+
+    try {
+      const supabase = createClient();
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError) {
+        setError(authError.message);
+        return;
+      }
+
+      if (data.session) {
+        // Login สำเร็จ — redirect ไป dashboard
+        router.push("/dashboard");
+        router.refresh();
+      }
+    } catch {
+      setError("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,22 +60,46 @@ export default function LoginPage() {
           </p>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="error-message">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+            <span>{error}</span>
+          </div>
+        )}
+
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="login-form">
-          {/* Username Field */}
+          {/* Email Field */}
           <div className="form-group">
-            <label htmlFor="username" className="form-label">
-              ชื่อผู้ใช้
+            <label htmlFor="email" className="form-label">
+              อีเมล
             </label>
             <div className="input-wrapper">
               <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="admin"
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="example@email.com"
                 className="form-input"
-                autoComplete="username"
+                autoComplete="email"
+                required
+                disabled={loading}
               />
             </div>
           </div>
@@ -65,12 +118,15 @@ export default function LoginPage() {
                 placeholder="••••••••••"
                 className="form-input"
                 autoComplete="current-password"
+                required
+                disabled={loading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="password-toggle"
                 aria-label={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
+                disabled={loading}
               >
                 {showPassword ? (
                   /* Eye Open Icon */
@@ -120,17 +176,43 @@ export default function LoginPage() {
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="remember-checkbox"
+                disabled={loading}
               />
               <span className="remember-text">จดจำไว้ในระบบ</span>
             </label>
-            <a href="#" className="forgot-password">
+            <Link href="/forgot-password" className="forgot-password">
               ลืมรหัสผ่าน?
-            </a>
+            </Link>
           </div>
 
           {/* Submit Button */}
-          <button type="submit" id="login-button" className="login-button">
-            เข้าสู่ระบบ
+          <button
+            type="submit"
+            id="login-button"
+            className="login-button"
+            disabled={loading}
+          >
+            {loading ? (
+              <span className="login-loading">
+                <svg
+                  className="spinner"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                </svg>
+                กำลังเข้าสู่ระบบ...
+              </span>
+            ) : (
+              "เข้าสู่ระบบ"
+            )}
           </button>
         </form>
       </div>
