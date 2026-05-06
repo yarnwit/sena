@@ -1,0 +1,9 @@
+{"level":"info","message":"=================================","timestamp":"2026-05-06T05:42:46.531Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-06T05:42:46.536Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T05:42:46.536Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-06T05:42:46.537Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-06T05:42:46.537Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-06T05:42:46.537Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T05:42:46.537Z"}
+{"level":"info","message":"User logged in: admin@example.com","timestamp":"2026-05-06T05:43:15.874Z"}
+{"level":"info","message":"::1 - - [06/May/2026:05:43:15 +0000] \"POST /api/auth/login HTTP/1.1\" 200 399 \"-\" \"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.8115\"","timestamp":"2026-05-06T05:43:15.876Z"}

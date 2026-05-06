@@ -33,8 +33,24 @@ export default function LoginPage() {
       }
 
       if (data.session) {
-        // Login สำเร็จ — redirect ไป dashboard
-        router.push("/dashboard");
+        // ดึง Role จากฐานข้อมูล
+        const { data: userData } = await supabase
+          .from("users")
+          .select("role")
+          .eq("id", data.session.user.id)
+          .single();
+
+        const role = userData?.role || "resident";
+
+        // Login สำเร็จ — redirect ไปตาม Role
+        if (role === "admin") {
+          router.push("/admin/dashboard");
+        } else if (role === "staff") {
+          router.push("/staff/dashboard");
+        } else {
+          router.push("/resident/dashboard");
+        }
+        
         router.refresh();
       }
     } catch {
@@ -185,7 +201,6 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             id="login-button"
@@ -214,6 +229,14 @@ export default function LoginPage() {
               "เข้าสู่ระบบ"
             )}
           </button>
+
+          {/* Register Link */}
+          <div className="register-link-container">
+            <span className="register-text">ไม่มีบัญชีใช่ไหม? </span>
+            <Link href="/register" className="register-link">
+              สมัครสมาชิก
+            </Link>
+          </div>
         </form>
       </div>
     </div>

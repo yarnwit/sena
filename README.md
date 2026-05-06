@@ -49,7 +49,7 @@ sena/
 │   │   │   └── forgot-password/
 │   │   │       └── page.tsx         # ลืมรหัสผ่าน (ทุก role ใช้ร่วมกัน)
 │   │   │
-│   │   ├── (resident)/              # กลุ่มลูกบ้าน (Layout เฉพาะลูกบ้าน)
+│   │   ├── resident/                # กลุ่มลูกบ้าน (Layout เฉพาะลูกบ้าน)
 │   │   │   ├── layout.tsx           # Sidebar/Navbar สำหรับลูกบ้าน
 │   │   │   ├── dashboard/
 │   │   │   │   └── page.tsx         # สรุปข้อมูลของตัวเอง
@@ -62,7 +62,7 @@ sena/
 │   │   │   └── profile/
 │   │   │       └── page.tsx         # จัดการข้อมูลส่วนตัว
 │   │   │
-│   │   ├── (staff)/                 # กลุ่มนิติบุคคล (Layout เฉพาะนิติ)
+│   │   ├── staff/                   # กลุ่มนิติบุคคล (Layout เฉพาะนิติ)
 │   │   │   ├── layout.tsx           # Sidebar/Navbar สำหรับนิติ (เมนูเยอะกว่า)
 │   │   │   ├── dashboard/
 │   │   │   │   └── page.tsx         # ภาพรวมงานที่ต้องทำทั้งหมด
@@ -73,7 +73,7 @@ sena/
 │   │   │   └── profile/
 │   │   │       └── page.tsx         # โปรไฟล์เจ้าหน้าที่
 │   │   │
-│   │   └── (admin)/                 # กลุ่มแอดมิน (Layout เฉพาะแอดมิน)
+│   │   └── admin/                   # กลุ่มแอดมิน (Layout เฉพาะแอดมิน)
 │   │       ├── layout.tsx           # Sidebar/Navbar สำหรับแอดมิน (เมนูตั้งค่าระบบ)
 │   │       ├── dashboard/
 │   │       │   └── page.tsx         # ภาพรวมทั้งระบบ
@@ -229,9 +229,9 @@ sena/
 `middleware.ts` ทำหน้าที่ตรวจสอบ Role ของผู้ใช้ตาม Path ที่เข้าถึง:
 
 ```
-Path /(resident)/*  →  ต้องเป็น role: resident เท่านั้น
-Path /(staff)/*     →  ต้องเป็น role: staff เท่านั้น
-Path /(admin)/*     →  ต้องเป็น role: admin เท่านั้น
+Path /resident/*  →  ต้องเป็น role: resident เท่านั้น
+Path /staff/*     →  ต้องเป็น role: staff เท่านั้น
+Path /admin/*     →  ต้องเป็น role: admin เท่านั้น
 Path /(auth)/*      →  ทุก role (หรือยังไม่ login) เข้าถึงได้
 ```
 
@@ -419,18 +419,18 @@ ALTER TABLE attachments ENABLE ROW LEVEL SECURITY;
 | `/login`                             |     ✅     |   ✅    |   ✅    |
 | `/register`                          |     ✅     |   ❌    |   ❌    |
 | `/forgot-password`                   |     ✅     |   ✅    |   ✅    |
-| **Resident Group** `/(resident)/*`   |            |         |         |
+| **Resident Group** `/resident/*`     |            |         |         |
 | `/dashboard`                         |     ✅     |   ❌    |   ❌    |
 | `/complaints`                        |     ✅     |   ❌    |   ❌    |
 | `/complaints/new`                    |     ✅     |   ❌    |   ❌    |
 | `/complaints/:id`                    |     ✅     |   ❌    |   ❌    |
 | `/profile`                           |     ✅     |   ❌    |   ❌    |
-| **Staff Group** `/(staff)/*`         |            |         |         |
+| **Staff Group** `/staff/*`           |            |         |         |
 | `/dashboard`                         |     ❌     |   ✅    |   ❌    |
 | `/complaints`                        |     ❌     |   ✅    |   ❌    |
 | `/complaints/:id`                    |     ❌     |   ✅    |   ❌    |
 | `/profile`                           |     ❌     |   ✅    |   ❌    |
-| **Admin Group** `/(admin)/*`         |            |         |         |
+| **Admin Group** `/admin/*`           |            |         |         |
 | `/dashboard`                         |     ❌     |   ❌    |   ✅    |
 | `/users`                             |     ❌     |   ❌    |   ✅    |
 | `/reports`                           |     ❌     |   ❌    |   ✅    |
