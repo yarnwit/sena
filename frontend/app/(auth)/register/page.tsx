@@ -11,6 +11,9 @@ export default function RegisterPage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
+  const [houseNo, setHouseNo] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [residentType, setResidentType] = useState("owner");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -51,6 +54,9 @@ export default function RegisterPage() {
             first_name: firstName,
             last_name: lastName,
             username: username,
+            house_no: houseNo,
+            phone_number: phoneNumber,
+            resident_type: residentType,
           },
         },
       });
@@ -228,6 +234,66 @@ export default function RegisterPage() {
                 required
                 disabled={loading}
               />
+            </div>
+          </div>
+
+          {/* House No Field */}
+          <div className="form-group">
+            <label htmlFor="houseNo" className="form-label">
+              บ้านเลขที่
+            </label>
+            <div className="input-wrapper">
+              <input
+                id="houseNo"
+                type="text"
+                value={houseNo}
+                onChange={(e) => setHouseNo(e.target.value)}
+                placeholder="กรอกบ้านเลขที่"
+                className="form-input"
+                required
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          {/* Phone Number Field */}
+          <div className="form-group">
+            <label htmlFor="phoneNumber" className="form-label">
+              เบอร์โทรศัพท์
+            </label>
+            <div className="input-wrapper">
+              <input
+                id="phoneNumber"
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="กรอกเบอร์โทรศัพท์"
+                className="form-input"
+                required
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          {/* Resident Type Field */}
+          <div className="form-group">
+            <label htmlFor="residentType" className="form-label">
+              ประเภทผู้อยู่อาศัย
+            </label>
+            <div className="input-wrapper">
+              <select
+                id="residentType"
+                value={residentType}
+                onChange={(e) => setResidentType(e.target.value)}
+                className="form-input"
+                style={{ appearance: "auto", cursor: "pointer" }}
+                required
+                disabled={loading}
+              >
+                <option value="owner">เจ้าของบ้าน</option>
+                <option value="tenant">ผู้เช่า</option>
+                <option value="family">สมาชิกครอบครัว</option>
+              </select>
             </div>
           </div>
 

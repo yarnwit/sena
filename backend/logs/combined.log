@@ -7,3 +7,47 @@
 {"level":"info","message":"=================================","timestamp":"2026-05-06T05:42:46.537Z"}
 {"level":"info","message":"User logged in: admin@example.com","timestamp":"2026-05-06T05:43:15.874Z"}
 {"level":"info","message":"::1 - - [06/May/2026:05:43:15 +0000] \"POST /api/auth/login HTTP/1.1\" 200 399 \"-\" \"Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.8115\"","timestamp":"2026-05-06T05:43:15.876Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T07:51:16.211Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-06T07:51:16.213Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T07:51:16.213Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-06T07:51:16.213Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-06T07:51:16.214Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-06T07:51:16.214Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T07:51:16.214Z"}
+{"level":"info","message":"::1 - - [06/May/2026:07:53:46 +0000] \"POST /api/auth/login HTTP/1.1\" 400 61 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-05-06T07:53:46.976Z"}
+{"level":"info","message":"::1 - - [06/May/2026:07:58:08 +0000] \"POST /api/auth/register HTTP/1.1\" 400 53 \"-\" \"PostmanRuntime/7.39.1\"","timestamp":"2026-05-06T07:58:08.960Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T08:06:44.369Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-06T08:06:44.370Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T08:06:44.371Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-06T08:06:44.371Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-06T08:06:44.371Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-06T08:06:44.371Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T08:06:44.371Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T08:16:44.097Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-06T08:16:44.098Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T08:16:44.099Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-06T08:16:44.099Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-06T08:16:44.099Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-06T08:16:44.099Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T08:16:44.099Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T08:19:55.501Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-06T08:19:55.503Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T08:19:55.504Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-06T08:19:55.504Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-06T08:19:55.504Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-06T08:19:55.504Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T08:19:55.504Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T08:51:00.180Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-06T08:51:00.182Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T08:51:00.182Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-06T08:51:00.182Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-06T08:51:00.183Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-06T08:51:00.183Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T08:51:00.183Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T08:53:24.114Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-06T08:53:24.117Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T08:53:24.117Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-06T08:53:24.118Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-06T08:53:24.118Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-06T08:53:24.118Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-06T08:53:24.118Z"}

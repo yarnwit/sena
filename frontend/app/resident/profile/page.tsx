@@ -1,0 +1,360 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
+import "./profile.css";
+
+interface UserProfile {
+  first_name: string;
+  last_name: string;
+  username: string;
+}
+
+interface ResidentProfile {
+  house_no: string;
+  phone_number: string;
+  resident_type: string;
+}
+
+export default function ProfilePage() {
+  const [user, setUser] = useState<UserProfile>({ first_name: "", last_name: "", username: "" });
+  const [resident, setResident] = useState<ResidentProfile>({ house_no: "", phone_number: "", resident_type: "" });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+
+  // Password change
+  const [passwords, setPasswords] = useState({ current: "", new_password: "", confirm: "" });
+  const [pwSaving, setPwSaving] = useState(false);
+  const [pwSuccess, setPwSuccess] = useState("");
+  const [pwError, setPwError] = useState("");
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const supabase = createClient();
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+
+      if (!authUser) return;
+
+      // ดึงข้อมูล user
+      const { data: userData } = await supabase
+        .from("users")
+        .select("first_name, last_name, username")
+        .eq("id", authUser.id)
+        .single();
+
+      if (userData) setUser(userData);
+
+      // ดึงข้อมูล resident
+      const { data: residentData } = await supabase
+        .from("resident")
+        .select("house_no, phone_number, resident_type")
+        .eq("user_id", authUser.id)
+        .single();
+
+      if (residentData) setResident(residentData);
+      setLoading(false);
+    };
+
+    fetchProfile();
+  }, []);
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setSuccess("");
+    setError("");
+
+    try {
+      const supabase = createClient();
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) return;
+
+      // อัปเดต users table
+      const { error: userError } = await supabase
+        .from("users")
+        .update({
+          first_name: user.first_name,
+          last_name: user.last_name,
+        })
+        .eq("id", authUser.id);
+
+      if (userError) {
+        setError(`อัปเดตข้อมูลไม่สำเร็จ: ${userError.message}`);
+        setSaving(false);
+        return;
+      }
+
+      // อัปเดต resident table
+      const { error: residentError } = await supabase
+        .from("resident")
+        .update({
+          house_no: resident.house_no,
+          phone_number: resident.phone_number,
+          resident_type: resident.resident_type,
+        })
+        .eq("user_id", authUser.id);
+
+      if (residentError) {
+        setError(`อัปเดตข้อมูลลูกบ้านไม่สำเร็จ: ${residentError.message}`);
+        setSaving(false);
+        return;
+      }
+
+      setSuccess("บันทึกข้อมูลสำเร็จ!");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch {
+      setError("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPwError("");
+    setPwSuccess("");
+
+    if (passwords.new_password !== passwords.confirm) {
+      setPwError("รหัสผ่านใหม่ไม่ตรงกัน");
+      return;
+    }
+
+    if (passwords.new_password.length < 6) {
+      setPwError("รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร");
+      return;
+    }
+
+    setPwSaving(true);
+
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.updateUser({
+        password: passwords.new_password,
+      });
+
+      if (error) {
+        setPwError(error.message);
+      } else {
+        setPwSuccess("เปลี่ยนรหัสผ่านสำเร็จ!");
+        setPasswords({ current: "", new_password: "", confirm: "" });
+        setTimeout(() => setPwSuccess(""), 3000);
+      }
+    } catch {
+      setPwError("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    } finally {
+      setPwSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner" />
+      </div>
+    );
+  }
+
+  const initials = user.first_name ? user.first_name.charAt(0).toUpperCase() : "?";
+
+  return (
+    <div className="profile-page">
+      {/* Header Card */}
+      <div className="profile-header-card">
+        <div className="profile-avatar-large">{initials}</div>
+        <div className="profile-header-info">
+          <div className="profile-header-name">
+            {user.first_name} {user.last_name}
+          </div>
+          <div className="profile-header-role">
+            <span className="role-dot" />
+            ลูกบ้าน (Resident)
+          </div>
+        </div>
+      </div>
+
+      {/* Personal Info Form */}
+      <div className="profile-form-card">
+        <h3 className="profile-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          ข้อมูลส่วนตัว
+        </h3>
+
+        {success && (
+          <div className="profile-success">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            {success}
+          </div>
+        )}
+        {error && (
+          <div className="profile-error">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSaveProfile} className="profile-form">
+          <div className="profile-form-field">
+            <label className="profile-form-label">ชื่อผู้ใช้งาน</label>
+            <input
+              type="text"
+              value={user.username}
+              className="profile-form-input"
+              disabled
+            />
+          </div>
+
+          <div className="profile-form-row">
+            <div className="profile-form-field">
+              <label className="profile-form-label">ชื่อจริง</label>
+              <input
+                type="text"
+                value={user.first_name}
+                onChange={(e) => setUser({ ...user, first_name: e.target.value })}
+                className="profile-form-input"
+                disabled={saving}
+              />
+            </div>
+            <div className="profile-form-field">
+              <label className="profile-form-label">นามสกุล</label>
+              <input
+                type="text"
+                value={user.last_name}
+                onChange={(e) => setUser({ ...user, last_name: e.target.value })}
+                className="profile-form-input"
+                disabled={saving}
+              />
+            </div>
+          </div>
+
+          <div className="profile-form-row">
+            <div className="profile-form-field">
+              <label className="profile-form-label">บ้านเลขที่</label>
+              <input
+                type="text"
+                value={resident.house_no}
+                onChange={(e) => setResident({ ...resident, house_no: e.target.value })}
+                placeholder="เช่น 123/45"
+                className="profile-form-input"
+                disabled={saving}
+              />
+            </div>
+            <div className="profile-form-field">
+              <label className="profile-form-label">เบอร์โทรศัพท์</label>
+              <input
+                type="tel"
+                value={resident.phone_number}
+                onChange={(e) => setResident({ ...resident, phone_number: e.target.value })}
+                placeholder="เช่น 081-234-5678"
+                className="profile-form-input"
+                disabled={saving}
+              />
+            </div>
+          </div>
+
+          <div className="profile-form-field">
+            <label className="profile-form-label">ประเภทผู้อยู่อาศัย</label>
+            <input
+              type="text"
+              value={resident.resident_type}
+              onChange={(e) => setResident({ ...resident, resident_type: e.target.value })}
+              placeholder="เช่น เจ้าของบ้าน, ผู้เช่า"
+              className="profile-form-input"
+              disabled={saving}
+            />
+          </div>
+
+          <button type="submit" className="profile-save-button" disabled={saving}>
+            {saving ? (
+              <>
+                <svg className="loading-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                </svg>
+                กำลังบันทึก...
+              </>
+            ) : (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                  <polyline points="17 21 17 13 7 13 7 21" />
+                  <polyline points="7 3 7 8 15 8" />
+                </svg>
+                บันทึกข้อมูล
+              </>
+            )}
+          </button>
+        </form>
+      </div>
+
+      {/* Change Password */}
+      <div className="profile-form-card password-section">
+        <h3 className="profile-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+          เปลี่ยนรหัสผ่าน
+        </h3>
+
+        {pwSuccess && (
+          <div className="profile-success">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            {pwSuccess}
+          </div>
+        )}
+        {pwError && (
+          <div className="profile-error">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+            {pwError}
+          </div>
+        )}
+
+        <form onSubmit={handleChangePassword} className="profile-form">
+          <div className="profile-form-field">
+            <label className="profile-form-label">รหัสผ่านใหม่</label>
+            <input
+              type="password"
+              value={passwords.new_password}
+              onChange={(e) => setPasswords({ ...passwords, new_password: e.target.value })}
+              placeholder="กรอกรหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)"
+              className="profile-form-input"
+              required
+              disabled={pwSaving}
+            />
+          </div>
+          <div className="profile-form-field">
+            <label className="profile-form-label">ยืนยันรหัสผ่านใหม่</label>
+            <input
+              type="password"
+              value={passwords.confirm}
+              onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
+              placeholder="กรอกรหัสผ่านใหม่อีกครั้ง"
+              className="profile-form-input"
+              required
+              disabled={pwSaving}
+            />
+          </div>
+          <button type="submit" className="profile-save-button" disabled={pwSaving}>
+            {pwSaving ? "กำลังเปลี่ยน..." : "เปลี่ยนรหัสผ่าน"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}

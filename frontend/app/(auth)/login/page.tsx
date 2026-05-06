@@ -10,7 +10,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,8 +22,10 @@ export default function LoginPage() {
 
     try {
       const supabase = createClient();
+      
+      const loginEmail = username.includes("@") ? username : `${username}@sena-grandhome.local`;
       const { data, error: authError } = await supabase.auth.signInWithPassword({
-        email,
+        email: loginEmail,
         password,
       });
 
@@ -100,20 +102,20 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="login-form">
-          {/* Email Field */}
+          {/* Username Field */}
           <div className="form-group">
-            <label htmlFor="email" className="form-label">
-              อีเมล
+            <label htmlFor="username" className="form-label">
+              ชื่อผู้ใช้งาน
             </label>
             <div className="input-wrapper">
               <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="example@email.com"
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="กรอกชื่อผู้ใช้งาน"
                 className="form-input"
-                autoComplete="email"
+                autoComplete="username"
                 required
                 disabled={loading}
               />

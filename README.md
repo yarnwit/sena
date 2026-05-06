@@ -243,33 +243,25 @@ Path /(auth)/*      →  ทุก role (หรือยังไม่ login) �
 
 ```
 ┌──────────────┐       ┌──────────────────┐       ┌──────────────┐
-│    users      │       │   complaints      │       │   comments    │
+│    users     │       │ write_complaint  │       │  complaints  │
 ├──────────────┤       ├──────────────────┤       ├──────────────┤
-│ id (uuid) PK │◄──┐   │ id (uuid) PK      │◄──┐   │ id (uuid) PK │
-│ email         │   │   │ title              │   │   │ complaint_id │──► complaints
-│ password_hash │   ├──►│ user_id (FK)       │   ├──►│ user_id (FK) │──► users
-│ full_name     │   │   │ category           │   │   │ message      │
-│ phone         │   │   │ description        │   │   │ created_at   │
-│ role          │   │   │ status             │   │   └──────────────┘
-│ avatar_url    │   │   │ priority           │   │
-│ is_active     │   │   │ assigned_to (FK)───┘   │   ┌──────────────┐
-│ created_at    │   │   │ resolved_at        │   │   │ attachments  │
-│ updated_at    │   │   │ created_at         │   │   ├──────────────┤
-└──────────────┘   │   │ updated_at         │   │   │ id (uuid) PK │
-                   │   └──────────────────┘   │   │ complaint_id │──► complaints
-                   │                           │   │ file_url     │
-                   │   ┌──────────────────┐   │   │ file_name    │
-                   │   │   audit_logs      │   │   │ file_type    │
-                   │   ├──────────────────┤   │   │ uploaded_at  │
-                   │   │ id (uuid) PK      │   │   └──────────────┘
-                   └──►│ user_id (FK)       │   │
-                       │ action             │   │
-                       │ entity             │   │
-                       │ entity_id          │   │
-                       │ details (jsonb)    │   │
-                       │ ip_address         │   │
-                       │ created_at         │   │
-                       └──────────────────┘
+│ user_id (PK) │◄─┐ ┌─►│ user_id (FK)     │    ┌─►│ complaint_id │
+│ username     │  │ │  │ complaint_id (FK)│────┘  │ resident_id  │
+│ password_hash│  │ │  └──────────────────┘       │ ticket_no    │
+│ first_name   │  │ │                             │ subject      │
+│ last_name    │  │ │                             │ status       │
+│ role         │  │ │                             │ phase        │
+└──────────────┘  │ │                             │ description  │
+                  │ │                             │ reported_date│
+┌──────────────┐  │ │                             │ location_writ│
+│   resident   │  │ │                             │ attachment_ur│
+├──────────────┤  │ │                             │ soi          │
+│resident_id PK│  │ │                             │ intake_chann │
+│ user_id (FK) ├──┘ │                             │ petition     │
+│ house_no     │    │                             └──────────────┘
+│ phone_number │    │                                    ▲
+│ resident_type│    │                                    │
+└──────────────┘    └────────────────────────────────────┘
 ```
 
 ### Tables
@@ -277,70 +269,46 @@ Path /(auth)/*      →  ทุก role (หรือยังไม่ login) �
 ```sql
 -- 1. Users
 CREATE TABLE users (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  email VARCHAR(255) UNIQUE NOT NULL,
+  user_id SERIAL PRIMARY KEY,
+  username VARCHAR(255) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
-  full_name VARCHAR(100) NOT NULL,
-  phone VARCHAR(20),
-  role VARCHAR(20) DEFAULT 'resident' CHECK (role IN ('resident','staff','admin')),
-  avatar_url TEXT,
-  is_active BOOLEAN DEFAULT true,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  role VARCHAR(20) DEFAULT 'resident'
 );
 
--- 2. Complaints
+-- 2. Resident
+CREATE TABLE resident (
+  resident_id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+  house_no VARCHAR(50),
+  phone_number VARCHAR(20),
+  resident_type VARCHAR(50)
+);
+
+-- 3. Complaints
 CREATE TABLE complaints (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  title VARCHAR(200) NOT NULL,
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  category VARCHAR(50) NOT NULL,
+  complaint_id SERIAL PRIMARY KEY,
+  resident_id INT REFERENCES resident(resident_id) ON DELETE SET NULL,
+  ticket_no VARCHAR(50) UNIQUE,
+  subject VARCHAR(255) NOT NULL,
+  status VARCHAR(50) DEFAULT 'pending',
+  phase VARCHAR(50),
   description TEXT NOT NULL,
-  status VARCHAR(30) DEFAULT 'pending'
-    CHECK (status IN ('pending','in_progress','resolved','rejected','closed')),
-  priority VARCHAR(10) DEFAULT 'medium'
-    CHECK (priority IN ('low','medium','high','urgent')),
-  assigned_to UUID REFERENCES users(id),
-  resolved_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
+  reported_date TIMESTAMP DEFAULT now(),
+  location_written VARCHAR(255),
+  attachment_url VARCHAR(255),
+  soi VARCHAR(50),
+  intake_channel VARCHAR(50),
+  petition VARCHAR(255)
 );
 
--- 3. Comments
-CREATE TABLE comments (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  complaint_id UUID REFERENCES complaints(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES users(id),
-  message TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT now()
+-- 4. Write Complaint
+CREATE TABLE write_complaint (
+  user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+  complaint_id INT REFERENCES complaints(complaint_id) ON DELETE CASCADE,
+  PRIMARY KEY (user_id, complaint_id)
 );
-
--- 4. Attachments
-CREATE TABLE attachments (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  complaint_id UUID REFERENCES complaints(id) ON DELETE CASCADE,
-  file_url TEXT NOT NULL,
-  file_name VARCHAR(255),
-  file_type VARCHAR(50),
-  uploaded_at TIMESTAMPTZ DEFAULT now()
-);
-
--- 5. Audit Logs
-CREATE TABLE audit_logs (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES users(id),
-  action VARCHAR(50) NOT NULL,
-  entity VARCHAR(50) NOT NULL,
-  entity_id UUID,
-  details JSONB,
-  ip_address INET,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-
--- RLS Policies
-ALTER TABLE complaints ENABLE ROW LEVEL SECURITY;
-ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE attachments ENABLE ROW LEVEL SECURITY;
 ```
 
 ---
