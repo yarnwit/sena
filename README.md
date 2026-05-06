@@ -269,7 +269,7 @@ Path /(auth)/*      →  ทุก role (หรือยังไม่ login) �
 ```sql
 -- 1. Users
 CREATE TABLE users (
-  user_id SERIAL PRIMARY KEY,
+  user_id UUID PRIMARY KEY, -- ใช้ UUID เพื่อรองรับ Supabase Auth
   username VARCHAR(255) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   first_name VARCHAR(100) NOT NULL,
@@ -280,7 +280,7 @@ CREATE TABLE users (
 -- 2. Resident
 CREATE TABLE resident (
   resident_id SERIAL PRIMARY KEY,
-  user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
   house_no VARCHAR(50),
   phone_number VARCHAR(20),
   resident_type VARCHAR(50)
