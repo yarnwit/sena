@@ -226,6 +226,173 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ===== Danger Zone ===== */
+
+.danger-zone-card {
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: linear-gradient(135deg, #fff 0%, #fef2f2 100%);
+}
+
+.danger-title {
+  color: #dc2626 !important;
+  border-bottom-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+.danger-description {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+
+.delete-account-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: transparent;
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delete-account-button:hover {
+  background: #dc2626;
+  color: #fff;
+  border-color: #dc2626;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.25);
+}
+
+/* ===== Delete Confirmation Modal ===== */
+
+.delete-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.delete-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 440px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.3s ease;
+}
+
+.delete-modal-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #fef2f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: #dc2626;
+}
+
+.delete-modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a2e;
+  text-align: center;
+  margin: 0 0 8px;
+}
+
+.delete-modal-text {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+.delete-modal-text strong {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.delete-confirm-input {
+  margin-top: 12px;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+.delete-confirm-input:focus {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+}
+
+.delete-modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.delete-modal-cancel {
+  flex: 1;
+  padding: 12px;
+  background: #f3f3f3;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delete-modal-cancel:hover {
+  background: #e8e8e8;
+}
+
+.delete-modal-confirm {
+  flex: 1;
+  padding: 12px;
+  background: #dc2626;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delete-modal-confirm:hover:not(:disabled) {
+  background: #b91c1c;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
+}
+
+.delete-modal-confirm:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ===== Responsive ===== */
 
 @media (max-width: 640px) {
@@ -246,5 +413,14 @@
   .profile-save-button {
     width: 100%;
     justify-content: center;
+  }
+
+  .delete-account-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .delete-modal {
+    padding: 24px 20px;
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import "./profile.css";
 
@@ -17,6 +18,7 @@ interface ResidentProfile {
 }
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [user, setUser] = useState<UserProfile>({ first_name: "", last_name: "", username: "" });
   const [resident, setResident] = useState<ResidentProfile>({ house_no: "", phone_number: "", resident_type: "" });
   const [loading, setLoading] = useState(true);
@@ -29,6 +31,12 @@ export default function ProfilePage() {
   const [pwSaving, setPwSaving] = useState(false);
   const [pwSuccess, setPwSuccess] = useState("");
   const [pwError, setPwError] = useState("");
+
+  // Delete account
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -145,6 +153,47 @@ export default function ProfilePage() {
       setPwError("เกิดข้อผิดพลาด กรุณาลองใหม่");
     } finally {
       setPwSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== "ลบบัญชี") return;
+    setDeleting(true);
+    setDeleteError("");
+
+    try {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        setDeleteError("ไม่พบ session กรุณาเข้าสู่ระบบใหม่");
+        setDeleting(false);
+        return;
+      }
+
+      const res = await fetch("http://localhost:5000/api/auth/account", {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setDeleteError(data.message || "ลบบัญชีไม่สำเร็จ");
+        setDeleting(false);
+        return;
+      }
+
+      // Sign out locally and redirect
+      await supabase.auth.signOut();
+      router.push("/login");
+      router.refresh();
+    } catch {
+      setDeleteError("เกิดข้อผิดพลาด กรุณาลองใหม่");
+      setDeleting(false);
     }
   };
 
@@ -355,6 +404,99 @@ export default function ProfilePage() {
           </button>
         </form>
       </div>
+
+      {/* Danger Zone - Delete Account */}
+      <div className="profile-form-card danger-zone-card">
+        <h3 className="profile-section-title danger-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          ลบบัญชี
+        </h3>
+        <p className="danger-description">
+          เมื่อลบบัญชีแล้ว ข้อมูลทั้งหมดของคุณจะถูกลบอย่างถาวรและไม่สามารถกู้คืนได้
+          รวมถึงข้อมูลส่วนตัว ประวัติการร้องเรียน และข้อมูลอื่นๆ ทั้งหมด
+        </p>
+        <button
+          type="button"
+          className="delete-account-button"
+          onClick={() => setShowDeleteModal(true)}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            <line x1="10" y1="11" x2="10" y2="17" />
+            <line x1="14" y1="11" x2="14" y2="17" />
+          </svg>
+          ลบบัญชีของฉัน
+        </button>
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="delete-modal-overlay" onClick={() => !deleting && setShowDeleteModal(false)}>
+          <div className="delete-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="delete-modal-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+            </div>
+            <h3 className="delete-modal-title">ยืนยันการลบบัญชี</h3>
+            <p className="delete-modal-text">
+              การดำเนินการนี้ไม่สามารถย้อนกลับได้ ข้อมูลทั้งหมดจะถูกลบถาวร
+            </p>
+            <p className="delete-modal-text">
+              กรุณาพิมพ์ <strong>ลบบัญชี</strong> เพื่อยืนยัน
+            </p>
+
+            {deleteError && (
+              <div className="profile-error" style={{ marginBottom: 12 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="15" y1="9" x2="9" y2="15" />
+                  <line x1="9" y1="9" x2="15" y2="15" />
+                </svg>
+                {deleteError}
+              </div>
+            )}
+
+            <input
+              type="text"
+              className="profile-form-input delete-confirm-input"
+              placeholder='พิมพ์ "ลบบัญชี" ที่นี่'
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              disabled={deleting}
+            />
+            <div className="delete-modal-actions">
+              <button
+                type="button"
+                className="delete-modal-cancel"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteConfirmText("");
+                  setDeleteError("");
+                }}
+                disabled={deleting}
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                className="delete-modal-confirm"
+                onClick={handleDeleteAccount}
+                disabled={deleteConfirmText !== "ลบบัญชี" || deleting}
+              >
+                {deleting ? "กำลังลบ..." : "ลบบัญชีถาวร"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
