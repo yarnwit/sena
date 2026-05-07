@@ -169,3 +169,14 @@
 {"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-07T04:22:39.230Z"}
 {"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-07T04:22:39.230Z"}
 {"level":"info","message":"=================================","timestamp":"2026-05-07T04:22:39.230Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-07T04:22:57.781Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-07T04:22:57.783Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-07T04:22:57.784Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-07T04:22:57.784Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-07T04:22:57.784Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-07T04:22:57.784Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-07T04:22:57.784Z"}
+{"level":"info","message":"Account deleted for user: 55f5da83-caed-4b81-ab23-beb3c943f846","timestamp":"2026-05-07T04:23:33.071Z"}
+{"level":"info","message":"::1 - - [07/May/2026:04:23:33 +0000] \"DELETE /api/auth/account HTTP/1.1\" 200 57 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36\"","timestamp":"2026-05-07T04:23:33.082Z"}
+{"level":"info","message":"Account deleted for user: b14cb995-c2db-4b91-aa33-0d58ac9320e3","timestamp":"2026-05-07T04:24:32.381Z"}
+{"level":"info","message":"::1 - - [07/May/2026:04:24:32 +0000] \"DELETE /api/auth/account HTTP/1.1\" 200 57 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36\"","timestamp":"2026-05-07T04:24:32.382Z"}
