@@ -95,7 +95,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { email, password, username, first_name, last_name, role } = req.body;
+    const { email, password, username, first_name, last_name, house_no, phone_number, resident_type, role } = req.body;
 
     if (!email || !password || !username || !first_name || !last_name) {
       return res.status(400).json({ success: false, message: 'Missing required fields' });
@@ -111,6 +111,9 @@ export const register = async (req: Request, res: Response) => {
           username,
           first_name,
           last_name,
+          house_no,
+          phone_number,
+          resident_type,
           role: role || 'resident'
         }
       }
@@ -306,5 +309,64 @@ export const resetPassword = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error('Reset password error:', error);
     res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดภายในระบบ' });
+  }
+};
+
+export const deleteAccount = async (req: Request, res: Response) => {
+  try {
+    // Verify the Supabase access token directly
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'Authentication token required' });
+    }
+
+    const { data: { user: authUser }, error: verifyError } = await supabase.auth.getUser(token);
+
+    if (verifyError || !authUser) {
+      logger.error('Token verification failed:', verifyError?.message);
+      return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+    }
+
+    const userId = authUser.id;
+
+    // 1. Delete from resident table (if exists)
+    const { error: residentError } = await supabase
+      .from('resident')
+      .delete()
+      .eq('user_id', userId);
+
+    if (residentError) {
+      logger.error('Error deleting resident data:', residentError.message);
+      // Continue even if resident row doesn't exist
+    }
+
+    // 2. Delete from users table
+    const { error: userError } = await supabase
+      .from('users')
+      .delete()
+      .eq('user_id', userId);
+
+    if (userError) {
+      logger.error('Error deleting user data:', userError.message);
+      return res.status(500).json({ success: false, message: 'Failed to delete user data' });
+    }
+
+    // 3. Delete from Supabase Auth
+    const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+
+    if (authError) {
+      logger.error('Error deleting auth user:', authError.message);
+      return res.status(500).json({ success: false, message: 'Failed to delete auth account' });
+    }
+
+    logger.info(`Account deleted for user: ${userId}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Account deleted successfully',
+    });
+  } catch (error) {
+    logger.error('Delete account error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };

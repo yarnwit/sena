@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {"level":"error","message":"Reset password error from Supabase:","timestamp":"2026-05-11T07:31:46.070Z"}
 {"level":"error","message":"Reset password error from Supabase:","timestamp":"2026-05-11T07:31:58.600Z"}
 {"level":"error","message":"Reset password error from Supabase:","timestamp":"2026-05-11T07:32:33.487Z"}
@@ -17,3 +18,7 @@
 {"level":"error","message":"Username not found:","timestamp":"2026-05-11T13:32:28.042Z"}
 {"level":"error","message":"Username not found:","timestamp":"2026-05-11T13:37:07.625Z"}
 {"level":"error","message":"Username not found:","timestamp":"2026-05-11T13:38:08.824Z"}
+=======
+{"level":"error","message":"Username not found:","timestamp":"2026-05-07T04:03:00.167Z"}
+{"level":"error","message":"Username not found:","timestamp":"2026-05-07T04:04:40.621Z"}
+>>>>>>> 1fd7f13e30f1ca7ab92ee2cbd732e5f7df04c05a
