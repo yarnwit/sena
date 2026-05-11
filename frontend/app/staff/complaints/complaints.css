@@ -1,0 +1,383 @@
+/* ===== Staff Complaints List Styles ===== */
+
+.complaints-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ===== Top Bar ===== */
+
+.complaints-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.complaints-search-wrapper {
+  position: relative;
+  flex: 1;
+  max-width: 380px;
+}
+
+.complaints-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #aaa;
+}
+
+.complaints-search {
+  width: 100%;
+  padding: 12px 16px 12px 42px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #333;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.complaints-search:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.complaints-search::placeholder {
+  color: #aaa;
+}
+
+/* ===== Filter Tabs ===== */
+
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-tab {
+  padding: 8px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 13px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.filter-tab:hover {
+  border-color: #f59e0b;
+  color: #f59e0b;
+}
+
+.filter-tab.active {
+  background: #1a1a2e;
+  border-color: #1a1a2e;
+  color: #fff;
+}
+
+.filter-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+.filter-tab.active .filter-tab-count {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.filter-tab:not(.active) .filter-tab-count {
+  background: #f3f3f3;
+  color: #888;
+}
+
+/* ===== Complaint Table ===== */
+
+.complaints-table-wrapper {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.complaints-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.complaints-table th {
+  padding: 14px 20px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.complaints-table td {
+  padding: 16px 20px;
+  font-size: 14px;
+  color: #333;
+  border-bottom: 1px solid #f5f5f5;
+  vertical-align: middle;
+}
+
+.complaints-table tr:last-child td {
+  border-bottom: none;
+}
+
+.complaints-table tbody tr {
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+}
+
+.complaints-table tbody tr:hover {
+  background-color: #fdfaf0;
+}
+
+.table-ticket {
+  font-weight: 600;
+  color: #f59e0b;
+  font-size: 13px;
+}
+
+.table-subject {
+  font-weight: 500;
+  color: #1a1a2e;
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table-location {
+  font-size: 13px;
+  color: #666;
+}
+
+.table-date {
+  font-size: 13px;
+  color: #888;
+}
+
+.table-action-link {
+  color: #f59e0b;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.table-action-link:hover {
+  color: #d97706;
+  text-decoration: underline;
+}
+
+/* ===== Status Badge ===== */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.status-badge.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.in_progress {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.resolved {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.status-badge.rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-badge.closed {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.status-badge.pending .status-dot { background: #f59e0b; }
+.status-badge.in_progress .status-dot { background: #10b981; }
+.status-badge.resolved .status-dot { background: #8b5cf6; }
+.status-badge.rejected .status-dot { background: #ef4444; }
+.status-badge.closed .status-dot { background: #6b7280; }
+
+/* ===== Empty State ===== */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.empty-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  color: #ccc;
+}
+
+.empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 8px;
+}
+
+.empty-text {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 20px;
+}
+
+/* ===== Loading ===== */
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 64px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #f59e0b;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Mobile Card View ===== */
+
+.complaints-mobile-list {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.complaint-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.complaint-card:hover {
+  border-color: rgba(245, 158, 11, 0.2);
+  transform: translateX(4px);
+}
+
+.complaint-card-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.complaint-card-ticket {
+  font-size: 12px;
+  color: #f59e0b;
+  font-weight: 600;
+  margin-bottom: 4px;
+  letter-spacing: 0.3px;
+}
+
+.complaint-card-subject {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a1a2e;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.complaint-card-date {
+  font-size: 12px;
+  color: #999;
+}
+
+.complaint-card-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 768px) {
+  .complaints-table-wrapper {
+    display: none;
+  }
+
+  .complaints-mobile-list {
+    display: flex;
+  }
+
+  .complaints-top-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .complaints-search-wrapper {
+    max-width: 100%;
+  }
+
+  .filter-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+  }
+}

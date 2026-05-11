@@ -8,6 +8,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   SUPABASE_URL: z.string().optional(),
   SUPABASE_SERVICE_KEY: z.string().optional(),
+  SUPABASE_ANON_KEY: z.string().optional(),
   JWT_SECRET: z.string(),
   JWT_REFRESH_SECRET: z.string(),
   CORS_ORIGIN: z.string().default('http://localhost:3000'),

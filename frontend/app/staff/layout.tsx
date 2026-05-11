@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import "./resident-layout.css";
+import "./staff-layout.css";
 
 /* ===== SVG Icons ===== */
 const DashboardIcon = () => (
@@ -21,15 +21,6 @@ const ComplaintIcon = () => (
     <polyline points="14 2 14 8 20 8" />
     <line x1="16" y1="13" x2="8" y2="13" />
     <line x1="16" y1="17" x2="8" y2="17" />
-  </svg>
-);
-
-const NewComplaintIcon = () => (
-  <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-    <polyline points="14 2 14 8 20 8" />
-    <line x1="12" y1="18" x2="12" y2="12" />
-    <line x1="9" y1="15" x2="15" y2="15" />
   </svg>
 );
 
@@ -67,23 +58,21 @@ const CalendarIcon = () => (
 
 /* ===== Navigation Items ===== */
 const navItems = [
-  { href: "/resident/dashboard", label: "แดชบอร์ด", icon: DashboardIcon },
-  { href: "/resident/complaints", label: "เรื่องร้องเรียน", icon: ComplaintIcon },
-  { href: "/resident/complaints/new", label: "สร้างร้องเรียนใหม่", icon: NewComplaintIcon },
-  { href: "/resident/profile", label: "โปรไฟล์", icon: ProfileIcon },
+  { href: "/staff/dashboard", label: "ภาพรวมงาน", icon: DashboardIcon },
+  { href: "/staff/complaints", label: "จัดการร้องเรียน", icon: ComplaintIcon },
+  { href: "/staff/profile", label: "โปรไฟล์", icon: ProfileIcon },
 ];
 
 /* ===== Page Title Map ===== */
 function getPageInfo(pathname: string) {
-  if (pathname === "/resident/dashboard") return { title: "แดชบอร์ด", subtitle: "ภาพรวมข้อมูลของคุณ" };
-  if (pathname === "/resident/complaints/new") return { title: "สร้างร้องเรียนใหม่", subtitle: "กรอกรายละเอียดเรื่องร้องเรียน" };
-  if (pathname.startsWith("/resident/complaints/")) return { title: "รายละเอียดร้องเรียน", subtitle: "ข้อมูลและสถานะเรื่องร้องเรียน" };
-  if (pathname === "/resident/complaints") return { title: "เรื่องร้องเรียน", subtitle: "รายการร้องเรียนทั้งหมดของคุณ" };
-  if (pathname === "/resident/profile") return { title: "โปรไฟล์", subtitle: "จัดการข้อมูลส่วนตัว" };
-  return { title: "หน้าหลัก", subtitle: "" };
+  if (pathname === "/staff/dashboard") return { title: "ภาพรวมงาน", subtitle: "สรุปงานที่ต้องรับผิดชอบ" };
+  if (pathname.startsWith("/staff/complaints/")) return { title: "รายละเอียดการร้องเรียน", subtitle: "ข้อมูลเรื่องร้องเรียนและการอัปเดตสถานะ" };
+  if (pathname === "/staff/complaints") return { title: "จัดการร้องเรียน", subtitle: "รายการเรื่องร้องเรียนทั้งหมดจากลูกบ้าน" };
+  if (pathname === "/staff/profile") return { title: "โปรไฟล์เจ้าหน้าที่", subtitle: "จัดการข้อมูลส่วนตัวของนิติบุคคล" };
+  return { title: "เจ้าหน้าที่นิติบุคคล", subtitle: "" };
 }
 
-export default function ResidentLayout({ children }: { children: React.ReactNode }) {
+export default function StaffLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -127,7 +116,7 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
   });
 
   return (
-    <div className="resident-layout">
+    <div className="staff-layout">
       {/* Sidebar Overlay (mobile) */}
       <div
         className={`sidebar-overlay ${sidebarOpen ? "visible" : ""}`}
@@ -147,7 +136,7 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
           <div style={{ display: "flex", justifyContent: "center" }}>
             <span className="sidebar-role-badge">
               <span className="sidebar-role-dot" />
-              ลูกบ้าน
+              เจ้าหน้าที่นิติบุคคล
             </span>
           </div>
         </div>
@@ -158,9 +147,8 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
           {navItems.map((item) => {
             const isActive =
               pathname === item.href ||
-              (item.href === "/resident/complaints" &&
-                pathname.startsWith("/resident/complaints") &&
-                pathname !== "/resident/complaints/new");
+              (item.href === "/staff/complaints" &&
+                pathname.startsWith("/staff/complaints"));
 
             return (
               <Link
@@ -184,7 +172,7 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
               <div className="sidebar-user-name">
                 {loading ? "กำลังโหลด..." : userName || "ผู้ใช้งาน"}
               </div>
-              <div className="sidebar-user-role">Resident</div>
+              <div className="sidebar-user-role">Staff</div>
             </div>
           </div>
           <button onClick={handleLogout} className="logout-button">
@@ -209,7 +197,7 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
             <div>
               <h1 className="page-title">{pageInfo.title}</h1>
               {pageInfo.subtitle && (
-                <p className="page-subtitle">{pageInfo.subtitle}</p>
+               <p className="page-subtitle">{pageInfo.subtitle}</p>
               )}
             </div>
           </div>

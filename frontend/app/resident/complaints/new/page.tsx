@@ -64,13 +64,14 @@ export default function NewComplaintPage() {
 
     try {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
+      const userStr = localStorage.getItem("user");
+      
+      if (!userStr) {
         setError("กรุณาเข้าสู่ระบบก่อน");
         setLoading(false);
         return;
       }
+      const user = JSON.parse(userStr);
 
       // ดึง resident_id
       const { data: residentData } = await supabase

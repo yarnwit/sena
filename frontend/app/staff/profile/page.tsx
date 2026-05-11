@@ -8,24 +8,25 @@ interface UserProfile {
   first_name: string;
   last_name: string;
   username: string;
+  role: string;
 }
 
-interface ResidentProfile {
-  house_no: string;
-  phone_number: string;
-  resident_type: string;
+interface WorkStats {
+  total: number;
+  in_progress: number;
+  resolved: number;
 }
 
-export default function ProfilePage() {
-  const [user, setUser] = useState<UserProfile>({ first_name: "", last_name: "", username: "" });
-  const [resident, setResident] = useState<ResidentProfile>({ house_no: "", phone_number: "", resident_type: "" });
+export default function StaffProfilePage() {
+  const [user, setUser] = useState<UserProfile>({ first_name: "", last_name: "", username: "", role: "staff" });
+  const [stats, setStats] = useState<WorkStats>({ total: 0, in_progress: 0, resolved: 0 });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
   // Password change
-  const [passwords, setPasswords] = useState({ current: "", new_password: "", confirm: "" });
+  const [passwords, setPasswords] = useState({ new_password: "", confirm: "" });
   const [pwSaving, setPwSaving] = useState(false);
   const [pwSuccess, setPwSuccess] = useState("");
   const [pwError, setPwError] = useState("");
@@ -40,23 +41,28 @@ export default function ProfilePage() {
       }
       const authUser = JSON.parse(userStr);
 
-      // ดึงข้อมูล user
+      // ดึงข้อมูล users
       const { data: userData } = await supabase
         .from("users")
-        .select("first_name, last_name, username")
+        .select("first_name, last_name, username, role")
         .eq("id", authUser.id)
         .single();
 
       if (userData) setUser(userData);
 
-      // ดึงข้อมูล resident
-      const { data: residentData } = await supabase
-        .from("resident")
-        .select("house_no, phone_number, resident_type")
-        .eq("user_id", authUser.id)
-        .single();
+      // ดึง stats ของงานในระบบ (สำหรับ staff ดูทั้งระบบ ไม่ใช่เฉพาะตัวเอง)
+      const { data: complaints } = await supabase
+        .from("complaints")
+        .select("status");
 
-      if (residentData) setResident(residentData);
+      if (complaints) {
+        setStats({
+          total:       complaints.length,
+          in_progress: complaints.filter((c) => c.status === "in_progress").length,
+          resolved:    complaints.filter((c) => c.status === "resolved" || c.status === "closed").length,
+        });
+      }
+
       setLoading(false);
     };
 
@@ -78,39 +84,20 @@ export default function ProfilePage() {
       }
       const authUser = JSON.parse(userStr);
 
-      // อัปเดต users table
       const { error: userError } = await supabase
         .from("users")
         .update({
           first_name: user.first_name,
-          last_name: user.last_name,
+          last_name:  user.last_name,
         })
         .eq("id", authUser.id);
 
       if (userError) {
         setError(`อัปเดตข้อมูลไม่สำเร็จ: ${userError.message}`);
-        setSaving(false);
-        return;
+      } else {
+        setSuccess("บันทึกข้อมูลสำเร็จ!");
+        setTimeout(() => setSuccess(""), 3000);
       }
-
-      // อัปเดต resident table
-      const { error: residentError } = await supabase
-        .from("resident")
-        .update({
-          house_no: resident.house_no,
-          phone_number: resident.phone_number,
-          resident_type: resident.resident_type,
-        })
-        .eq("user_id", authUser.id);
-
-      if (residentError) {
-        setError(`อัปเดตข้อมูลลูกบ้านไม่สำเร็จ: ${residentError.message}`);
-        setSaving(false);
-        return;
-      }
-
-      setSuccess("บันทึกข้อมูลสำเร็จ!");
-      setTimeout(() => setSuccess(""), 3000);
     } catch {
       setError("เกิดข้อผิดพลาด กรุณาลองใหม่");
     } finally {
@@ -127,25 +114,21 @@ export default function ProfilePage() {
       setPwError("รหัสผ่านใหม่ไม่ตรงกัน");
       return;
     }
-
     if (passwords.new_password.length < 6) {
       setPwError("รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร");
       return;
     }
 
     setPwSaving(true);
-
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.updateUser({
-        password: passwords.new_password,
-      });
+      const { error } = await supabase.auth.updateUser({ password: passwords.new_password });
 
       if (error) {
         setPwError(error.message);
       } else {
         setPwSuccess("เปลี่ยนรหัสผ่านสำเร็จ!");
-        setPasswords({ current: "", new_password: "", confirm: "" });
+        setPasswords({ new_password: "", confirm: "" });
         setTimeout(() => setPwSuccess(""), 3000);
       }
     } catch {
@@ -163,25 +146,66 @@ export default function ProfilePage() {
     );
   }
 
-  const initials = user.first_name ? user.first_name.charAt(0).toUpperCase() : "?";
+  const initials = user.first_name ? user.first_name.charAt(0).toUpperCase() : "S";
 
   return (
     <div className="profile-page">
-      {/* Header Card */}
+      {/* ===== Header Card ===== */}
       <div className="profile-header-card">
         <div className="profile-avatar-large">{initials}</div>
         <div className="profile-header-info">
           <div className="profile-header-name">
             {user.first_name} {user.last_name}
           </div>
+          <div className="profile-header-username">@{user.username}</div>
           <div className="profile-header-role">
             <span className="role-dot" />
-            ลูกบ้าน (Resident)
+            เจ้าหน้าที่นิติบุคคล (Staff)
           </div>
         </div>
       </div>
 
-      {/* Personal Info Form */}
+      {/* ===== Work Stats Row ===== */}
+      <div className="profile-stats-row">
+        <div className="profile-stat-card">
+          <div className="profile-stat-icon amber">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+              <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+            </svg>
+          </div>
+          <div>
+            <div className="profile-stat-value">{stats.total}</div>
+            <div className="profile-stat-label">เรื่องร้องเรียนทั้งหมด</div>
+          </div>
+        </div>
+
+        <div className="profile-stat-card">
+          <div className="profile-stat-icon green">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+          </div>
+          <div>
+            <div className="profile-stat-value">{stats.in_progress}</div>
+            <div className="profile-stat-label">กำลังดำเนินการ</div>
+          </div>
+        </div>
+
+        <div className="profile-stat-card">
+          <div className="profile-stat-icon purple">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </div>
+          <div>
+            <div className="profile-stat-value">{stats.resolved}</div>
+            <div className="profile-stat-label">แก้ไขแล้ว / ปิด</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ===== Personal Info Form ===== */}
       <div className="profile-form-card">
         <h3 className="profile-section-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -211,16 +235,19 @@ export default function ProfilePage() {
         )}
 
         <form onSubmit={handleSaveProfile} className="profile-form">
+          {/* Username (read-only) */}
           <div className="profile-form-field">
-            <label className="profile-form-label">ชื่อผู้ใช้งาน</label>
+            <label className="profile-form-label">ชื่อผู้ใช้งาน (Username)</label>
             <input
               type="text"
               value={user.username}
               className="profile-form-input"
               disabled
             />
+            <span className="profile-form-hint">ไม่สามารถเปลี่ยนชื่อผู้ใช้งานได้</span>
           </div>
 
+          {/* First / Last name */}
           <div className="profile-form-row">
             <div className="profile-form-field">
               <label className="profile-form-label">ชื่อจริง</label>
@@ -230,6 +257,7 @@ export default function ProfilePage() {
                 onChange={(e) => setUser({ ...user, first_name: e.target.value })}
                 className="profile-form-input"
                 disabled={saving}
+                required
               />
             </div>
             <div className="profile-form-field">
@@ -240,53 +268,27 @@ export default function ProfilePage() {
                 onChange={(e) => setUser({ ...user, last_name: e.target.value })}
                 className="profile-form-input"
                 disabled={saving}
+                required
               />
             </div>
           </div>
 
-          <div className="profile-form-row">
-            <div className="profile-form-field">
-              <label className="profile-form-label">บ้านเลขที่</label>
-              <input
-                type="text"
-                value={resident.house_no}
-                onChange={(e) => setResident({ ...resident, house_no: e.target.value })}
-                placeholder="เช่น 123/45"
-                className="profile-form-input"
-                disabled={saving}
-              />
-            </div>
-            <div className="profile-form-field">
-              <label className="profile-form-label">เบอร์โทรศัพท์</label>
-              <input
-                type="tel"
-                value={resident.phone_number}
-                onChange={(e) => setResident({ ...resident, phone_number: e.target.value })}
-                placeholder="เช่น 081-234-5678"
-                className="profile-form-input"
-                disabled={saving}
-              />
-            </div>
-          </div>
-
+          {/* Role (read-only info) */}
           <div className="profile-form-field">
-            <label className="profile-form-label">ประเภทผู้อยู่อาศัย</label>
+            <label className="profile-form-label">ระดับสิทธิ์</label>
             <input
               type="text"
-              value={resident.resident_type}
-              onChange={(e) => setResident({ ...resident, resident_type: e.target.value })}
-              placeholder="เช่น เจ้าของบ้าน, ผู้เช่า"
+              value="เจ้าหน้าที่นิติบุคคล (Staff)"
               className="profile-form-input"
-              disabled={saving}
+              disabled
             />
+            <span className="profile-form-hint">สิทธิ์นี้กำหนดโดยผู้ดูแลระบบ ไม่สามารถเปลี่ยนได้</span>
           </div>
 
           <button type="submit" className="profile-save-button" disabled={saving}>
             {saving ? (
               <>
-                <svg className="loading-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                </svg>
+                <div className="loading-spinner inline" />
                 กำลังบันทึก...
               </>
             ) : (
@@ -303,7 +305,7 @@ export default function ProfilePage() {
         </form>
       </div>
 
-      {/* Change Password */}
+      {/* ===== Change Password ===== */}
       <div className="profile-form-card password-section">
         <h3 className="profile-section-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -358,7 +360,14 @@ export default function ProfilePage() {
             />
           </div>
           <button type="submit" className="profile-save-button" disabled={pwSaving}>
-            {pwSaving ? "กำลังเปลี่ยน..." : "เปลี่ยนรหัสผ่าน"}
+            {pwSaving ? (
+              <>
+                <div className="loading-spinner inline" />
+                กำลังเปลี่ยน...
+              </>
+            ) : (
+              "เปลี่ยนรหัสผ่าน"
+            )}
           </button>
         </form>
       </div>

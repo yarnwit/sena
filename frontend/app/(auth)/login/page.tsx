@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import "./login.css";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,46 +22,48 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const supabase = createClient();
-      
-      const loginEmail = username.includes("@") ? username : `${username}@sena-grandhome.local`;
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
-        email: loginEmail,
-        password,
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // ส่ง/รับ cookie (refreshToken)
+        body: JSON.stringify({ username, password }),
       });
 
-      if (authError) {
-        setError(authError.message);
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        setError("ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง");
         return;
       }
 
-      if (data.session) {
-        // ดึง Role จากฐานข้อมูล
-        const { data: userData } = await supabase
-          .from("users")
-          .select("role")
-          .eq("user_id", data.session.user.id)
-          .single();
+      const { accessToken, user } = json.data;
 
-        const role = userData?.role || "resident";
+      // เก็บ accessToken และข้อมูลผู้ใช้ไว้ใน localStorage
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("user", JSON.stringify(user));
 
-        // Login สำเร็จ — redirect ไปตาม Role
-        if (role === "admin") {
-          router.push("/admin/dashboard");
-        } else if (role === "staff") {
-          router.push("/staff/dashboard");
-        } else {
-          router.push("/resident/dashboard");
-        }
-        
-        router.refresh();
+      // เก็บ accessToken และ user ไว้ใน cookie เพื่อให้ middleware อ่านได้
+      document.cookie = `accessToken=${accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`;
+      document.cookie = `user=${encodeURIComponent(JSON.stringify(user))}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`;
+
+      // Redirect ตาม Role
+      const role = user.role || "resident";
+      if (role === "admin") {
+        router.push("/admin/dashboard");
+      } else if (role === "staff") {
+        router.push("/staff/dashboard");
+      } else {
+        router.push("/resident/dashboard");
       }
+
+      router.refresh();
     } catch {
       setError("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="login-page">

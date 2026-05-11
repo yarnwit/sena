@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import "./register.css";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -27,7 +28,6 @@ export default function RegisterPage() {
     setError("");
     setSuccess("");
 
-    // Validation
     if (password !== confirmPassword) {
       setError("รหัสผ่านไม่ตรงกัน กรุณากรอกรหัสผ่านให้ตรงกัน");
       return;
@@ -41,43 +41,45 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const supabase = createClient();
+      // สร้าง email จาก username สำหรับ Supabase Auth
+      const email = username.includes("@")
+        ? username
+        : `${username}@sena-grandhome.local`;
 
-      // สร้าง email จาก username (ใช้ username เป็น email สำหรับ Supabase Auth)
-      const email = username.includes("@") ? username : `${username}@sena-grandhome.local`;
-
-      const { data, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            first_name: firstName,
-            last_name: lastName,
-            username: username,
-            house_no: houseNo,
-            phone_number: phoneNumber,
-            resident_type: residentType,
-          },
-        },
+      const res = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          username,
+          first_name: firstName,
+          last_name: lastName,
+          house_no: houseNo,
+          phone_number: phoneNumber,
+          resident_type: residentType,
+          role: "resident",
+        }),
       });
 
-      if (authError) {
-        setError(authError.message);
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        setError(json.message || "เกิดข้อผิดพลาดในการลงทะเบียน");
         return;
       }
 
-      if (data.user) {
-        setSuccess("ลงทะเบียนสำเร็จ! กำลังไปหน้าเข้าสู่ระบบ...");
-        setTimeout(() => {
-          router.push("/login");
-        }, 2000);
-      }
+      setSuccess("ลงทะเบียนสำเร็จ! กำลังไปหน้าเข้าสู่ระบบ...");
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
     } catch {
       setError("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
     } finally {
       setLoading(false);
     }
   };
+
 
   /* Shared eye icons */
   const EyeOpenIcon = () => (

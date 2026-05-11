@@ -38,8 +38,12 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchData = async () => {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const userStr = localStorage.getItem("user");
+      if (!userStr) {
+        setLoading(false);
+        return;
+      }
+      const user = JSON.parse(userStr);
 
       // ดึง resident_id
       const { data: residentData } = await supabase

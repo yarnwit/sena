@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import "./complaints.css";
 
@@ -11,7 +12,8 @@ interface Complaint {
   subject: string;
   status: string;
   reported_date: string;
-  description: string;
+  location_written: string | null;
+  soi: string | null;
 }
 
 const statusLabels: Record<string, string> = {
@@ -31,37 +33,23 @@ const filterOptions = [
   { key: "closed", label: "ปิดเรื่อง" },
 ];
 
-export default function ComplaintsPage() {
+export default function StaffComplaintsPage() {
+  const searchParams = useSearchParams();
+  const defaultStatus = searchParams.get("status") || "all";
+
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState(defaultStatus);
 
   useEffect(() => {
     const fetchComplaints = async () => {
       const supabase = createClient();
-      const userStr = localStorage.getItem("user");
-      if (!userStr) {
-        setLoading(false);
-        return;
-      }
-      const user = JSON.parse(userStr);
 
-      const { data: residentData } = await supabase
-        .from("resident")
-        .select("resident_id")
-        .eq("user_id", user.id)
-        .single();
-
-      if (!residentData) {
-        setLoading(false);
-        return;
-      }
-
+      // ดึง complaints ทั้งหมดสำหรับ staff โดยไม่ต้องอิง resident_id
       const { data } = await supabase
         .from("complaints")
-        .select("complaint_id, ticket_no, subject, status, reported_date, description")
-        .eq("resident_id", residentData.resident_id)
+        .select("complaint_id, ticket_no, subject, status, reported_date, location_written, soi")
         .order("reported_date", { ascending: false });
 
       if (data) setComplaints(data);
@@ -71,13 +59,22 @@ export default function ComplaintsPage() {
     fetchComplaints();
   }, []);
 
+  // Update filter when URL param changes (e.g. clicking quick action from dashboard)
+  useEffect(() => {
+    const statusParam = searchParams.get("status");
+    if (statusParam && filterOptions.some(opt => opt.key === statusParam)) {
+      setFilter(statusParam);
+    }
+  }, [searchParams]);
+
   // Filter + Search
   const filtered = complaints.filter((c) => {
     const matchFilter = filter === "all" || c.status === filter;
     const matchSearch =
       search === "" ||
       c.subject.toLowerCase().includes(search.toLowerCase()) ||
-      (c.ticket_no && c.ticket_no.toLowerCase().includes(search.toLowerCase()));
+      (c.ticket_no && c.ticket_no.toLowerCase().includes(search.toLowerCase())) ||
+      (c.location_written && c.location_written.toLowerCase().includes(search.toLowerCase()));
     return matchFilter && matchSearch;
   });
 
@@ -106,19 +103,12 @@ export default function ComplaintsPage() {
           </svg>
           <input
             type="text"
-            placeholder="ค้นหาเรื่องร้องเรียน..."
+            placeholder="ค้นหาเรื่องร้องเรียน, เลขที่, หรือสถานที่..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="complaints-search"
           />
         </div>
-        <Link href="/resident/complaints/new" className="new-complaint-button">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          สร้างร้องเรียนใหม่
-        </Link>
       </div>
 
       {/* Filter Tabs */}
@@ -143,13 +133,8 @@ export default function ComplaintsPage() {
           </svg>
           <h3 className="empty-title">ไม่พบเรื่องร้องเรียน</h3>
           <p className="empty-text">
-            {search || filter !== "all" ? "ลองเปลี่ยนคำค้นหาหรือตัวกรอง" : "คุณยังไม่มีเรื่องร้องเรียน"}
+            {search || filter !== "all" ? "ลองเปลี่ยนคำค้นหาหรือตัวกรอง" : "ไม่มีเรื่องร้องเรียนในระบบ"}
           </p>
-          {!search && filter === "all" && (
-            <Link href="/resident/complaints/new" className="empty-button">
-              สร้างร้องเรียนใหม่
-            </Link>
-          )}
         </div>
       ) : (
         <>
@@ -160,6 +145,7 @@ export default function ComplaintsPage() {
                 <tr>
                   <th>เลขที่</th>
                   <th>หัวข้อ</th>
+                  <th>สถานที่ / ซอย</th>
                   <th>สถานะ</th>
                   <th>วันที่แจ้ง</th>
                   <th></th>
@@ -167,9 +153,12 @@ export default function ComplaintsPage() {
               </thead>
               <tbody>
                 {filtered.map((c) => (
-                  <tr key={c.complaint_id} onClick={() => window.location.href = `/resident/complaints/${c.complaint_id}`}>
+                  <tr key={c.complaint_id} onClick={() => window.location.href = `/staff/complaints/${c.complaint_id}`}>
                     <td className="table-ticket">{c.ticket_no || `#${c.complaint_id}`}</td>
                     <td className="table-subject">{c.subject}</td>
+                    <td className="table-location">
+                      {c.location_written || "-"} {c.soi ? `(ซอย ${c.soi})` : ""}
+                    </td>
                     <td>
                       <span className={`status-badge ${c.status}`}>
                         <span className="status-dot" />
@@ -181,11 +170,13 @@ export default function ComplaintsPage() {
                         year: "numeric",
                         month: "short",
                         day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit"
                       })}
                     </td>
                     <td>
-                      <Link href={`/resident/complaints/${c.complaint_id}`} className="table-action-link">
-                        ดูรายละเอียด
+                      <Link href={`/staff/complaints/${c.complaint_id}`} className="table-action-link">
+                        จัดการ
                       </Link>
                     </td>
                   </tr>
@@ -199,7 +190,7 @@ export default function ComplaintsPage() {
             {filtered.map((c) => (
               <Link
                 key={c.complaint_id}
-                href={`/resident/complaints/${c.complaint_id}`}
+                href={`/staff/complaints/${c.complaint_id}`}
                 className="complaint-card"
               >
                 <div className="complaint-card-left">

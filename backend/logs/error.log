@@ -1,0 +1,19 @@
+{"level":"error","message":"Reset password error from Supabase:","timestamp":"2026-05-11T07:31:46.070Z"}
+{"level":"error","message":"Reset password error from Supabase:","timestamp":"2026-05-11T07:31:58.600Z"}
+{"level":"error","message":"Reset password error from Supabase:","timestamp":"2026-05-11T07:32:33.487Z"}
+{"level":"error","message":"Username not found:","timestamp":"2026-05-11T09:20:53.296Z"}
+{"level":"error","message":"Username not found:","timestamp":"2026-05-11T09:21:33.266Z"}
+{"level":"error","message":"Username not found:","timestamp":"2026-05-11T09:23:23.619Z"}
+{"level":"error","message":"Username not found:","timestamp":"2026-05-11T09:26:03.948Z"}
+{"level":"error","message":"Username not found:","timestamp":"2026-05-11T09:27:32.490Z"}
+{"level":"error","message":"Username not found:","timestamp":"2026-05-11T09:28:17.141Z"}
+{"level":"error","message":"Login error from Supabase:","timestamp":"2026-05-11T09:36:28.056Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-11T13:23:18.423Z"}
+{"level":"error","message":"Login error from Supabase:","timestamp":"2026-05-11T13:26:57.837Z"}
+{"level":"error","message":"Registration error from Supabase:","timestamp":"2026-05-11T13:28:28.205Z"}
+{"level":"error","message":"Login error from Supabase:","timestamp":"2026-05-11T13:29:07.179Z"}
+{"level":"error","message":"Username not found:","timestamp":"2026-05-11T13:30:18.485Z"}
+{"level":"error","message":"Registration error from Supabase:","timestamp":"2026-05-11T13:31:09.239Z"}
+{"level":"error","message":"Username not found:","timestamp":"2026-05-11T13:32:28.042Z"}
+{"level":"error","message":"Username not found:","timestamp":"2026-05-11T13:37:07.625Z"}
+{"level":"error","message":"Username not found:","timestamp":"2026-05-11T13:38:08.824Z"}

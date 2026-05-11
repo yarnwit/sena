@@ -114,9 +114,12 @@ export default function ComplaintDetailPage() {
 
     try {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) return;
+      const userStr = localStorage.getItem("user");
+      if (!userStr) {
+        setSending(false);
+        return;
+      }
+      const user = JSON.parse(userStr);
 
       const { data: userData } = await supabase
         .from("users")
