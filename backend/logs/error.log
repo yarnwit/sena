@@ -22,3 +22,4 @@
 {"level":"error","message":"Username not found:","timestamp":"2026-05-07T04:03:00.167Z"}
 {"level":"error","message":"Username not found:","timestamp":"2026-05-07T04:04:40.621Z"}
 >>>>>>> 1fd7f13e30f1ca7ab92ee2cbd732e5f7df04c05a
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-13T07:03:22.593Z"}

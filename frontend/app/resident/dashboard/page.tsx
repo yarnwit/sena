@@ -1,9 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
-import "./dashboard.css";
 
 /* ===== Types ===== */
 interface Complaint {
@@ -12,66 +10,118 @@ interface Complaint {
   subject: string;
   status: string;
   reported_date: string;
+  approved?: boolean;
 }
 
 interface Stats {
-  total: number;
   pending: number;
-  in_progress: number;
   resolved: number;
+  approved: number;
+  rejected: number;
 }
 
-/* ===== Status Label Map ===== */
-const statusLabels: Record<string, string> = {
-  pending: "รอดำเนินการ",
-  in_progress: "กำลังดำเนินการ",
-  resolved: "แก้ไขแล้ว",
-  rejected: "ปฏิเสธ",
-  closed: "ปิดเรื่อง",
+/* ===== Status Config ===== */
+const statusConfig: Record<string, { label: string; bgClass: string; textClass: string }> = {
+  pending: {
+    label: "รอดำเนินการ",
+    bgClass: "bg-amber-100",
+    textClass: "text-amber-700",
+  },
+  in_progress: {
+    label: "กำลังดำเนินการ",
+    bgClass: "bg-red-100",
+    textClass: "text-red-600",
+  },
+  resolved: {
+    label: "แก้ไขแล้ว",
+    bgClass: "bg-gray-100",
+    textClass: "text-gray-600",
+  },
+  approved: {
+    label: "อนุมัติ",
+    bgClass: "bg-green-100",
+    textClass: "text-green-700",
+  },
+  rejected: {
+    label: "ไม่อนุมัติ",
+    bgClass: "bg-red-100",
+    textClass: "text-red-600",
+  },
+  closed: {
+    label: "ปิดเรื่อง",
+    bgClass: "bg-gray-100",
+    textClass: "text-gray-500",
+  },
 };
 
+/* ===== Icon Components ===== */
+const ClockIcon = () => (
+  <svg className="w-8 h-8 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </svg>
+);
+
+const CheckCircleIcon = ({ className }: { className?: string }) => (
+  <svg className={`w-8 h-8 ${className || "text-blue-500"}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+    <polyline points="22 4 12 14.01 9 11.01" />
+  </svg>
+);
+
+const ApprovedIcon = () => (
+  <svg className="w-8 h-8 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+    <polyline points="22 4 12 14.01 9 11.01" />
+  </svg>
+);
+
+const RejectedIcon = () => (
+  <svg className="w-8 h-8 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="15" y1="9" x2="9" y2="15" />
+    <line x1="9" y1="9" x2="15" y2="15" />
+  </svg>
+);
+
+const ChevronRightIcon = () => (
+  <svg className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="9 18 15 12 9 6" />
+  </svg>
+);
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
 export default function DashboardPage() {
-  const [stats, setStats] = useState<Stats>({ total: 0, pending: 0, in_progress: 0, resolved: 0 });
+  const [stats, setStats] = useState<Stats>({ pending: 0, resolved: 0, approved: 0, rejected: 0 });
   const [recentComplaints, setRecentComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      const supabase = createClient();
-      const userStr = localStorage.getItem("user");
-      if (!userStr) {
-        setLoading(false);
-        return;
-      }
-      const user = JSON.parse(userStr);
+      try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          setLoading(false);
+          return;
+        }
 
-      // ดึง resident_id
-      const { data: residentData } = await supabase
-        .from("resident")
-        .select("resident_id")
-        .eq("user_id", user.id)
-        .single();
-
-      if (!residentData) {
-        setLoading(false);
-        return;
-      }
-
-      // ดึง complaints ทั้งหมดของ resident
-      const { data: complaints } = await supabase
-        .from("complaints")
-        .select("complaint_id, ticket_no, subject, status, reported_date")
-        .eq("resident_id", residentData.resident_id)
-        .order("reported_date", { ascending: false });
-
-      if (complaints) {
-        setRecentComplaints(complaints.slice(0, 5));
-        setStats({
-          total: complaints.length,
-          pending: complaints.filter((c) => c.status === "pending").length,
-          in_progress: complaints.filter((c) => c.status === "in_progress").length,
-          resolved: complaints.filter((c) => c.status === "resolved" || c.status === "closed").length,
+        const res = await fetch(`${API_URL}/complaints/my`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
+
+        const json = await res.json();
+        if (json.success && json.data) {
+          const complaints: Complaint[] = json.data;
+          setRecentComplaints(complaints.slice(0, 5));
+          setStats({
+            pending: complaints.filter((c) => c.status === "pending" || c.status === "in_progress").length,
+            resolved: complaints.filter((c) => c.status === "resolved" || c.status === "closed").length,
+            approved: complaints.filter((c) => c.status === "approved").length,
+            rejected: complaints.filter((c) => c.status === "rejected").length,
+          });
+        }
+      } catch {
+        // fallback
       }
       setLoading(false);
     };
@@ -81,134 +131,216 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner" />
+      <div className="flex items-center justify-center py-32">
+        <div className="w-10 h-10 border-3 border-gray-200 border-t-[#d4a574] rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="dashboard-page">
-      {/* Stats Cards */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon-wrapper total">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-            </svg>
-          </div>
-          <div className="stat-info">
-            <div className="stat-label">ร้องเรียนทั้งหมด</div>
-            <div className="stat-value">{stats.total}<span className="stat-suffix">เรื่อง</span></div>
+    <div className="space-y-6">
+      {/* Page Title */}
+      <div>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 m-0">ภาพรวมเรื่องร้องเรียน</h1>
+        <p className="text-sm text-gray-400 mt-1 m-0">สรุปรายการคำร้องเรียนทั้งหมดของคุณ</p>
+      </div>
+
+      {/* Stats Cards - 2x2 Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Card 1: เรื่องที่รอดำเนินการ */}
+        <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-50">
+              <ClockIcon />
+            </div>
+            <div>
+              <p className="text-3xl sm:text-4xl font-bold text-gray-800 m-0 leading-none">{stats.pending}</p>
+              <p className="text-sm text-gray-500 mt-1 m-0">เรื่องที่รอดำเนินการ</p>
+            </div>
           </div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-icon-wrapper pending">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-          </div>
-          <div className="stat-info">
-            <div className="stat-label">รอดำเนินการ</div>
-            <div className="stat-value">{stats.pending}<span className="stat-suffix">เรื่อง</span></div>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon-wrapper progress">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
-          </div>
-          <div className="stat-info">
-            <div className="stat-label">กำลังดำเนินการ</div>
-            <div className="stat-value">{stats.in_progress}<span className="stat-suffix">เรื่อง</span></div>
+        {/* Card 2: เรื่องที่แก้ไขแล้ว */}
+        <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-50">
+              <CheckCircleIcon className="text-blue-500" />
+            </div>
+            <div>
+              <p className="text-3xl sm:text-4xl font-bold text-gray-800 m-0 leading-none">{stats.resolved}</p>
+              <p className="text-sm text-gray-500 mt-1 m-0">เรื่องที่แก้ไขแล้ว</p>
+            </div>
           </div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-icon-wrapper resolved">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
+        {/* Card 3: คำร้องที่ได้รับการอนุมัติ */}
+        <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-green-50">
+              <ApprovedIcon />
+            </div>
+            <div>
+              <p className="text-3xl sm:text-4xl font-bold text-gray-800 m-0 leading-none">{stats.approved}</p>
+              <p className="text-sm text-gray-500 mt-1 m-0">คำร้องที่ได้รับการอนุมัติ</p>
+            </div>
           </div>
-          <div className="stat-info">
-            <div className="stat-label">แก้ไขแล้ว/ปิดเรื่อง</div>
-            <div className="stat-value">{stats.resolved}<span className="stat-suffix">เรื่อง</span></div>
+        </div>
+
+        {/* Card 4: คำร้องที่ไม่ได้รับการอนุมัติ */}
+        <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-50">
+              <RejectedIcon />
+            </div>
+            <div>
+              <p className="text-3xl sm:text-4xl font-bold text-gray-800 m-0 leading-none">{stats.rejected}</p>
+              <p className="text-sm text-gray-500 mt-1 m-0">คำร้องที่ไม่ได้รับการอนุมัติ</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Recent Complaints */}
-      <div>
-        <div className="section-header">
-          <h2 className="section-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-            ร้องเรียนล่าสุด
-          </h2>
-          <Link href="/resident/complaints" className="section-link">
-            ดูทั้งหมด →
+      {/* Recent Complaints Table */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        {/* Table Header */}
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-gray-100">
+          <h2 className="text-base font-semibold text-gray-800 m-0">ติดตามสถานะคำร้องล่าสุด</h2>
+          <Link
+            href="/resident/complaints"
+            className="flex items-center gap-1 text-sm text-gray-500 hover:text-[#d4a574] no-underline transition-colors"
+          >
+            ดูทั้งหมด
+            <ChevronRightIcon />
           </Link>
         </div>
 
         {recentComplaints.length === 0 ? (
-          <div className="empty-state">
-            <svg className="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="12" y1="18" x2="12" y2="12" />
-              <line x1="9" y1="15" x2="15" y2="15" />
-            </svg>
-            <h3 className="empty-title">ยังไม่มีเรื่องร้องเรียน</h3>
-            <p className="empty-text">เริ่มสร้างเรื่องร้องเรียนเพื่อแจ้งปัญหาของคุณ</p>
-            <Link href="/resident/complaints/new" className="empty-button">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          /* Empty State */
+          <div className="text-center py-16 px-6">
+            <div className="w-16 h-16 mx-auto mb-4 text-gray-200">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="12" y1="18" x2="12" y2="12" />
+                <line x1="9" y1="15" x2="15" y2="15" />
+              </svg>
+            </div>
+            <h3 className="text-base font-semibold text-gray-700 mb-2">ยังไม่มีเรื่องร้องเรียน</h3>
+            <p className="text-sm text-gray-400 mb-6">เริ่มสร้างเรื่องร้องเรียนเพื่อแจ้งปัญหาของคุณ</p>
+            <Link
+              href="/resident/complaints/new"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#d4a574] hover:bg-[#b8865a] text-white rounded-xl text-sm font-medium no-underline transition-colors"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
-              สร้างร้องเรียนใหม่
+              สร้างคำร้องใหม่
             </Link>
           </div>
         ) : (
-          <div className="complaint-card-list">
-            {recentComplaints.map((complaint) => (
-              <Link
-                key={complaint.complaint_id}
-                href={`/resident/complaints/${complaint.complaint_id}`}
-                className="complaint-card"
-              >
-                <div className="complaint-card-left">
-                  <div className="complaint-card-ticket">{complaint.ticket_no || `#${complaint.complaint_id}`}</div>
-                  <div className="complaint-card-subject">{complaint.subject}</div>
-                  <div className="complaint-card-date">
-                    {new Date(complaint.reported_date).toLocaleDateString("th-TH", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </div>
-                </div>
-                <div className="complaint-card-right">
-                  <span className={`status-badge ${complaint.status}`}>
-                    <span className="status-dot" />
-                    {statusLabels[complaint.status] || complaint.status}
-                  </span>
-                  <svg className="arrow-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
-                </div>
-              </Link>
-            ))}
-          </div>
+          /* Desktop Table */
+          <>
+            {/* Desktop view */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-gray-400 uppercase tracking-wider">
+                    <th className="px-6 py-3 font-medium">รหัสคำร้อง</th>
+                    <th className="px-6 py-3 font-medium">หัวข้อ/รายละเอียด</th>
+                    <th className="px-6 py-3 font-medium">บ้านเลขที่</th>
+                    <th className="px-6 py-3 font-medium">วันที่ส่ง</th>
+                    <th className="px-6 py-3 font-medium">สถานะ</th>
+                    <th className="px-6 py-3 font-medium">คำสั่ง</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {recentComplaints.map((complaint) => {
+                    const config = statusConfig[complaint.status] || statusConfig.pending;
+                    return (
+                      <tr
+                        key={complaint.complaint_id}
+                        className="hover:bg-gray-50/50 transition-colors"
+                      >
+                        <td className="px-6 py-4 font-medium text-gray-700">
+                          {complaint.ticket_no || `REQ-${complaint.complaint_id}`}
+                        </td>
+                        <td className="px-6 py-4 text-gray-600 max-w-[200px] truncate">
+                          {complaint.subject}
+                        </td>
+                        <td className="px-6 py-4 text-gray-500">
+                          -
+                        </td>
+                        <td className="px-6 py-4 text-gray-500">
+                          {new Date(complaint.reported_date).toLocaleDateString("th-TH", {
+                            day: "numeric",
+                            month: "short",
+                            year: "2-digit",
+                          })}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${config.bgClass} ${config.textClass}`}
+                          >
+                            {config.label}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          {(complaint.status === "resolved" || complaint.status === "approved") && (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-500 text-white">
+                              อนุมัติ
+                            </span>
+                          )}
+                          {complaint.status === "rejected" && (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-500 text-white">
+                              ไม่อนุมัติ
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile card view */}
+            <div className="sm:hidden divide-y divide-gray-50">
+              {recentComplaints.map((complaint) => {
+                const config = statusConfig[complaint.status] || statusConfig.pending;
+                return (
+                  <Link
+                    key={complaint.complaint_id}
+                    href={`/resident/complaints/${complaint.complaint_id}`}
+                    className="block px-5 py-4 hover:bg-gray-50/50 no-underline transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-[#d4a574] m-0 mb-1">
+                          {complaint.ticket_no || `REQ-${complaint.complaint_id}`}
+                        </p>
+                        <p className="text-sm font-medium text-gray-800 m-0 mb-1 truncate">
+                          {complaint.subject}
+                        </p>
+                        <p className="text-xs text-gray-400 m-0">
+                          {new Date(complaint.reported_date).toLocaleDateString("th-TH", {
+                            day: "numeric",
+                            month: "short",
+                            year: "2-digit",
+                          })}
+                        </p>
+                      </div>
+                      <span
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium shrink-0 ${config.bgClass} ${config.textClass}`}
+                      >
+                        {config.label}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
     </div>
