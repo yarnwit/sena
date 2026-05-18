@@ -33,6 +33,8 @@ const filterOptions = [
   { key: "closed", label: "ปิดเรื่อง" },
 ];
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
 export default function StaffComplaintsPage() {
   const searchParams = useSearchParams();
   const defaultStatus = searchParams.get("status") || "all";
@@ -44,15 +46,24 @@ export default function StaffComplaintsPage() {
 
   useEffect(() => {
     const fetchComplaints = async () => {
-      const supabase = createClient();
+      try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          setLoading(false);
+          return;
+        }
 
-      // ดึง complaints ทั้งหมดสำหรับ staff โดยไม่ต้องอิง resident_id
-      const { data } = await supabase
-        .from("complaints")
-        .select("complaint_id, ticket_no, subject, status, reported_date, location_written, soi")
-        .order("reported_date", { ascending: false });
+        const res = await fetch(`${API_URL}/complaints/all`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-      if (data) setComplaints(data);
+        const json = await res.json();
+        if (json.success && json.data) {
+          setComplaints(json.data);
+        }
+      } catch (error) {
+        console.error("Fetch complaints error:", error);
+      }
       setLoading(false);
     };
 

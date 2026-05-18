@@ -49,7 +49,82 @@ export const getMyComplaints = async (req: Request, res: Response) => {
   }
 };
 
-// ===== GET /api/complaints/:id — ดึงคำร้องตาม ID พร้อมข้อมูลลูกบ้าน =====
+// ===== GET /api/complaints/all — ดึงคำร้องทั้งหมดสำหรับ staff/admin =====
+export const getAllComplaints = async (req: Request, res: Response) => {
+  try {
+    // ใช้ admin client (service role) หรือดึงข้อมูลปกติ
+    const { data: complaints, error } = await supabase
+      .from('complaints')
+      .select('complaint_id, ticket_no, subject, status, reported_date, location_written, soi, phase, description, attachment_url, intake_channel, petition')
+      .order('reported_date', { ascending: false });
+
+    if (error) {
+      logger.error('Get all complaints error:', error.message);
+      return res.status(500).json({ success: false, message: error.message });
+    }
+
+    res.status(200).json({ success: true, data: complaints || [] });
+  } catch (error) {
+    logger.error('Get all complaints error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+// ===== GET /api/complaints/staff/:id — ดึงคำร้องตาม ID สำหรับ staff/admin =====
+export const getComplaintByIdForStaff = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const { data: complaint, error } = await supabase
+      .from('complaints')
+      .select('*')
+      .eq('complaint_id', id)
+      .single();
+
+    if (error || !complaint) {
+      return res.status(404).json({ success: false, message: 'ไม่พบคำร้องนี้' });
+    }
+
+    // ดึงข้อมูลลูกบ้าน
+    let userData = null;
+    let residentData = null;
+    
+    if (complaint.resident_id) {
+      const { data: rData } = await supabase
+        .from('resident')
+        .select('user_id, house_no, phone_number, resident_type')
+        .eq('resident_id', complaint.resident_id)
+        .single();
+      residentData = rData;
+      
+      if (rData && rData.user_id) {
+        const { data: uData } = await supabase
+          .from('users')
+          .select('first_name, last_name')
+          .eq('user_id', rData.user_id)
+          .single();
+        userData = uData;
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        ...complaint,
+        first_name: userData?.first_name || '',
+        last_name: userData?.last_name || '',
+        house_no: residentData?.house_no || '',
+        phone_number: residentData?.phone_number || '',
+        resident_type: residentData?.resident_type || '',
+      },
+    });
+  } catch (error) {
+    logger.error('Get complaint by ID for staff error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+// ===== GET /api/complaints/:id — ดึงคำร้องตาม ID พร้อมข้อมูลลูกบ้าน (สำหรับ resident) =====
 export const getComplaintById = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
@@ -215,6 +290,41 @@ export const createComplaint = async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Create complaint error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+// ===== PUT /api/complaints/staff/:id/status — อัปเดตสถานะคำร้อง (สำหรับ staff/admin) =====
+export const updateComplaintStatusForStaff = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ success: false, message: 'กรุณาระบุสถานะ' });
+    }
+
+    const { data: updatedComplaint, error: updateError } = await supabase
+      .from('complaints')
+      .update({ status })
+      .eq('complaint_id', id)
+      .select()
+      .single();
+
+    if (updateError) {
+      logger.error('Update complaint status error:', updateError.message);
+      return res.status(500).json({ success: false, message: updateError.message });
+    }
+
+    logger.info(`Complaint status updated to ${status} for ID: ${id} by staff`);
+
+    res.status(200).json({
+      success: true,
+      message: 'อัปเดตสถานะสำเร็จ',
+      data: updatedComplaint,
+    });
+  } catch (error) {
+    logger.error('Update complaint status error:', error);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };

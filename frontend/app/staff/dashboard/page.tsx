@@ -98,6 +98,8 @@ const ZapIcon = () => (
 );
 
 /* ===== Page Component ===== */
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
 export default function StaffDashboardPage() {
   const [stats, setStats] = useState<Stats>({ total: 0, pending: 0, in_progress: 0, resolved: 0, rejected: 0 });
   const [urgentComplaints, setUrgentComplaints] = useState<Complaint[]>([]);
@@ -106,33 +108,43 @@ export default function StaffDashboardPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const supabase = createClient();
+      try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          setLoading(false);
+          return;
+        }
 
-      // ดึง complaints ทั้งหมดสำหรับ staff (ดูได้ทุกเรื่อง)
-      const { data: complaints } = await supabase
-        .from("complaints")
-        .select("complaint_id, ticket_no, subject, status, reported_date, location_written")
-        .order("reported_date", { ascending: false });
-
-      if (complaints) {
-        // คำนวณ Stats
-        setStats({
-          total:       complaints.length,
-          pending:     complaints.filter((c) => c.status === "pending").length,
-          in_progress: complaints.filter((c) => c.status === "in_progress").length,
-          resolved:    complaints.filter((c) => c.status === "resolved" || c.status === "closed").length,
-          rejected:    complaints.filter((c) => c.status === "rejected").length,
+        const res = await fetch(`${API_URL}/complaints/all`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
 
-        // เรื่องเร่งด่วน = pending ที่นานเกิน 3 วัน + pending ใหม่ทั้งหมด
-        const urgent = complaints
-          .filter((c) => c.status === "pending")
-          .sort((a, b) => new Date(a.reported_date).getTime() - new Date(b.reported_date).getTime())
-          .slice(0, 6);
-        setUrgentComplaints(urgent);
+        const json = await res.json();
+        
+        if (json.success && json.data) {
+          const complaints = json.data;
+          
+          // คำนวณ Stats
+          setStats({
+            total:       complaints.length,
+            pending:     complaints.filter((c: Complaint) => c.status === "pending").length,
+            in_progress: complaints.filter((c: Complaint) => c.status === "in_progress").length,
+            resolved:    complaints.filter((c: Complaint) => c.status === "resolved" || c.status === "closed").length,
+            rejected:    complaints.filter((c: Complaint) => c.status === "rejected").length,
+          });
 
-        // เรื่องล่าสุดทั้งหมด (5 รายการ)
-        setRecentComplaints(complaints.slice(0, 5));
+          // เรื่องเร่งด่วน = pending ที่นานเกิน 3 วัน + pending ใหม่ทั้งหมด
+          const urgent = complaints
+            .filter((c: Complaint) => c.status === "pending")
+            .sort((a: Complaint, b: Complaint) => new Date(a.reported_date).getTime() - new Date(b.reported_date).getTime())
+            .slice(0, 6);
+          setUrgentComplaints(urgent);
+
+          // เรื่องล่าสุดทั้งหมด (5 รายการ)
+          setRecentComplaints(complaints.slice(0, 5));
+        }
+      } catch (error) {
+        console.error("Fetch dashboard data error:", error);
       }
 
       setLoading(false);

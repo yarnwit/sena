@@ -22,7 +22,7 @@ export const login = async (req: Request, res: Response) => {
       .single();
 
     if (findError || !publicUser) {
-      logger.error('Username not found:', username);
+      logger.error('Username not found:', username, '| Supabase error:', findError?.message, '| code:', findError?.code);
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 

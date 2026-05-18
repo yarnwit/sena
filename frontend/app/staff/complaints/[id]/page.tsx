@@ -65,6 +65,8 @@ function getTimelineDotClass(stepStatus: string, currentStatus: string): string 
   return "";
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
 export default function StaffComplaintDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -82,22 +84,26 @@ export default function StaffComplaintDetailPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const supabase = createClient();
-
-      // ดึงข้อมูลร้องเรียน
-      const { data: complaintData } = await supabase
-        .from("complaints")
-        .select("*")
-        .eq("complaint_id", complaintId)
-        .single();
-
-      if (complaintData) {
-        setComplaint(complaintData);
-        setSelectedStatus(complaintData.status);
-      }
-
-      // ดึง comments
       try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+
+        // ดึงข้อมูลร้องเรียนผ่าน API
+        const res = await fetch(`${API_URL}/complaints/staff/${complaintId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const json = await res.json();
+        if (json.success && json.data) {
+          setComplaint(json.data);
+          setSelectedStatus(json.data.status);
+        }
+
+        // ดึง comments โดยใช้ supabase client เหมือนเดิมเพราะไม่ได้มี API
+        const supabase = createClient();
         const { data: commentData } = await supabase
           .from("comments")
           .select("*")
@@ -105,8 +111,8 @@ export default function StaffComplaintDetailPage() {
           .order("created_at", { ascending: true });
 
         if (commentData) setComments(commentData);
-      } catch {
-        // ไม่มี table หรือ error
+      } catch (error) {
+        console.error("Fetch complaint detail error:", error);
       }
 
       setLoading(false);
@@ -120,21 +126,34 @@ export default function StaffComplaintDetailPage() {
     setUpdatingStatus(true);
 
     try {
-      const supabase = createClient();
-      const { error } = await supabase
-        .from("complaints")
-        .update({ status: selectedStatus })
-        .eq("complaint_id", complaint.complaint_id);
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        alert("กรุณาเข้าสู่ระบบใหม่");
+        setUpdatingStatus(false);
+        return;
+      }
 
-      if (!error) {
+      const res = await fetch(`${API_URL}/complaints/staff/${complaint.complaint_id}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: selectedStatus })
+      });
+
+      const json = await res.json();
+
+      if (json.success) {
         setComplaint({ ...complaint, status: selectedStatus });
         alert("อัปเดตสถานะสำเร็จ");
         router.refresh();
       } else {
-        alert("เกิดข้อผิดพลาดในการอัปเดตสถานะ");
+        alert("เกิดข้อผิดพลาดในการอัปเดตสถานะ: " + json.message);
       }
     } catch (e) {
       console.error(e);
+      alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
     } finally {
       setUpdatingStatus(false);
     }
