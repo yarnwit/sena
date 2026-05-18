@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
@@ -13,6 +13,7 @@ const intakeChannelOptions = [
   { value: "phone", label: "โทรศัพท์" },
   { value: "line", label: "LINE" },
   { value: "email", label: "อีเมล" },
+  { value: "group_village", label: "กลุ่มไลน์หมู่บ้าน" },
 ];
 
 /* ===== Icons ===== */
@@ -57,9 +58,12 @@ const PaperclipIcon = () => (
   </svg>
 );
 
-export default function NewComplaintPage() {
+export default function EditComplaintPage() {
   const router = useRouter();
+  const params = useParams();
+  const complaintId = params.id as string;
   const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [success, setSuccess] = useState(false);
@@ -67,7 +71,7 @@ export default function NewComplaintPage() {
   const [file, setFile] = useState<File | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  // ข้อมูลลูกบ้าน (read-only, ดึงจาก DB)
+  // ข้อมูลลูกบ้าน (read-only, ดึงมาพร้อมคำร้อง)
   const [userInfo, setUserInfo] = useState({
     first_name: "",
     last_name: "",
@@ -76,18 +80,19 @@ export default function NewComplaintPage() {
     resident_type: "",
   });
 
-  // ข้อมูลคำร้อง (กรอกใหม่)
+  // ข้อมูลคำร้อง (กรอกและแก้ไขได้)
   const [form, setForm] = useState({
     subject: "",
     description: "",
     location_written: "",
     intake_channel: "website",
     reported_date: new Date().toISOString().split("T")[0],
+    attachment_url: "",
   });
 
-  // ดึงข้อมูลลูกบ้านจาก Backend API
+  // ดึงข้อมูลคำร้องจาก Backend API
   useEffect(() => {
-    const fetchUserInfo = async () => {
+    const fetchComplaint = async () => {
       try {
         const token = localStorage.getItem("accessToken");
         if (!token) {
@@ -95,28 +100,44 @@ export default function NewComplaintPage() {
           return;
         }
 
-        const res = await fetch(`${API_URL}/complaints/user-info`, {
+        const res = await fetch(`${API_URL}/complaints/${complaintId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         const json = await res.json();
         if (json.success && json.data) {
+          const c = json.data;
+          
           setUserInfo({
-            first_name: json.data.first_name || "",
-            last_name: json.data.last_name || "",
-            phone_number: json.data.phone_number || "",
-            house_no: json.data.house_no || "",
-            resident_type: json.data.resident_type || "",
+            first_name: c.first_name || "",
+            last_name: c.last_name || "",
+            phone_number: c.phone_number || "",
+            house_no: c.house_no || "",
+            resident_type: c.resident_type || "",
           });
+
+          // วันที่รายงาน (ตัดเวลาออก)
+          const rDate = c.reported_date ? new Date(c.reported_date).toISOString().split("T")[0] : new Date().toISOString().split("T")[0];
+
+          setForm({
+            subject: c.subject || "",
+            description: c.description || "",
+            location_written: c.location_written || "",
+            intake_channel: c.intake_channel || "website",
+            reported_date: rDate,
+            attachment_url: c.attachment_url || "",
+          });
+        } else {
+          setError("ไม่พบข้อมูลคำร้อง หรือคุณไม่มีสิทธิ์เข้าถึง");
         }
       } catch {
-        // fallback
+        setError("เกิดข้อผิดพลาดในการโหลดข้อมูล");
       }
       setPageLoading(false);
     };
 
-    fetchUserInfo();
-  }, []);
+    fetchComplaint();
+  }, [complaintId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -130,6 +151,7 @@ export default function NewComplaintPage() {
 
   const removeFile = () => {
     setFile(null);
+    setForm(prev => ({ ...prev, attachment_url: "" })); // เคลียร์ไฟล์เก่าออกถ้าลบ
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -151,9 +173,17 @@ export default function NewComplaintPage() {
         return;
       }
 
-      // ส่งคำร้องผ่าน Backend API (bypass RLS)
-      const res = await fetch(`${API_URL}/complaints`, {
-        method: "POST",
+      // ในโปรเจกต์จริง ส่วนนี้ต้องเป็นการอัปโหลดไฟล์ไป Storage ก่อน
+      // แต่ตอนนี้เราสมมติว่าใช้ attachment_url เดิม หรือถ้ายกเลิกก็ส่งค่าว่าง
+      let finalAttachmentUrl = form.attachment_url;
+      if (file) {
+        // Mock upload url...
+        finalAttachmentUrl = URL.createObjectURL(file); // ใช้ชั่วคราว
+      }
+
+      // ส่งแก้ไขคำร้องผ่าน Backend API (PUT)
+      const res = await fetch(`${API_URL}/complaints/${complaintId}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -163,7 +193,7 @@ export default function NewComplaintPage() {
           description: form.description,
           location_written: form.location_written || null,
           intake_channel: form.intake_channel || null,
-          reported_date: form.reported_date || new Date().toISOString(),
+          attachment_url: finalAttachmentUrl || null,
         }),
       });
 
@@ -177,7 +207,7 @@ export default function NewComplaintPage() {
 
       setSuccess(true);
       setTimeout(() => {
-        router.push("/resident/complaints");
+        router.push(`/resident/complaints/${complaintId}`);
       }, 2000);
     } catch (err) {
       setError("เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่");
@@ -192,14 +222,14 @@ export default function NewComplaintPage() {
 
   if (pageLoading) {
     return (
-      <div className="flex items-center justify-center py-32">
-        <div className="w-10 h-10 border-3 border-gray-200 border-t-[#d4a574] rounded-full animate-spin" />
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-[#d4a574] rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto mb-10">
       {/* Success Message */}
       {success && (
         <div className="mb-6 flex items-center gap-3 px-5 py-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 text-sm font-medium">
@@ -207,7 +237,7 @@ export default function NewComplaintPage() {
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
             <polyline points="22 4 12 14.01 9 11.01" />
           </svg>
-          ส่งเรื่องร้องเรียนสำเร็จ! กำลังนำคุณไปยังรายการร้องเรียน...
+          แก้ไขเรื่องร้องเรียนสำเร็จ! กำลังนำคุณกลับไปหน้ารายละเอียด...
         </div>
       )}
 
@@ -231,8 +261,8 @@ export default function NewComplaintPage() {
             <WarningIcon />
           </div>
           <div>
-            <h1 className="text-lg sm:text-xl font-bold text-gray-800 m-0">สร้างรายการร้องเรียนใหม่</h1>
-            <p className="text-sm text-gray-500 mt-1 m-0">กรอกข้อมูลเพื่อบันทึกเรื่องร้องเรียน</p>
+            <h1 className="text-lg sm:text-xl font-bold text-gray-800 m-0">แก้ไขเรื่องร้องเรียน</h1>
+            <p className="text-sm text-gray-500 mt-1 m-0">ปรับปรุงข้อมูลและบันทึกการแก้ไข</p>
           </div>
         </div>
 
@@ -249,30 +279,15 @@ export default function NewComplaintPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
               <div>
                 <label className={labelClasses}>ชื่อจริง</label>
-                <input
-                  type="text"
-                  value={userInfo.first_name}
-                  className={readOnlyClasses}
-                  readOnly
-                />
+                <input type="text" value={userInfo.first_name} className={readOnlyClasses} readOnly />
               </div>
               <div>
                 <label className={labelClasses}>นามสกุล</label>
-                <input
-                  type="text"
-                  value={userInfo.last_name}
-                  className={readOnlyClasses}
-                  readOnly
-                />
+                <input type="text" value={userInfo.last_name} className={readOnlyClasses} readOnly />
               </div>
               <div>
                 <label className={labelClasses}>เบอร์โทรศัพท์</label>
-                <input
-                  type="text"
-                  value={userInfo.phone_number || "-"}
-                  className={readOnlyClasses}
-                  readOnly
-                />
+                <input type="text" value={userInfo.phone_number || "-"} className={readOnlyClasses} readOnly />
               </div>
             </div>
 
@@ -280,21 +295,11 @@ export default function NewComplaintPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className={labelClasses}>บ้านเลขที่</label>
-                <input
-                  type="text"
-                  value={userInfo.house_no || "-"}
-                  className={readOnlyClasses}
-                  readOnly
-                />
+                <input type="text" value={userInfo.house_no || "-"} className={readOnlyClasses} readOnly />
               </div>
               <div>
                 <label className={labelClasses}>ประเภทลูกบ้าน</label>
-                <input
-                  type="text"
-                  value={userInfo.resident_type || "-"}
-                  className={readOnlyClasses}
-                  readOnly
-                />
+                <input type="text" value={userInfo.resident_type || "-"} className={readOnlyClasses} readOnly />
               </div>
             </div>
           </div>
@@ -349,7 +354,7 @@ export default function NewComplaintPage() {
                 <label className={labelClasses}>ไฟล์แนบ/รูปภาพประกอบคำร้อง</label>
                 <div
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed cursor-pointer transition-all duration-200 ${
-                    file
+                    file || form.attachment_url
                       ? "border-green-300 bg-green-50/50"
                       : "border-amber-200 bg-amber-50/20 hover:border-amber-400 hover:bg-amber-50/50"
                   }`}
@@ -357,13 +362,14 @@ export default function NewComplaintPage() {
                 >
                   <PaperclipIcon />
                   <span className="text-sm text-gray-500">
-                    {file ? file.name : "แนบไฟล์เอกสาร/ รูปภาพ"}
+                    {file ? file.name : form.attachment_url ? "มีไฟล์แนบอยู่แล้ว (คลิกเพื่อเปลี่ยน)" : "แนบไฟล์เอกสาร/ รูปภาพ"}
                   </span>
-                  {file && (
+                  {(file || form.attachment_url) && (
                     <button
                       type="button"
                       className="ml-auto p-1 rounded-full hover:bg-red-100 transition-colors bg-transparent border-none cursor-pointer"
                       onClick={(e) => { e.stopPropagation(); removeFile(); }}
+                      title="ลบไฟล์"
                     >
                       <svg className="w-4 h-4 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <line x1="18" y1="6" x2="6" y2="18" />
@@ -413,9 +419,9 @@ export default function NewComplaintPage() {
                   type="date"
                   name="reported_date"
                   value={form.reported_date}
-                  onChange={handleChange}
-                  className={inputClasses}
-                  disabled={loading || success}
+                  className={readOnlyClasses}
+                  readOnly
+                  disabled
                 />
               </div>
               <div>
@@ -437,27 +443,10 @@ export default function NewComplaintPage() {
             </div>
           </div>
 
-          {/* Warning Notice */}
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4">
-            <div className="flex flex-col items-center text-center gap-2">
-              <svg className="w-8 h-8 text-amber-500" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
-              </svg>
-              <div>
-                <p className="text-sm font-semibold text-red-600 m-0">ข้อมูลในความจริงต้องตรวจสอบ</p>
-                <p className="text-xs text-red-500 mt-1 m-0 leading-relaxed">
-                  ถ้าพนักงานดำเนินการทุกอย่างตามระบบเป็นไปตามข้อตกลงนิติบุคคล
-                  <br />
-                  หากเกิดปัญหาจริงบังคับผลตามเกิดขึ้นได้ยืนยันตรวจสอบแต่แจ้งผู้เกี่ยว
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* Action Buttons */}
           <div className="flex items-center justify-end gap-3 pt-2">
             <Link
-              href="/resident/dashboard"
+              href={`/resident/complaints/${complaintId}`}
               className="inline-flex items-center justify-center px-8 py-3 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 no-underline transition-colors"
             >
               ยกเลิก
@@ -475,7 +464,7 @@ export default function NewComplaintPage() {
                   กำลังบันทึก...
                 </>
               ) : (
-                "บันทึกคำร้อง"
+                "บันทึกการแก้ไข"
               )}
             </button>
           </div>

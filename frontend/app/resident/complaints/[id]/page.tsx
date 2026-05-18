@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 
-interface Complaint {
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
+/* ===== Types ===== */
+interface ComplaintDetail {
   complaint_id: number;
   ticket_no: string;
   subject: string;
@@ -18,154 +20,150 @@ interface Complaint {
   soi: string | null;
   intake_channel: string | null;
   petition: string | null;
+  first_name?: string;
+  last_name?: string;
+  house_no?: string;
+  phone_number?: string;
+  resident_type?: string;
 }
 
-interface Comment {
-  id: number;
-  content: string;
-  created_at: string;
-  user_name: string;
-  user_role: string;
-}
-
+/* ===== Config Maps ===== */
 const statusConfig: Record<string, { label: string; bgClass: string; textClass: string }> = {
-  pending: { label: "รอดำเนินการ", bgClass: "bg-amber-100", textClass: "text-amber-700" },
-  in_progress: { label: "กำลังดำเนินการ", bgClass: "bg-red-100", textClass: "text-red-600" },
-  resolved: { label: "แก้ไขแล้ว", bgClass: "bg-blue-100", textClass: "text-blue-700" },
-  approved: { label: "อนุมัติ", bgClass: "bg-green-100", textClass: "text-green-700" },
-  rejected: { label: "ปฏิเสธ", bgClass: "bg-red-100", textClass: "text-red-600" },
-  closed: { label: "ปิดเรื่อง", bgClass: "bg-gray-100", textClass: "text-gray-500" },
+  pending:      { label: "รอดำเนินการ",     bgClass: "bg-red-600",    textClass: "text-white" },
+  in_progress:  { label: "กำลังดำเนินการ",  bgClass: "bg-blue-600",   textClass: "text-white" },
+  resolved:     { label: "แก้ไขแล้ว",       bgClass: "bg-green-600",  textClass: "text-white" },
+  approved:     { label: "อนุมัติ",          bgClass: "bg-green-600",  textClass: "text-white" },
+  rejected:     { label: "ไม่อนุมัติ",       bgClass: "bg-gray-600",   textClass: "text-white" },
+  closed:       { label: "ปิดเรื่อง",        bgClass: "bg-gray-400",   textClass: "text-white" },
 };
 
 const channelLabels: Record<string, string> = {
-  website: "เว็บไซต์",
-  walk_in: "เดินเข้ามาแจ้ง",
-  phone: "โทรศัพท์",
-  line: "LINE",
-  email: "อีเมล",
+  website:  "เว็บไซต์",
+  walk_in:  "เดินเข้ามาแจ้ง",
+  phone:    "โทรศัพท์",
+  line:     "LINE",
+  email:    "อีเมล",
+  group_village: "กลุ่มไลน์หมู่บ้าน"
 };
 
-// Timeline ตามสถานะ
-const statusTimeline = ["pending", "in_progress", "resolved", "closed"];
-const statusTimelineLabels: Record<string, string> = {
-  pending: "รับเรื่อง / รอดำเนินการ",
-  in_progress: "กำลังดำเนินการ",
-  resolved: "แก้ไขเสร็จสิ้น",
-  closed: "ปิดเรื่อง",
-};
+/* ===== SVG Icons ===== */
+const BackArrowIcon = () => (
+  <svg className="w-5 h-5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12" />
+    <polyline points="12 19 5 12 12 5" />
+  </svg>
+);
 
-function getTimelineState(stepStatus: string, currentStatus: string): "completed" | "active" | "rejected" | "upcoming" {
-  if (currentStatus === "rejected") {
-    return stepStatus === "pending" ? "rejected" : "upcoming";
-  }
-  const currentIdx = statusTimeline.indexOf(currentStatus);
-  const stepIdx = statusTimeline.indexOf(stepStatus);
-  if (stepIdx < currentIdx) return "completed";
-  if (stepIdx === currentIdx) return "active";
-  return "upcoming";
-}
+const DocumentIcon = () => (
+  <svg className="w-6 h-6 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+    <line x1="16" y1="13" x2="8" y2="13" />
+    <line x1="16" y1="17" x2="8" y2="17" />
+    <polyline points="10 9 9 9 8 9" />
+  </svg>
+);
+
+const EditIcon = () => (
+  <svg className="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+  </svg>
+);
+
+const CheckCircleIcon = ({ active }: { active: boolean }) => (
+  <svg className={`w-6 h-6 ${active ? 'text-green-500' : 'text-gray-300'}`} viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5">
+    <circle cx="12" cy="12" r="10" fill={active ? "#86efac" : "none"} stroke={active ? "none" : "currentColor"} />
+    <path d="M9 12l2 2 4-4" stroke={active ? "white" : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const XCircleIcon = ({ active }: { active: boolean }) => (
+  <svg className={`w-6 h-6 ${active ? 'text-red-500' : 'text-gray-300'}`} viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5">
+    <circle cx="12" cy="12" r="10" fill={active ? "#fca5a5" : "none"} stroke={active ? "none" : "currentColor"} />
+    <path d="M15 9l-6 6M9 9l6 6" stroke={active ? "white" : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const ChatBubbleIcon = () => (
+  <svg className="w-6 h-6 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    <circle cx="9" cy="10" r="1" fill="currentColor" />
+    <circle cx="15" cy="10" r="1" fill="currentColor" />
+  </svg>
+);
 
 export default function ComplaintDetailPage() {
   const params = useParams();
   const complaintId = params.id as string;
 
-  const [complaint, setComplaint] = useState<Complaint | null>(null);
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [newComment, setNewComment] = useState("");
-  const [sending, setSending] = useState(false);
+  const [complaint, setComplaint] = useState<ComplaintDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const supabase = createClient();
+    let didSet = false;
 
-      // ดึงข้อมูลร้องเรียน
-      const { data: complaintData } = await supabase
-        .from("complaints")
-        .select("*")
-        .eq("complaint_id", complaintId)
-        .single();
-
-      if (complaintData) setComplaint(complaintData);
-
-      // ดึง comments (ถ้ามี table)
-      // หมายเหตุ: ถ้ายังไม่มี comments table จะ skip
+    const fetchDetail = async () => {
       try {
-        const { data: commentData } = await supabase
-          .from("comments")
-          .select("*")
-          .eq("complaint_id", complaintId)
-          .order("created_at", { ascending: true });
-
-        if (commentData) setComments(commentData);
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+          const res = await fetch(`${API_URL}/complaints/${complaintId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            const json = await res.json();
+            if (json.success && json.data) {
+              setComplaint(json.data);
+              didSet = true;
+            }
+          }
+        }
       } catch {
-        // comments table อาจยังไม่มี
+        // Fallback handled below
+      }
+
+      if (!didSet) {
+        try {
+          const { createClient } = await import("@/lib/supabase/client");
+          const supabase = createClient();
+
+          const { data } = await supabase
+            .from("complaints")
+            .select("*")
+            .eq("complaint_id", complaintId)
+            .single();
+
+          if (data) {
+            setComplaint(data);
+          }
+        } catch {
+          // fallback failed
+        }
       }
 
       setLoading(false);
     };
 
-    fetchData();
+    fetchDetail();
   }, [complaintId]);
-
-  const handleSendComment = async () => {
-    if (!newComment.trim()) return;
-    setSending(true);
-
-    try {
-      const supabase = createClient();
-      const userStr = localStorage.getItem("user");
-      if (!userStr) {
-        setSending(false);
-        return;
-      }
-      const user = JSON.parse(userStr);
-
-      const { data: userData } = await supabase
-        .from("users")
-        .select("first_name, last_name, role")
-        .eq("id", user.id)
-        .single();
-
-      const { data: insertedComment, error } = await supabase
-        .from("comments")
-        .insert({
-          complaint_id: parseInt(complaintId),
-          user_id: user.id,
-          content: newComment,
-          user_name: userData ? `${userData.first_name} ${userData.last_name}` : "ผู้ใช้",
-          user_role: userData?.role || "resident",
-        })
-        .select()
-        .single();
-
-      if (!error && insertedComment) {
-        setComments([...comments, insertedComment]);
-        setNewComment("");
-      }
-    } catch {
-      // comment insert อาจ fail ถ้ายังไม่มี table
-    } finally {
-      setSending(false);
-    }
-  };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-32">
-        <div className="w-10 h-10 border-3 border-gray-200 border-t-[#d4a574] rounded-full animate-spin" />
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-[#d4a574] rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (!complaint) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm text-center py-16 px-6">
-        <h3 className="text-base font-semibold text-gray-700 mb-2">ไม่พบเรื่องร้องเรียน</h3>
-        <p className="text-sm text-gray-400 mb-6">เรื่องร้องเรียนนี้อาจถูกลบหรือไม่มีอยู่ในระบบ</p>
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm text-center py-16 px-6 max-w-2xl mx-auto mt-10">
+        <h3 className="text-lg font-bold text-gray-800 mb-2">ไม่พบเรื่องร้องเรียน</h3>
+        <p className="text-sm text-gray-500 mb-6">เรื่องร้องเรียนนี้อาจถูกลบหรือไม่มีอยู่ในระบบ</p>
         <Link
           href="/resident/complaints"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-[#d4a574] hover:bg-[#b8865a] text-white rounded-xl text-sm font-medium no-underline transition-colors"
+          className="inline-flex items-center px-6 py-2 bg-[#d4a574] text-white rounded-lg text-sm font-medium no-underline"
         >
           กลับไปรายการร้องเรียน
         </Link>
@@ -173,238 +171,173 @@ export default function ComplaintDetailPage() {
     );
   }
 
-  const currentConfig = statusConfig[complaint.status] || statusConfig.pending;
+  const cfg = statusConfig[complaint.status] || { label: "ไม่ทราบสถานะ", bgClass: "bg-gray-500", textClass: "text-white" };
+  
+  // Format Date to match Figma: "21 เม.ย. 26" (assuming Buddhist era logic, though standard Date gives AD)
+  const d = new Date(complaint.reported_date);
+  const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+  const fmtDate = `${d.getDate()} ${thaiMonths[d.getMonth()]} ${((d.getFullYear() + 543) % 100).toString()}`;
+
+  const isImage = complaint.attachment_url && /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(complaint.attachment_url);
 
   return (
-    <div className="space-y-5 max-w-4xl">
-      {/* Back Link */}
-      <Link
-        href="/resident/complaints"
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#d4a574] no-underline transition-colors"
-      >
-        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
-        กลับไปรายการร้องเรียน
-      </Link>
+    <div className="max-w-4xl mx-auto mb-10 bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+      
+      {/* ═══════════ 1. Header ═══════════ */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center gap-3">
+          <Link href="/resident/complaints" className="p-1.5 -ml-1.5 hover:bg-gray-100 rounded-full transition-colors cursor-pointer" title="กลับไปหน้ารายการ">
+            <BackArrowIcon />
+          </Link>
+          <DocumentIcon />
+          <span className="text-sm font-bold text-gray-800">รายละเอียดเรื่องร้องเรียน</span>
+        </div>
+        <Link
+          href={`/resident/complaints/${complaintId}/edit`}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors no-underline"
+        >
+          <EditIcon />
+          แก้ไขข้อมูล
+        </Link>
+      </div>
 
-      {/* Main Detail Card */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-5 border-b border-gray-100">
-          <div>
-            <p className="text-xs font-semibold text-[#d4a574] m-0 mb-1">
-              {complaint.ticket_no || `#${complaint.complaint_id}`}
-            </p>
-            <h2 className="text-lg font-bold text-gray-800 m-0">{complaint.subject}</h2>
-          </div>
-          <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium shrink-0 ${currentConfig.bgClass} ${currentConfig.textClass}`}>
-            {currentConfig.label}
+      {/* ═══════════ Content Container ═══════════ */}
+      <div className="p-6 md:p-8">
+        
+        {/* Title & Status */}
+        <div className="mb-8">
+          <h1 className="text-xl font-bold text-gray-900 mb-3">{complaint.subject}</h1>
+          <span className={`inline-flex px-4 py-1 rounded-full text-[11px] font-medium tracking-wide ${cfg.bgClass} ${cfg.textClass}`}>
+            {cfg.label}
           </span>
         </div>
 
-        {/* Info Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-6 py-5 bg-gray-50/50 border-b border-gray-100">
-          <div>
-            <p className="text-xs text-gray-400 m-0 mb-1">วันที่แจ้ง</p>
-            <p className="text-sm font-medium text-gray-700 m-0">
-              {new Date(complaint.reported_date).toLocaleDateString("th-TH", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-400 m-0 mb-1">สถานที่</p>
-            <p className="text-sm font-medium text-gray-700 m-0">
-              {complaint.location_written || "-"}
-              {complaint.soi ? ` (${complaint.soi})` : ""}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-400 m-0 mb-1">ช่องทางแจ้ง</p>
-            <p className="text-sm font-medium text-gray-700 m-0">
-              {complaint.intake_channel ? channelLabels[complaint.intake_channel] || complaint.intake_channel : "-"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-400 m-0 mb-1">คำร้อง/หมายเหตุ</p>
-            <p className="text-sm font-medium text-gray-700 m-0">{complaint.petition || "-"}</p>
+        {/* Info Grid (Gray Card) */}
+        <div className="bg-[#f8f9fa] rounded-2xl p-6 md:p-8 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-y-8 gap-x-4">
+            {/* Row 1 */}
+            <div className="col-span-1 md:col-span-1">
+              <p className="text-xs font-bold text-gray-700 mb-2">ชื่อจริง</p>
+              <p className="text-sm text-gray-500">{complaint.first_name || "-"}</p>
+            </div>
+            <div className="col-span-1 md:col-span-1">
+              <p className="text-xs font-bold text-gray-700 mb-2">นามสกุล</p>
+              <p className="text-sm text-gray-500">{complaint.last_name || "-"}</p>
+            </div>
+            <div className="col-span-1 md:col-span-1">
+              <p className="text-xs font-bold text-gray-700 mb-2">บ้านเลขที่</p>
+              <p className="text-sm text-gray-500">{complaint.house_no || "-"}</p>
+            </div>
+            <div className="col-span-1 md:col-span-1">
+              <p className="text-xs font-bold text-gray-700 mb-2">เฟส</p>
+              <p className="text-sm text-gray-500">{complaint.phase || "1"}</p>
+            </div>
+            <div className="col-span-2 md:col-span-1">
+              <p className="text-xs font-bold text-gray-700 mb-2">ซอย</p>
+              <p className="text-sm text-gray-500">{complaint.soi || "-"}</p>
+            </div>
+
+            {/* Row 2 */}
+            <div className="col-span-2 md:col-span-2">
+              <p className="text-xs font-bold text-gray-700 mb-2">ช่องทางการร้องเรียน</p>
+              <p className="text-sm text-gray-500">
+                {complaint.intake_channel ? (channelLabels[complaint.intake_channel] || complaint.intake_channel) : "-"}
+              </p>
+            </div>
+            <div className="col-span-1 md:col-span-1">
+              <p className="text-xs font-bold text-gray-700 mb-2">วันที่แจ้ง</p>
+              <p className="text-sm text-gray-500">{fmtDate}</p>
+            </div>
+            <div className="col-span-1 md:col-span-2">
+              <p className="text-xs font-bold text-gray-700 mb-2">เบอร์โทรศัพท์</p>
+              <p className="text-sm text-gray-500">{complaint.phone_number || "-"}</p>
+            </div>
           </div>
         </div>
 
-        {/* Description */}
-        <div className="px-6 py-5">
-          <p className="text-xs text-gray-400 m-0 mb-2">รายละเอียด</p>
-          <p className="text-sm text-gray-700 leading-relaxed m-0 whitespace-pre-wrap">{complaint.description}</p>
+        {/* Problem Description */}
+        <div className="mb-8">
+          <h3 className="text-sm font-bold text-gray-900 mb-3">รายละเอียดปัญหา</h3>
+          <p className="text-xs leading-relaxed text-gray-600 whitespace-pre-wrap">
+            {complaint.description || "-"}
+          </p>
         </div>
 
         {/* Attachment */}
-        {complaint.attachment_url && (
-          <div className="px-6 pb-5">
-            <p className="text-xs text-gray-400 m-0 mb-2">ไฟล์แนบ</p>
-            <a
-              href={complaint.attachment_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl text-sm text-[#d4a574] hover:bg-amber-100 no-underline transition-colors"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
-              </svg>
-              ดูไฟล์แนบ
-            </a>
-          </div>
-        )}
-      </div>
-
-      {/* Status Timeline */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-700 m-0 mb-5">
-          <svg className="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 16 14" />
-          </svg>
-          สถานะการดำเนินงาน
-        </h3>
-
-        <div className="flex flex-col sm:flex-row sm:items-start gap-0 sm:gap-0">
-          {complaint.status === "rejected" ? (
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full">
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 rounded-full bg-red-500 shrink-0" />
-                <div>
-                  <p className="text-sm font-medium text-gray-700 m-0">รับเรื่อง</p>
-                  <p className="text-xs text-gray-400 m-0">
-                    {new Date(complaint.reported_date).toLocaleDateString("th-TH", { month: "short", day: "numeric", year: "2-digit" })}
-                  </p>
-                </div>
+        <div className="mb-10">
+          <h3 className="text-sm font-bold text-gray-900 mb-1">ไฟล์แนบ</h3>
+          <p className="text-xs text-gray-500 mb-4">ภาพประกอบปัญหา</p>
+          
+          {complaint.attachment_url && !imageError ? (
+            isImage ? (
+              <div className="w-full max-w-[400px] aspect-video bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                <img 
+                  src={complaint.attachment_url} 
+                  alt="ภาพประกอบปัญหา" 
+                  className="w-full h-full object-cover"
+                  onError={() => setImageError(true)}
+                />
               </div>
-              <div className="hidden sm:block flex-1 h-px bg-red-200 mx-2" />
-              <div className="sm:hidden w-px h-6 bg-red-200 ml-[7px]" />
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 rounded-full bg-red-500 shrink-0" />
-                <div>
-                  <p className="text-sm font-medium text-red-600 m-0">ปฏิเสธเรื่อง</p>
-                  <p className="text-xs text-gray-400 m-0">เรื่องถูกปฏิเสธ</p>
-                </div>
-              </div>
-            </div>
+            ) : (
+              <a 
+                href={complaint.attachment_url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-block text-xs text-blue-600 hover:underline"
+              >
+                ดูไฟล์แนบ
+              </a>
+            )
           ) : (
-            <div className="flex flex-col sm:flex-row sm:items-start w-full">
-              {statusTimeline.map((step, idx) => {
-                const state = getTimelineState(step, complaint.status);
-                const dotClasses = {
-                  completed: "bg-green-500",
-                  active: "bg-[#d4a574] ring-4 ring-amber-100",
-                  rejected: "bg-red-500",
-                  upcoming: "bg-gray-200",
-                };
-                const lineClasses = {
-                  completed: "bg-green-300",
-                  active: "bg-amber-200",
-                  rejected: "bg-red-200",
-                  upcoming: "bg-gray-200",
-                };
-
-                return (
-                  <div key={step} className="flex sm:flex-col sm:items-center sm:flex-1 gap-3 sm:gap-2">
-                    <div className="flex flex-col sm:flex-row items-center sm:w-full">
-                      <div className={`w-4 h-4 rounded-full shrink-0 ${dotClasses[state]}`} />
-                      {idx < statusTimeline.length - 1 && (
-                        <>
-                          <div className={`hidden sm:block flex-1 h-0.5 ${lineClasses[state]}`} />
-                          <div className={`sm:hidden w-px h-8 ml-0 ${lineClasses[state]}`} />
-                        </>
-                      )}
-                    </div>
-                    <div className="sm:text-center sm:mt-1">
-                      <p className={`text-xs font-medium m-0 ${state === "upcoming" ? "text-gray-400" : "text-gray-700"}`}>
-                        {statusTimelineLabels[step]}
-                      </p>
-                      {step === "pending" && (
-                        <p className="text-[11px] text-gray-400 m-0">
-                          {new Date(complaint.reported_date).toLocaleDateString("th-TH", { month: "short", day: "numeric" })}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="w-full max-w-[400px] aspect-video bg-gray-50 rounded-lg border border-dashed border-gray-300 flex items-center justify-center">
+              <p className="text-xs text-gray-400">ไม่มีรูปภาพประกอบ</p>
             </div>
           )}
         </div>
-      </div>
 
-      {/* Comments */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-700 m-0 mb-4">
-          <svg className="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
-          ความคิดเห็น
-        </h3>
+        {/* Review Section (Gray Card) */}
+        <div className="bg-[#f8f9fa] rounded-2xl p-6 md:p-8">
+          <h3 className="text-sm font-bold text-gray-900 mb-2">ส่วนพิจารณาคำร้อง</h3>
+          <p className="text-xs text-gray-500 mb-6">การพิจารณาผลดำเนินการ หรือ การอนุมัติตามระเบียบนิติบุคคล</p>
 
-        {comments.length === 0 ? (
-          <p className="text-sm text-gray-400 text-center py-6 m-0">ยังไม่มีความคิดเห็น</p>
-        ) : (
-          <div className="space-y-4 mb-4">
-            {comments.map((comment) => (
-              <div key={comment.id} className="flex gap-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0 ${
-                  comment.user_role !== "resident" ? "bg-blue-500" : "bg-[#d4a574]"
-                }`}>
-                  {comment.user_name?.charAt(0)?.toUpperCase() || "?"}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-medium text-gray-700">{comment.user_name}</span>
-                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
-                      {comment.user_role === "staff" ? "เจ้าหน้าที่" : comment.user_role === "admin" ? "แอดมิน" : "ลูกบ้าน"}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-600 m-0 mb-1">{comment.content}</p>
-                  <p className="text-xs text-gray-400 m-0">
-                    {new Date(comment.created_at).toLocaleDateString("th-TH", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                </div>
-              </div>
-            ))}
+          {/* Approve / Reject Badges */}
+          <div className="flex flex-wrap gap-4 mb-8">
+            <div className={`flex items-center gap-3 px-6 py-2.5 bg-white border ${complaint.status === 'approved' || complaint.status === 'resolved' ? 'border-green-400 shadow-sm' : 'border-gray-200'} rounded-xl`}>
+              <CheckCircleIcon active={complaint.status === 'approved' || complaint.status === 'resolved'} />
+              <span className="text-xs font-bold text-gray-700">อนุมัติ</span>
+            </div>
+            
+            <div className={`flex items-center gap-3 px-6 py-2.5 bg-white border ${complaint.status === 'rejected' ? 'border-red-400 shadow-sm' : 'border-gray-200'} rounded-xl`}>
+              <XCircleIcon active={complaint.status === 'rejected'} />
+              <span className="text-xs font-bold text-gray-700">ไม่อนุมัติ</span>
+            </div>
           </div>
-        )}
 
-        {/* Comment Input */}
-        <div className="flex gap-2 pt-3 border-t border-gray-100">
-          <input
-            type="text"
-            placeholder="เขียนความคิดเห็น..."
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-700 placeholder-gray-400 outline-none transition-all focus:border-[#d4a574] focus:ring-2 focus:ring-amber-100"
-            onKeyDown={(e) => e.key === "Enter" && handleSendComment()}
-            disabled={sending}
-          />
-          <button
-            onClick={handleSendComment}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#d4a574] hover:bg-[#b8865a] text-white rounded-xl text-sm font-medium border-none cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={sending || !newComment.trim()}
-          >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="22" y1="2" x2="11" y2="13" />
-              <polygon points="22 2 15 22 11 13 2 9 22 2" />
-            </svg>
-            {sending ? "..." : "ส่ง"}
-          </button>
+          {/* Reviewer Name */}
+          <div className="mb-6">
+            <p className="text-xs text-gray-500 mb-2">ผู้รับคำร้อง(เจ้าหน้าที่นิติบุคคล)</p>
+            <p className="text-xs font-bold text-gray-800">
+              {/* In Figma it shows a name, we'll use placeholder or real data if available */}
+              {complaint.status !== 'pending' ? "เจ้าหน้าที่รับเรื่อง" : "-"}
+            </p>
+          </div>
+
+          {/* Committee Comment */}
+          <div>
+            <p className="text-xs text-gray-500 mb-3">ความเห็นคณะกรรมการ (เหตุผลประกอบการพิจารณา)</p>
+            <div className="bg-white border border-gray-200 rounded-2xl p-5 min-h-[140px] relative">
+              {/* Chat Icon placeholder in the corner */}
+              <div className="absolute top-4 left-4">
+                <ChatBubbleIcon />
+              </div>
+              <div className="pl-10 text-xs leading-relaxed text-gray-600 whitespace-pre-wrap pt-1">
+                {complaint.petition || ""}
+              </div>
+            </div>
+          </div>
+
         </div>
+
       </div>
     </div>
   );

@@ -37,6 +37,9 @@ export default function ComplaintsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
     const fetchComplaints = async () => {
@@ -64,14 +67,32 @@ export default function ComplaintsPage() {
     fetchComplaints();
   }, []);
 
-  // Filter + Search
+  // Filter + Search + Date Range
   const filtered = complaints.filter((c) => {
     const matchFilter = filter === "all" || c.status === filter;
     const matchSearch =
       search === "" ||
       c.subject.toLowerCase().includes(search.toLowerCase()) ||
       (c.ticket_no && c.ticket_no.toLowerCase().includes(search.toLowerCase()));
-    return matchFilter && matchSearch;
+
+    let matchDate = true;
+    if (startDate || endDate) {
+      const rDate = new Date(c.reported_date);
+      rDate.setHours(0, 0, 0, 0);
+
+      if (startDate) {
+        const sDate = new Date(startDate);
+        sDate.setHours(0, 0, 0, 0);
+        if (rDate < sDate) matchDate = false;
+      }
+      if (endDate) {
+        const eDate = new Date(endDate);
+        eDate.setHours(0, 0, 0, 0);
+        if (rDate > eDate) matchDate = false;
+      }
+    }
+
+    return matchFilter && matchSearch && matchDate;
   });
 
   // Count per filter
@@ -96,21 +117,81 @@ export default function ComplaintsPage() {
         <p className="text-sm text-gray-400 mt-1 m-0">รายการร้องเรียนทั้งหมดของคุณ</p>
       </div>
 
-      {/* Top Bar: Search + New Button */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        {/* Search */}
-        <div className="relative flex-1 max-w-md">
-          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-          <input
-            type="text"
-            placeholder="ค้นหาเรื่องร้องเรียน..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 outline-none transition-all focus:border-[#d4a574] focus:ring-2 focus:ring-amber-100"
-          />
+      {/* Top Bar: Search + Date Filters + New Button */}
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1">
+          {/* Search */}
+          <div className="relative flex-1 max-w-md">
+            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              type="text"
+              placeholder="ค้นหาเรื่องร้องเรียน..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 outline-none transition-all focus:border-[#d4a574] focus:ring-2 focus:ring-amber-100"
+            />
+          </div>
+
+          {/* Date Filter Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all text-sm font-medium ${
+                (startDate || endDate) 
+                  ? "bg-amber-50 border-amber-200 text-amber-700" 
+                  : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+              </svg>
+              ตัวกรองเพิ่มเติม
+              {(startDate || endDate) && (
+                <span className="flex w-2 h-2 rounded-full bg-amber-500 ml-1"></span>
+              )}
+            </button>
+
+            {/* Dropdown Menu */}
+            {isFilterOpen && (
+              <div className="absolute left-0 top-full mt-2 w-72 bg-white rounded-2xl shadow-xl border border-gray-100 p-5 z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-sm font-bold text-gray-800 m-0">กรองตามวันที่</h4>
+                  {(startDate || endDate) && (
+                    <button 
+                      onClick={() => { setStartDate(""); setEndDate(""); setIsFilterOpen(false); }}
+                      className="text-xs text-red-500 hover:text-red-700 font-medium cursor-pointer bg-transparent border-none p-0"
+                    >
+                      ล้างตัวกรอง
+                    </button>
+                  )}
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">วันที่เริ่มต้น</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 outline-none focus:border-[#d4a574] focus:ring-1 focus:ring-[#d4a574] focus:bg-white transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">วันที่สิ้นสุด</label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 outline-none focus:border-[#d4a574] focus:ring-1 focus:ring-[#d4a574] focus:bg-white transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <Link
