@@ -49,3 +49,8 @@
 {"level":"error","message":"Username not found:","timestamp":"2026-05-18T08:17:24.575Z"}
 {"level":"error","message":"Username not found:","timestamp":"2026-05-18T08:17:41.913Z"}
 {"level":"error","message":"Username not found:","timestamp":"2026-05-18T08:23:24.708Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-19T05:55:14.122Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-19T05:55:56.796Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-19T06:09:00.590Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-19T06:50:18.433Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-19T06:51:07.701Z"}

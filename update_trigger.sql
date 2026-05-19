@@ -1,0 +1,4 @@
+-- ไม่ต้องแก้ไข database
+-- ใช้ schema เดิมตามที่เป็นอยู่:
+-- complaints → resident_id → resident → user_id → users (first_name, last_name)
+-- Staff เลือกลูกบ้านจากรายการที่มีบัญชีแล้วเท่านั้น
