@@ -1,144 +1,44 @@
 import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
-import { supabase, supabaseAnon } from '../config/supabase';
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt.util';
-import { env } from '../config/env';
+import { AuthService } from '../services/auth.service';
+import { sendSuccess, sendError } from '../utils/response.util';
 import logger from '../config/logger';
 
 export const login = async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
 
-    if (!username || !password) {
-      return res.status(400).json({ success: false, message: 'Username and password are required' });
-    }
+    const result = await AuthService.login(username, password);
 
-    // 1. Find user from username in public.users table
-    const { data: publicUser, error: findError } = await supabase
-      .from('users')
-      .select('user_id, password_hash, role, first_name, last_name')
-      .ilike('username', username.trim())
-      .single();
-
-    if (findError || !publicUser) {
-      logger.error('Username not found:', username, '| Supabase error:', findError?.message, '| code:', findError?.code);
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
-    }
-
-    let userId = publicUser.user_id;
-
-    // 2. Verify password
-    if (publicUser.password_hash !== 'handled_by_supabase_auth') {
-      // Local bcrypt authentication
-      const isMatch = await bcrypt.compare(password, publicUser.password_hash);
-      if (!isMatch) {
-        logger.error('Invalid password via bcrypt for:', username);
-        return res.status(401).json({ success: false, message: 'Invalid credentials' });
-      }
-    } else {
-      // Legacy Supabase Auth authentication
-      const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(publicUser.user_id);
-      
-      if (authError || !authUser.user?.email) {
-        logger.error('Error fetching auth user by ID:', authError?.message);
-        return res.status(401).json({ success: false, message: 'Invalid credentials' });
-      }
-
-      const email = authUser.user.email;
-
-      const { data, error } = await supabaseAnon.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error || !data.user) {
-        logger.error('Login error from Supabase:', error?.message);
-        return res.status(401).json({ success: false, message: 'Invalid credentials' });
-      }
-    }
-
-    const role = publicUser.role || 'resident';
-    const payload = { id: userId, role: role };
-    const accessToken = generateAccessToken(payload);
-    const refreshToken = generateRefreshToken(payload);
-
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    logger.info(`User logged in with username: ${username}`);
-
-    res.status(200).json({
-      success: true,
-      message: 'Login successful',
-      data: {
-        user: {
-          id: userId,
-          email: '', // Email might not be available or needed if using local auth
-          username: username,
-          role: role,
-          full_name: `${publicUser.first_name || ''} ${publicUser.last_name || ''}`.trim()
-        },
-        accessToken
-      }
-    });
-  } catch (error) {
+    return sendSuccess(res, {
+      user: result.user,
+      accessToken: result.accessToken,
+    }, 'Login successful');
+  } catch (error: any) {
+    if (error.message === 'Invalid credentials') {
+      logger.warn(`[LOGIN DEBUG] Controller caught Invalid credentials for: ${req.body.username}`);
+      return sendError(res, 'Invalid credentials', 401);
+    }
     logger.error('Login error:', error);
-    res.status(500).json({ success: false, message: 'Internal server error' });
+    return sendError(res, 'Internal server error');
   }
 };
 
-
 export const register = async (req: Request, res: Response) => {
   try {
-    const { email, password, username, first_name, last_name, house_no, phone_number, resident_type, role } = req.body;
+    const result = await AuthService.register(req.body);
 
-    if (!email || !password || !username || !first_name || !last_name) {
-      return res.status(400).json({ success: false, message: 'Missing required fields' });
-    }
-
-    // 1. Sign up with Supabase Auth
-    // Note: The handle_new_user trigger in Postgres will sync this to public.users
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          username,
-          first_name,
-          last_name,
-          house_no,
-          phone_number,
-          resident_type,
-          role: role || 'resident'
-        }
-      }
-    });
-
-    if (error) {
-      logger.error('Registration error from Supabase:', error.message);
-      return res.status(400).json({ success: false, message: error.message });
-    }
-
-    logger.info(`New user registered: ${email}`);
-
-    res.status(201).json({
-      success: true,
-      message: 'Registration successful. Please check your email for verification if enabled.',
-      data: { 
-        id: data.user?.id,
-        email: data.user?.email,
-        username,
-        role: role || 'resident' 
-      }
-    });
-  } catch (error) {
+    logger.info(`New user registered: ${req.body.email}`);
+    return sendSuccess(res, result, 'Registration successful', 201);
+  } catch (error: any) {
     logger.error('Registration error:', error);
-    res.status(500).json({ success: false, message: 'Internal server error' });
+    return sendError(res, error.message || 'Internal server error', 400);
   }
 };
 
@@ -147,226 +47,79 @@ export const refresh = async (req: Request, res: Response) => {
     const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
 
     if (!refreshToken) {
-      return res.status(401).json({ success: false, message: 'Refresh token required' });
+      return sendError(res, 'Refresh token required', 401);
     }
 
-    // In a real Supabase app, you might want to use supabase.auth.refreshSession()
-    // But since we use custom JWTs, we verify our own refresh token.
-    const decoded = verifyRefreshToken(refreshToken);
-    const accessToken = generateAccessToken({ id: decoded.id, role: decoded.role });
-
-    res.status(200).json({
-      success: true,
-      data: { accessToken }
-    });
+    const accessToken = await AuthService.refreshToken(refreshToken);
+    return sendSuccess(res, { accessToken });
   } catch (error) {
-    res.status(401).json({ success: false, message: 'Invalid or expired refresh token' });
+    return sendError(res, 'Invalid or expired refresh token', 401);
   }
 };
 
 export const logout = async (req: Request, res: Response) => {
   try {
-    await supabase.auth.signOut();
+    await AuthService.logout();
     res.clearCookie('refreshToken');
-    res.status(200).json({ success: true, message: 'Logout successful' });
+    return sendSuccess(res, null, 'Logout successful');
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Internal server error' });
+    return sendError(res, 'Internal server error');
   }
 };
 
-// ===== Forgot Password: Verify identity and issue a reset token =====
 export const forgotPassword = async (req: Request, res: Response) => {
   try {
     const { username, first_name, last_name } = req.body;
 
-    if (!username || !first_name || !last_name) {
-      return res.status(400).json({
-        success: false,
-        message: 'กรุณากรอกชื่อผู้ใช้ ชื่อจริง และนามสกุล',
-      });
+    const resetToken = await AuthService.verifyIdentity(username, first_name, last_name);
+
+    return sendSuccess(res, { resetToken }, 'ยืนยันตัวตนสำเร็จ กรุณาตั้งรหัสผ่านใหม่');
+  } catch (error: any) {
+    if (error.message === 'ไม่พบชื่อผู้ใช้งานในระบบ') {
+      return sendError(res, error.message, 404);
     }
-
-    // 1. Find user by username in public.users table
-    const { data: userData, error: findError } = await supabase
-      .from('users')
-      .select('user_id, first_name, last_name')
-      .ilike('username', username.trim())
-      .single();
-
-    if (findError || !userData) {
-      logger.warn(`Forgot password: username not found - ${username}`);
-      return res.status(404).json({
-        success: false,
-        message: 'ไม่พบชื่อผู้ใช้งานในระบบ',
-      });
+    if (error.message === 'ข้อมูลไม่ตรงกับที่ลงทะเบียนไว้') {
+      return sendError(res, 'ข้อมูลไม่ตรงกับที่ลงทะเบียนไว้ กรุณาตรวจสอบอีกครั้ง', 403);
     }
-
-    // 2. Verify identity by matching first_name and last_name (case-insensitive)
-    const isMatch =
-      userData.first_name?.toLowerCase().trim() === first_name.toLowerCase().trim() &&
-      userData.last_name?.toLowerCase().trim() === last_name.toLowerCase().trim();
-
-    if (!isMatch) {
-      logger.warn(`Forgot password: identity mismatch for username - ${username}`);
-      return res.status(403).json({
-        success: false,
-        message: 'ข้อมูลไม่ตรงกับที่ลงทะเบียนไว้ กรุณาตรวจสอบอีกครั้ง',
-      });
-    }
-
-    // 3. Generate a short-lived reset token (15 minutes)
-    const resetToken = jwt.sign(
-      { userId: userData.user_id, purpose: 'password_reset' },
-      env.JWT_SECRET,
-      { expiresIn: '15m' }
-    );
-
-    logger.info(`Forgot password: reset token issued for username - ${username}`);
-
-    res.status(200).json({
-      success: true,
-      message: 'ยืนยันตัวตนสำเร็จ กรุณาตั้งรหัสผ่านใหม่',
-      data: { resetToken },
-    });
-  } catch (error) {
     logger.error('Forgot password error:', error);
-    res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดภายในระบบ' });
+    return sendError(res, 'เกิดข้อผิดพลาดภายในระบบ');
   }
 };
 
-// ===== Reset Password: Update password using reset token =====
 export const resetPassword = async (req: Request, res: Response) => {
   try {
     const { resetToken, newPassword } = req.body;
 
-    if (!resetToken || !newPassword) {
-      return res.status(400).json({
-        success: false,
-        message: 'กรุณาระบุ token และรหัสผ่านใหม่',
-      });
+    await AuthService.resetPassword(resetToken, newPassword);
+
+    return sendSuccess(res, null, 'เปลี่ยนรหัสผ่านสำเร็จ กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่');
+  } catch (error: any) {
+    if (error.message.includes('หมดอายุ') || error.message.includes('ไม่ถูกต้อง')) {
+      return sendError(res, error.message, 401);
     }
-
-    // Validate password strength
-    if (newPassword.length < 6) {
-      return res.status(400).json({
-        success: false,
-        message: 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร',
-      });
-    }
-
-    // 1. Verify the reset token
-    let decoded: { userId: string; purpose: string };
-    try {
-      decoded = jwt.verify(resetToken, env.JWT_SECRET) as { userId: string; purpose: string };
-    } catch {
-      return res.status(401).json({
-        success: false,
-        message: 'ลิงก์รีเซ็ตหมดอายุหรือไม่ถูกต้อง กรุณาเริ่มใหม่อีกครั้ง',
-      });
-    }
-
-    if (decoded.purpose !== 'password_reset') {
-      return res.status(401).json({
-        success: false,
-        message: 'Token ไม่ถูกต้อง',
-      });
-    }
-
-    // 2. Hash the new password with bcrypt
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-    // 3. Update password_hash in public.users table
-    const { error: dbError } = await supabase
-      .from('users')
-      .update({ password_hash: hashedPassword })
-      .eq('user_id', decoded.userId);
-
-    if (dbError) {
-      logger.error('Reset password error from DB:', dbError.message);
-      return res.status(500).json({
-        success: false,
-        message: 'ไม่สามารถเปลี่ยนรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง',
-      });
-    }
-
-    // 4. Try to update Supabase Auth as well (if the user exists there)
-    const { error: updateError } = await supabase.auth.admin.updateUserById(
-      decoded.userId,
-      { password: newPassword }
-    );
-
-    if (updateError && updateError.message !== 'User not found') {
-      logger.warn(`Failed to update Supabase Auth for user ${decoded.userId}: ${updateError.message}`);
-    }
-
-    logger.info(`Password reset successful for user ID: ${decoded.userId}`);
-
-    res.status(200).json({
-      success: true,
-      message: 'เปลี่ยนรหัสผ่านสำเร็จ กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่',
-    });
-  } catch (error) {
     logger.error('Reset password error:', error);
-    res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดภายในระบบ' });
+    return sendError(res, 'เกิดข้อผิดพลาดภายในระบบ');
   }
 };
 
 export const deleteAccount = async (req: Request, res: Response) => {
   try {
-    // Verify the Supabase access token directly
+    const { supabase } = await import('../config/supabase');
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
-      return res.status(401).json({ success: false, message: 'Authentication token required' });
+      return sendError(res, 'Authentication token required', 401);
     }
 
     const { data: { user: authUser }, error: verifyError } = await supabase.auth.getUser(token);
 
     if (verifyError || !authUser) {
-      logger.error('Token verification failed:', verifyError?.message);
-      return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+      return sendError(res, 'Invalid or expired token', 401);
     }
 
-    const userId = authUser.id;
-
-    // 1. Delete from resident table (if exists)
-    const { error: residentError } = await supabase
-      .from('resident')
-      .delete()
-      .eq('user_id', userId);
-
-    if (residentError) {
-      logger.error('Error deleting resident data:', residentError.message);
-      // Continue even if resident row doesn't exist
-    }
-
-    // 2. Delete from users table
-    const { error: userError } = await supabase
-      .from('users')
-      .delete()
-      .eq('user_id', userId);
-
-    if (userError) {
-      logger.error('Error deleting user data:', userError.message);
-      return res.status(500).json({ success: false, message: 'Failed to delete user data' });
-    }
-
-    // 3. Delete from Supabase Auth
-    const { error: authError } = await supabase.auth.admin.deleteUser(userId);
-
-    if (authError) {
-      logger.error('Error deleting auth user:', authError.message);
-      return res.status(500).json({ success: false, message: 'Failed to delete auth account' });
-    }
-
-    logger.info(`Account deleted for user: ${userId}`);
-
-    res.status(200).json({
-      success: true,
-      message: 'Account deleted successfully',
-    });
-  } catch (error) {
+    await AuthService.deleteAccount(authUser.id);
+    return sendSuccess(res, null, 'Account deleted successfully');
+  } catch (error: any) {
     logger.error('Delete account error:', error);
-    res.status(500).json({ success: false, message: 'Internal server error' });
+    return sendError(res, error.message || 'Internal server error');
   }
 };
