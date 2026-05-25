@@ -52,7 +52,7 @@ export const ComplaintService = {
 
     const { data: residentData } = await supabase
       .from('resident')
-      .select('resident_id, house_no, phone_number, resident_type')
+      .select('resident_id, house_no, phone_number, resident_type, phase, soi')
       .eq('user_id', userId)
       .single();
 
@@ -62,6 +62,8 @@ export const ComplaintService = {
       house_no: residentData?.house_no || '',
       phone_number: residentData?.phone_number || '',
       resident_type: residentData?.resident_type || '',
+      phase: residentData?.phase || '',
+      soi: residentData?.soi || '',
       resident_id: residentData?.resident_id || null,
     };
   },

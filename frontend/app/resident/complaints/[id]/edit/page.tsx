@@ -77,7 +77,8 @@ export default function EditComplaintPage() {
     last_name: "",
     phone_number: "",
     house_no: "",
-    resident_type: "",
+    phase: "",
+    soi: "",
   });
 
   // ข้อมูลคำร้อง (กรอกและแก้ไขได้)
@@ -113,7 +114,8 @@ export default function EditComplaintPage() {
             last_name: c.last_name || "",
             phone_number: c.phone_number || "",
             house_no: c.house_no || "",
-            resident_type: c.resident_type || "",
+            phase: c.phase || "",
+            soi: c.soi || "",
           });
 
           // วันที่รายงาน (ตัดเวลาออก)
@@ -291,15 +293,19 @@ export default function EditComplaintPage() {
               </div>
             </div>
 
-            {/* Row 2: บ้านเลขที่ */}
+            {/* Row 2: บ้านเลขที่, เฟส, ซอย */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className={labelClasses}>บ้านเลขที่</label>
                 <input type="text" value={userInfo.house_no || "-"} className={readOnlyClasses} readOnly />
               </div>
               <div>
-                <label className={labelClasses}>ประเภทลูกบ้าน</label>
-                <input type="text" value={userInfo.resident_type || "-"} className={readOnlyClasses} readOnly />
+                <label className={labelClasses}>เฟส</label>
+                <input type="text" value={userInfo.phase || "-"} className={readOnlyClasses} readOnly />
+              </div>
+              <div>
+                <label className={labelClasses}>ซอย</label>
+                <input type="text" value={userInfo.soi || "-"} className={readOnlyClasses} readOnly />
               </div>
             </div>
           </div>

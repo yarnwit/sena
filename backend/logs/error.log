@@ -62,3 +62,6 @@
 {"code":"42501","details":null,"hint":null,"level":"error","message":"Error inserting resident manually: new row violates row-level security policy for table \"resident\"","timestamp":"2026-05-21T05:14:23.210Z"}
 {"code":"42501","details":null,"hint":null,"level":"error","message":"Error inserting user manually: new row violates row-level security policy for table \"users\"","timestamp":"2026-05-21T05:19:33.234Z"}
 {"code":"42501","details":null,"hint":null,"level":"error","message":"Error inserting resident manually: new row violates row-level security policy for table \"resident\"","timestamp":"2026-05-21T05:19:33.334Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-25T08:28:39.240Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-25T08:28:45.492Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-25T08:35:53.212Z"}

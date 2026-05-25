@@ -73,7 +73,8 @@ export default function NewComplaintPage() {
     last_name: "",
     phone_number: "",
     house_no: "",
-    resident_type: "",
+    phase: "",
+    soi: "",
   });
 
   // ข้อมูลคำร้อง (กรอกใหม่)
@@ -106,7 +107,8 @@ export default function NewComplaintPage() {
             last_name: json.data.last_name || "",
             phone_number: json.data.phone_number || "",
             house_no: json.data.house_no || "",
-            resident_type: json.data.resident_type || "",
+            phase: json.data.phase || "",
+            soi: json.data.soi || "",
           });
         }
       } catch {
@@ -276,7 +278,7 @@ export default function NewComplaintPage() {
               </div>
             </div>
 
-            {/* Row 2: บ้านเลขที่ */}
+            {/* Row 2: บ้านเลขที่, เฟส, ซอย */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className={labelClasses}>บ้านเลขที่</label>
@@ -288,10 +290,19 @@ export default function NewComplaintPage() {
                 />
               </div>
               <div>
-                <label className={labelClasses}>ประเภทลูกบ้าน</label>
+                <label className={labelClasses}>เฟส</label>
                 <input
                   type="text"
-                  value={userInfo.resident_type || "-"}
+                  value={userInfo.phase || "-"}
+                  className={readOnlyClasses}
+                  readOnly
+                />
+              </div>
+              <div>
+                <label className={labelClasses}>ซอย</label>
+                <input
+                  type="text"
+                  value={userInfo.soi || "-"}
                   className={readOnlyClasses}
                   readOnly
                 />

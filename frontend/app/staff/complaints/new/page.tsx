@@ -46,6 +46,8 @@ export default function StaffNewComplaintPage() {
   const [manualLastName, setManualLastName] = useState("");
   const [manualHouseNo, setManualHouseNo] = useState("");
   const [manualPhone, setManualPhone] = useState("");
+  const [manualPhase, setManualPhase] = useState("");
+  const [manualSoi, setManualSoi] = useState("");
 
   // Complaint form
   const [form, setForm] = useState({
@@ -109,6 +111,8 @@ export default function StaffNewComplaintPage() {
         body.manual_name = `${manualFirstName} ${manualLastName}`;
         body.manual_house_no = manualHouseNo;
         body.manual_phone = manualPhone || null;
+        body.phase = manualPhase || null;
+        body.soi = manualSoi || null;
       }
 
       const res = await fetch(`${API_URL}/complaints/staff`, {
@@ -201,15 +205,19 @@ export default function StaffNewComplaintPage() {
               </>
             ) : (
               /* Manual Input */
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div><label className={lbl}>ชื่อจริง <span className="text-red-500">*</span></label>
                   <input type="text" value={manualFirstName} onChange={e => setManualFirstName(e.target.value)} placeholder="ชื่อจริง" className={inp} disabled={loading || success} /></div>
                 <div><label className={lbl}>นามสกุล <span className="text-red-500">*</span></label>
                   <input type="text" value={manualLastName} onChange={e => setManualLastName(e.target.value)} placeholder="นามสกุล" className={inp} disabled={loading || success} /></div>
-                <div><label className={lbl}>บ้านเลขที่ <span className="text-red-500">*</span></label>
-                  <input type="text" value={manualHouseNo} onChange={e => setManualHouseNo(e.target.value)} placeholder="เช่น 88/1" className={inp} disabled={loading || success} /></div>
                 <div><label className={lbl}>เบอร์โทรศัพท์</label>
                   <input type="text" value={manualPhone} onChange={e => setManualPhone(e.target.value)} placeholder="08x-xxx-xxxx" className={inp} disabled={loading || success} /></div>
+                <div><label className={lbl}>บ้านเลขที่ <span className="text-red-500">*</span></label>
+                  <input type="text" value={manualHouseNo} onChange={e => setManualHouseNo(e.target.value)} placeholder="เช่น 88/1" className={inp} disabled={loading || success} /></div>
+                <div><label className={lbl}>เฟส</label>
+                  <input type="text" value={manualPhase} onChange={e => setManualPhase(e.target.value)} placeholder="เช่น 1, 2" className={inp} disabled={loading || success} /></div>
+                <div><label className={lbl}>ซอย</label>
+                  <input type="text" value={manualSoi} onChange={e => setManualSoi(e.target.value)} placeholder="ซอย" className={inp} disabled={loading || success} /></div>
               </div>
             )}
           </div>
