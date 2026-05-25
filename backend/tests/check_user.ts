@@ -1,4 +1,4 @@
-import { supabase } from './src/config/supabase';
+import { supabase } from '../src/config/supabase';
 
 async function main() {
   // Test exact query like the controller does

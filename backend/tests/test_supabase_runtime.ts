@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 // โหลด .env เหมือนกับ env.ts ของ backend
-dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 import { createClient } from '@supabase/supabase-js';
 

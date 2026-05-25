@@ -58,7 +58,9 @@ sena/
 │   │   │   │   ├── new/
 │   │   │   │   │   └── page.tsx     # ฟอร์มสร้างร้องเรียนใหม่
 │   │   │   │   └── [id]/
-│   │   │   │       └── page.tsx     # รายละเอียดร้องเรียน + ติดตามสถานะ
+│   │   │   │       ├── page.tsx     # รายละเอียดร้องเรียน + ติดตามสถานะ
+│   │   │   │       └── edit/
+│   │   │   │           └── page.tsx # หน้าแก้ไขร้องเรียน
 │   │   │   └── profile/
 │   │   │       └── page.tsx         # จัดการข้อมูลส่วนตัว
 │   │   │
@@ -68,6 +70,8 @@ sena/
 │   │   │   │   └── page.tsx         # ภาพรวมงานที่ต้องทำทั้งหมด
 │   │   │   ├── complaints/
 │   │   │   │   ├── page.tsx         # จัดการร้องเรียนทั้งหมด (เปลี่ยนสถานะ, มอบหมาย)
+│   │   │   │   ├── new/
+│   │   │   │   │   └── page.tsx     # สร้างร้องเรียนใหม่โดยเจ้าหน้าที่
 │   │   │   │   └── [id]/
 │   │   │   │       └── page.tsx     # หน้าจัดการรายละเอียด (มีปุ่มอัปเดตสถานะ)
 │   │   │   └── profile/
@@ -114,7 +118,10 @@ sena/
 │   │
 │   ├── lib/                         # Utilities & Config
 │   │   ├── api.ts                   # Axios instance + interceptors
-│   │   ├── supabase.ts              # Supabase client
+│   │   ├── supabase/                # Supabase client setup
+│   │   │   ├── client.ts            # Client-side client
+│   │   │   ├── middleware.ts        # Middleware client
+│   │   │   └── server.ts            # Server-side client
 │   │   └── utils.ts                 # Helper functions
 │   │
 │   ├── types/                       # TypeScript Types
@@ -129,7 +136,8 @@ sena/
 │   ├── tailwind.config.ts
 │   ├── next.config.ts
 │   ├── tsconfig.json
-│   └── package.json
+│   ├── package.json
+│   └── .env.local                   # environment variables
 │
 ├── backend/                         # Express.js Backend (MVC Pattern)
 │   ├── src/
@@ -137,7 +145,7 @@ sena/
 │   │   ├── app.ts                   # Express app setup
 │   │   │
 │   │   ├── config/
-│   │   │   ├── database.ts          # Supabase connection
+│   │   │   ├── supabase.ts          # Supabase connection
 │   │   │   ├── env.ts               # Environment variables (dotenv)
 │   │   │   ├── cors.ts              # CORS configuration
 │   │   │   └── logger.ts            # Winston logger config
@@ -208,7 +216,6 @@ sena/
 │   └── package.json
 │
 ├── .gitignore
-├── .env.local                       # Frontend env
 ├── docker-compose.yml               # (optional) Docker setup
 └── README.md
 ```
