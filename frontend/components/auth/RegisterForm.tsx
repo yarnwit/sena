@@ -13,7 +13,6 @@ interface RegisterFormProps {
 
 export default function RegisterForm({ onSubmit, isLoading, error }: RegisterFormProps) {
   const [form, setForm] = useState<RegisterRequest>({
-    email: '',
     password: '',
     username: '',
     first_name: '',
@@ -26,7 +25,6 @@ export default function RegisterForm({ onSubmit, isLoading, error }: RegisterFor
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
-    if (!form.email) newErrors.email = 'กรุณากรอกอีเมล';
     if (!form.username) newErrors.username = 'กรุณากรอกชื่อผู้ใช้';
     if (!form.first_name) newErrors.first_name = 'กรุณากรอกชื่อจริง';
     if (!form.last_name) newErrors.last_name = 'กรุณากรอกนามสกุล';
@@ -55,7 +53,6 @@ export default function RegisterForm({ onSubmit, isLoading, error }: RegisterFor
         <Input label="นามสกุล *" value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} error={errors.last_name} />
       </div>
 
-      <Input label="อีเมล *" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} error={errors.email} />
       <Input label="ชื่อผู้ใช้ *" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} error={errors.username} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

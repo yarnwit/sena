@@ -16,7 +16,6 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
-  email: string;
   password: string;
   username: string;
   first_name: string;
@@ -24,6 +23,8 @@ export interface RegisterRequest {
   house_no?: string;
   phone_number?: string;
   resident_type?: string;
+  phase?: string;
+  soi?: string;
 }
 
 export interface AuthResponse {

@@ -3,16 +3,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
 import "./register.css";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { register } = useAuth();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
   const [houseNo, setHouseNo] = useState("");
+  const [phase, setPhase] = useState("");
+  const [soi, setSoi] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [residentType, setResidentType] = useState("owner");
   const [password, setPassword] = useState("");
@@ -41,40 +43,24 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      // สร้าง email จาก username สำหรับ Supabase Auth
-      const email = username.includes("@")
-        ? username
-        : `${username}@sena-grandhome.local`;
-
-      const res = await fetch(`${API_URL}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          password,
-          username,
-          first_name: firstName,
-          last_name: lastName,
-          house_no: houseNo,
-          phone_number: phoneNumber,
-          resident_type: residentType,
-          role: "resident",
-        }),
+      await register({
+        password,
+        username,
+        first_name: firstName,
+        last_name: lastName,
+        house_no: houseNo,
+        phone_number: phoneNumber,
+        resident_type: residentType,
+        phase: phase || undefined,
+        soi: soi || undefined,
       });
-
-      const json = await res.json();
-
-      if (!res.ok || !json.success) {
-        setError(json.message || "เกิดข้อผิดพลาดในการลงทะเบียน");
-        return;
-      }
 
       setSuccess("ลงทะเบียนสำเร็จ! กำลังไปหน้าเข้าสู่ระบบ...");
       setTimeout(() => {
         router.push("/login");
       }, 2000);
-    } catch {
-      setError("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "เกิดข้อผิดพลาดในการลงทะเบียน");
     } finally {
       setLoading(false);
     }
@@ -253,6 +239,42 @@ export default function RegisterPage() {
                 placeholder="กรอกบ้านเลขที่"
                 className="form-input"
                 required
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          {/* Phase Field */}
+          <div className="form-group">
+            <label htmlFor="phase" className="form-label">
+              เฟส
+            </label>
+            <div className="input-wrapper">
+              <input
+                id="phase"
+                type="text"
+                value={phase}
+                onChange={(e) => setPhase(e.target.value)}
+                placeholder="กรอกเฟส (เช่น 1, 2, 3)"
+                className="form-input"
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          {/* Soi Field */}
+          <div className="form-group">
+            <label htmlFor="soi" className="form-label">
+              ซอย
+            </label>
+            <div className="input-wrapper">
+              <input
+                id="soi"
+                type="text"
+                value={soi}
+                onChange={(e) => setSoi(e.target.value)}
+                placeholder="กรอกซอย"
+                className="form-input"
                 disabled={loading}
               />
             </div>
