@@ -26,6 +26,7 @@ interface ComplaintDetail {
   house_no?: string;
   phone_number?: string;
   resident_type?: string;
+  reviewer_name?: string | null;
 }
 
 interface Comment {
@@ -40,8 +41,7 @@ interface Comment {
 const statusConfig: Record<string, { label: string; bgClass: string; textClass: string }> = {
   pending:      { label: "รอดำเนินการ",     bgClass: "bg-red-600",    textClass: "text-white" },
   in_progress:  { label: "กำลังดำเนินการ",  bgClass: "bg-blue-600",   textClass: "text-white" },
-  resolved:     { label: "แก้ไขแล้ว",       bgClass: "bg-green-600",  textClass: "text-white" },
-  approved:     { label: "อนุมัติ",          bgClass: "bg-green-600",  textClass: "text-white" },
+  resolved:     { label: "อนุมัติ/แก้ไขแล้ว", bgClass: "bg-green-600",  textClass: "text-white" },
   rejected:     { label: "ไม่อนุมัติ",       bgClass: "bg-gray-600",   textClass: "text-white" },
   closed:       { label: "ปิดเรื่อง",        bgClass: "bg-gray-400",   textClass: "text-white" },
 };
@@ -100,7 +100,7 @@ const availableStatuses = [
   { value: "pending", label: "รอดำเนินการ" },
   { value: "in_progress", label: "กำลังดำเนินการ" },
   { value: "resolved", label: "แก้ไขแล้ว" },
-  { value: "rejected", label: "ปฏิเสธ" },
+  { value: "rejected", label: "ไม่อนุมัติ" },
 ];
 
 export default function StaffComplaintDetailPage() {
@@ -118,12 +118,22 @@ export default function StaffComplaintDetailPage() {
   // Status Update State
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [petition, setPetition] = useState<string>("");
+  const [userRole, setUserRole] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("accessToken");
         if (!token) { setLoading(false); return; }
+
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+          try {
+            const u = JSON.parse(userStr);
+            setUserRole(u.role || "");
+          } catch {}
+        }
 
         const res = await fetch(`${API_URL}/complaints/staff/${complaintId}`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -132,6 +142,7 @@ export default function StaffComplaintDetailPage() {
         if (json.success && json.data) {
           setComplaint(json.data);
           setSelectedStatus(json.data.status);
+          setPetition(json.data.petition || "");
         }
 
         // ดึง comments โดยใช้ supabase client
@@ -151,20 +162,20 @@ export default function StaffComplaintDetailPage() {
   }, [complaintId]);
 
   const handleUpdateStatus = async () => {
-    if (!complaint || selectedStatus === complaint.status) return;
+    if (!complaint || (selectedStatus === complaint.status && petition === (complaint.petition || ""))) return;
     setUpdatingStatus(true);
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) { alert("กรุณาเข้าสู่ระบบใหม่"); setUpdatingStatus(false); return; }
 
       const res = await fetch(`${API_URL}/complaints/staff/${complaint.complaint_id}/status`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ status: selectedStatus }),
+        body: JSON.stringify({ status: selectedStatus, petition }),
       });
       const json = await res.json();
       if (json.success) {
-        setComplaint({ ...complaint, status: selectedStatus });
+        setComplaint({ ...complaint, status: selectedStatus, petition: petition });
         alert("อัปเดตสถานะสำเร็จ");
         router.refresh();
       } else {
@@ -334,30 +345,52 @@ export default function StaffComplaintDetailPage() {
             <p className="text-xs text-gray-500 mb-6">การพิจารณาผลดำเนินการ หรือ การอนุมัติตามระเบียบนิติบุคคล</p>
 
             <div className="flex flex-wrap gap-4 mb-8">
-              <div className={`flex items-center gap-3 px-6 py-2.5 bg-white border ${complaint.status === 'approved' || complaint.status === 'resolved' ? 'border-green-400 shadow-sm' : 'border-gray-200'} rounded-xl`}>
-                <CheckCircleIcon active={complaint.status === 'approved' || complaint.status === 'resolved'} />
+              <button
+                type="button"
+                onClick={() => {
+                  if (complaint.status !== 'closed') {
+                    setSelectedStatus('resolved');
+                  }
+                }}
+                className={`flex items-center gap-3 px-6 py-2.5 bg-white border ${selectedStatus === 'approved' || selectedStatus === 'resolved' ? 'border-green-400 shadow-sm ring-2 ring-green-100' : 'border-gray-200 hover:border-gray-300'} rounded-xl cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+                disabled={complaint.status === 'closed'}
+              >
+                <CheckCircleIcon active={selectedStatus === 'approved' || selectedStatus === 'resolved'} />
                 <span className="text-xs font-bold text-gray-700">อนุมัติ</span>
-              </div>
-              <div className={`flex items-center gap-3 px-6 py-2.5 bg-white border ${complaint.status === 'rejected' ? 'border-red-400 shadow-sm' : 'border-gray-200'} rounded-xl`}>
-                <XCircleIcon active={complaint.status === 'rejected'} />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (complaint.status !== 'closed') {
+                    setSelectedStatus('rejected');
+                  }
+                }}
+                className={`flex items-center gap-3 px-6 py-2.5 bg-white border ${selectedStatus === 'rejected' ? 'border-red-400 shadow-sm ring-2 ring-red-100' : 'border-gray-200 hover:border-gray-300'} rounded-xl cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+                disabled={complaint.status === 'closed'}
+              >
+                <XCircleIcon active={selectedStatus === 'rejected'} />
                 <span className="text-xs font-bold text-gray-700">ไม่อนุมัติ</span>
-              </div>
+              </button>
             </div>
 
             <div className="mb-6">
               <p className="text-xs text-gray-500 mb-2">ผู้รับคำร้อง(เจ้าหน้าที่นิติบุคคล)</p>
               <p className="text-xs font-bold text-gray-800">
-                {complaint.status !== 'pending' ? "เจ้าหน้าที่รับเรื่อง" : "-"}
+                {complaint.reviewer_name || (complaint.status !== 'pending' ? "เจ้าหน้าที่รับเรื่อง" : "-")}
               </p>
             </div>
 
             <div>
               <p className="text-xs text-gray-500 mb-3">ความเห็นคณะกรรมการ (เหตุผลประกอบการพิจารณา)</p>
-              <div className="bg-white border border-gray-200 rounded-2xl p-5 min-h-[140px] relative">
+              <div className="bg-white border border-gray-200 rounded-2xl p-4 min-h-[140px] relative focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-100 transition-all">
                 <div className="absolute top-4 left-4"><ChatBubbleIcon /></div>
-                <div className="pl-10 text-xs leading-relaxed text-gray-600 whitespace-pre-wrap pt-1">
-                  {complaint.petition || ""}
-                </div>
+                <textarea
+                  value={petition}
+                  onChange={(e) => setPetition(e.target.value)}
+                  placeholder="กรอกความเห็นคณะกรรมการ หรือเหตุผลประกอบการพิจารณา..."
+                  className="w-full min-h-[100px] pl-10 pt-1 text-xs leading-relaxed text-gray-600 outline-none border-none resize-y bg-transparent"
+                  disabled={complaint.status === "closed"}
+                />
               </div>
             </div>
           </div>
@@ -379,14 +412,20 @@ export default function StaffComplaintDetailPage() {
             className="flex-1 px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 outline-none transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
             disabled={complaint.status === "closed"}
           >
-            {availableStatuses.map((st) => (
-              <option key={st.value} value={st.value}>{st.label}</option>
-            ))}
-            {complaint.status === "closed" && <option value="closed">ปิดเรื่อง (Closed)</option>}
+            {(() => {
+              const isAdmin = userRole === "admin";
+              const displayedStatuses = isAdmin 
+                ? [...availableStatuses, { value: "closed", label: "ปิดเรื่อง" }]
+                : availableStatuses;
+              return displayedStatuses.map((st) => (
+                <option key={st.value} value={st.value}>{st.label}</option>
+              ));
+            })()}
+            {complaint.status === "closed" && userRole !== "admin" && <option value="closed">ปิดเรื่อง (Closed)</option>}
           </select>
           <button
             onClick={handleUpdateStatus}
-            disabled={updatingStatus || selectedStatus === complaint.status || complaint.status === "closed"}
+            disabled={updatingStatus || (selectedStatus === complaint.status && petition === (complaint.petition || "")) || complaint.status === "closed"}
             className="px-6 py-3 rounded-xl bg-[#d4a574] hover:bg-[#b8865a] text-white text-sm font-medium border-none cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {updatingStatus ? "กำลังบันทึก..." : "บันทึกการเปลี่ยนแปลง"}

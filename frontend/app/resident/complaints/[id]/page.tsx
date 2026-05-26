@@ -25,14 +25,14 @@ interface ComplaintDetail {
   house_no?: string;
   phone_number?: string;
   resident_type?: string;
+  reviewer_name?: string | null;
 }
 
 /* ===== Config Maps ===== */
 const statusConfig: Record<string, { label: string; bgClass: string; textClass: string }> = {
   pending:      { label: "รอดำเนินการ",     bgClass: "bg-red-600",    textClass: "text-white" },
   in_progress:  { label: "กำลังดำเนินการ",  bgClass: "bg-blue-600",   textClass: "text-white" },
-  resolved:     { label: "แก้ไขแล้ว",       bgClass: "bg-green-600",  textClass: "text-white" },
-  approved:     { label: "อนุมัติ",          bgClass: "bg-green-600",  textClass: "text-white" },
+  resolved:     { label: "อนุมัติ/แก้ไขแล้ว", bgClass: "bg-green-600",  textClass: "text-white" },
   rejected:     { label: "ไม่อนุมัติ",       bgClass: "bg-gray-600",   textClass: "text-white" },
   closed:       { label: "ปิดเรื่อง",        bgClass: "bg-gray-400",   textClass: "text-white" },
 };
@@ -192,13 +192,15 @@ export default function ComplaintDetailPage() {
           <DocumentIcon />
           <span className="text-sm font-bold text-gray-800">รายละเอียดเรื่องร้องเรียน</span>
         </div>
-        <Link
-          href={`/resident/complaints/${complaintId}/edit`}
-          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors no-underline"
-        >
-          <EditIcon />
-          แก้ไขข้อมูล
-        </Link>
+        {complaint.status === 'pending' && (
+          <Link
+            href={`/resident/complaints/${complaintId}/edit`}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors no-underline"
+          >
+            <EditIcon />
+            แก้ไขข้อมูล
+          </Link>
+        )}
       </div>
 
       {/* ═══════════ Content Container ═══════════ */}
@@ -317,8 +319,7 @@ export default function ComplaintDetailPage() {
           <div className="mb-6">
             <p className="text-xs text-gray-500 mb-2">ผู้รับคำร้อง(เจ้าหน้าที่นิติบุคคล)</p>
             <p className="text-xs font-bold text-gray-800">
-              {/* In Figma it shows a name, we'll use placeholder or real data if available */}
-              {complaint.status !== 'pending' ? "เจ้าหน้าที่รับเรื่อง" : "-"}
+              {complaint.reviewer_name || (complaint.status !== 'pending' ? "เจ้าหน้าที่รับเรื่อง" : "-")}
             </p>
           </div>
 

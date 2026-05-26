@@ -23,8 +23,7 @@ interface Complaint {
 const statusConfig: Record<string, { label: string; bgClass: string; textClass: string }> = {
   pending: { label: "รอดำเนินการ", bgClass: "bg-amber-100", textClass: "text-amber-700" },
   in_progress: { label: "กำลังดำเนินการ", bgClass: "bg-red-100", textClass: "text-red-600" },
-  resolved: { label: "แก้ไขแล้ว", bgClass: "bg-blue-100", textClass: "text-blue-700" },
-  approved: { label: "อนุมัติ", bgClass: "bg-green-100", textClass: "text-green-700" },
+  resolved: { label: "อนุมัติ/แก้ไขแล้ว", bgClass: "bg-green-100", textClass: "text-green-700" },
   rejected: { label: "ไม่อนุมัติ", bgClass: "bg-red-100", textClass: "text-red-600" },
   closed: { label: "ปิดเรื่อง", bgClass: "bg-gray-100", textClass: "text-gray-500" },
 };

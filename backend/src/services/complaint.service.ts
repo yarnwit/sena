@@ -5,7 +5,7 @@ import logger from '../config/logger';
 
 // Status transition rules ตาม README.md
 const STAFF_TRANSITIONS: Record<string, string[]> = {
-  pending: ['in_progress', 'rejected'],
+  pending: ['in_progress', 'rejected', 'resolved'],
   in_progress: ['resolved', 'pending'],
 };
 
@@ -251,7 +251,7 @@ export const ComplaintService = {
   /**
    * อัปเดตสถานะ complaint (staff/admin)
    */
-  async updateStatus(complaintId: number | string, newStatus: string, userId: string, role: string) {
+  async updateStatus(complaintId: number | string, newStatus: string, userId: string, role: string, petition?: string) {
     const complaint = await ComplaintModel.findById(complaintId);
     if (!complaint) {
       throw new Error('ไม่พบคำร้องนี้');
@@ -262,7 +262,7 @@ export const ComplaintService = {
       throw new Error(`ไม่สามารถเปลี่ยนสถานะจาก ${complaint.status} เป็น ${newStatus} ได้`);
     }
 
-    const result = await ComplaintModel.updateStatus(complaintId, newStatus);
+    const result = await ComplaintModel.updateStatus(complaintId, newStatus, petition);
     if (!result) {
       throw new Error('Failed to update status');
     }
@@ -278,6 +278,26 @@ export const ComplaintService = {
 
     logger.info(`Complaint status updated to ${newStatus} for ID: ${complaintId} by ${role}`);
     return result;
+  },
+
+  /**
+   * ดึงชื่อผู้เปลี่ยนสถานะล่าสุด
+   */
+  async getReviewerName(complaintId: number | string): Promise<string | null> {
+    const logs = await AuditLogModel.findByEntity('complaint', String(complaintId));
+    const updateLog = logs.find(log => log.action === 'UPDATE_STATUS');
+    if (!updateLog) return null;
+
+    const { data: userData } = await supabase
+      .from('users')
+      .select('first_name, last_name')
+      .eq('user_id', updateLog.user_id)
+      .single();
+
+    if (userData) {
+      return `${userData.first_name} ${userData.last_name}`.trim();
+    }
+    return null;
   },
 
   /**
@@ -308,6 +328,8 @@ export const ComplaintService = {
       }
     }
 
+    const reviewer_name = await this.getReviewerName(complaintId);
+
     return {
       ...complaint,
       first_name: userData?.first_name || '',
@@ -315,6 +337,7 @@ export const ComplaintService = {
       house_no: residentData?.house_no || '',
       phone_number: residentData?.phone_number || '',
       resident_type: residentData?.resident_type || '',
+      reviewer_name,
     };
   },
 };

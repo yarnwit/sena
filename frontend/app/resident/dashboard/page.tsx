@@ -33,12 +33,7 @@ const statusConfig: Record<string, { label: string; bgClass: string; textClass: 
     textClass: "text-red-600",
   },
   resolved: {
-    label: "แก้ไขแล้ว",
-    bgClass: "bg-gray-100",
-    textClass: "text-gray-600",
-  },
-  approved: {
-    label: "อนุมัติ",
+    label: "อนุมัติ/แก้ไขแล้ว",
     bgClass: "bg-green-100",
     textClass: "text-green-700",
   },
@@ -95,6 +90,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<Stats>({ pending: 0, resolved: 0, approved: 0, rejected: 0 });
   const [recentComplaints, setRecentComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
+  const [houseNo, setHouseNo] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -115,10 +111,19 @@ export default function DashboardPage() {
           setRecentComplaints(complaints.slice(0, 5));
           setStats({
             pending: complaints.filter((c) => c.status === "pending" || c.status === "in_progress").length,
-            resolved: complaints.filter((c) => c.status === "resolved" || c.status === "closed").length,
-            approved: complaints.filter((c) => c.status === "approved").length,
+            resolved: complaints.filter((c) => c.status === "closed").length,
+            approved: complaints.filter((c) => c.status === "resolved").length,
             rejected: complaints.filter((c) => c.status === "rejected").length,
           });
+        }
+
+        // Fetch user-info to get house_no
+        const userRes = await fetch(`${API_URL}/complaints/user-info`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const userJson = await userRes.json();
+        if (userJson.success && userJson.data) {
+          setHouseNo(userJson.data.house_no || "");
         }
       } catch {
         // fallback
@@ -269,7 +274,7 @@ export default function DashboardPage() {
                           {complaint.subject}
                         </td>
                         <td className="px-6 py-4 text-gray-500">
-                          -
+                          {houseNo || "-"}
                         </td>
                         <td className="px-6 py-4 text-gray-500">
                           {new Date(complaint.reported_date).toLocaleDateString("th-TH", {
@@ -286,7 +291,7 @@ export default function DashboardPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          {(complaint.status === "resolved" || complaint.status === "approved") && (
+                          {complaint.status === "resolved" && (
                             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-500 text-white">
                               อนุมัติ
                             </span>

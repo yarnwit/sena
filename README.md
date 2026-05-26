@@ -257,18 +257,20 @@ Path /(auth)/*      →  ทุก role (หรือยังไม่ login) �
 │ password_hash│  │ │  └──────────────────┘       │ ticket_no    │
 │ first_name   │  │ │                             │ subject      │
 │ last_name    │  │ │                             │ status       │
-│ role         │  │ │                             │ phase        │
-└──────────────┘  │ │                             │ description  │
-                  │ │                             │ reported_date│
-┌──────────────┐  │ │                             │ location_writ│
-│   resident   │  │ │                             │ attachment_ur│
-├──────────────┤  │ │                             │ soi          │
-│resident_id PK│  │ │                             │ intake_chann │
-│ user_id (FK) ├──┘ │                             │ petition     │
-│ house_no     │    │                             └──────────────┘
-│ phone_number │    │                                    ▲
-│ resident_type│    │                                    │
-└──────────────┘    └────────────────────────────────────┘
+│ role         │  │ │                             │ description  │
+└──────────────┘  │ │                             │ reported_date│
+                  │ │                             │ location_writ│
+┌──────────────┐  │ │                             │ attachment_ur│
+│   resident   │  │ │                             │ intake_chann │
+├──────────────┤  │ │                             │ petition     │
+│resident_id PK│  │ │                             └──────────────┘
+│ user_id (FK) ├──┘ │                                    ▲
+│ house_no     │    │                                    │
+│ phone_number │    └────────────────────────────────────┘
+│ resident_type│
+│ phase        │
+│ soi          │
+└──────────────┘
 ```
 
 ### Tables
@@ -290,7 +292,9 @@ CREATE TABLE resident (
   user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
   house_no VARCHAR(50),
   phone_number VARCHAR(20),
-  resident_type VARCHAR(50)
+  resident_type VARCHAR(50),
+  phase VARCHAR(50),
+  soi VARCHAR(50)
 );
 
 -- 3. Complaints
@@ -300,12 +304,10 @@ CREATE TABLE complaints (
   ticket_no VARCHAR(50) UNIQUE,
   subject VARCHAR(255) NOT NULL,
   status VARCHAR(50) DEFAULT 'pending',
-  phase VARCHAR(50),
   description TEXT NOT NULL,
   reported_date TIMESTAMP DEFAULT now(),
   location_written VARCHAR(255),
   attachment_url VARCHAR(255),
-  soi VARCHAR(50),
   intake_channel VARCHAR(50),
   petition VARCHAR(255)
 );

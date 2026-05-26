@@ -57,6 +57,8 @@ export const getComplaintById = async (req: Request, res: Response) => {
     const complaint = await ComplaintModel.findByIdAndResident(req.params.id, residentInfo.resident_id);
     if (!complaint) return sendError(res, 'ไม่พบคำร้องนี้', 404);
 
+    const reviewer_name = await ComplaintService.getReviewerName(req.params.id);
+
     return sendSuccess(res, {
       ...complaint,
       first_name: residentInfo.first_name,
@@ -64,6 +66,7 @@ export const getComplaintById = async (req: Request, res: Response) => {
       house_no: residentInfo.house_no,
       phone_number: residentInfo.phone_number,
       resident_type: residentInfo.resident_type,
+      reviewer_name,
     });
   } catch (error) {
     logger.error('Get complaint by ID error:', error);
@@ -109,7 +112,8 @@ export const updateComplaintStatus = async (req: Request, res: Response) => {
     const role = req.user?.role;
     if (!userId || !role) return sendError(res, 'Unauthorized', 401);
 
-    const result = await ComplaintService.updateStatus(req.params.id, req.body.status, userId, role);
+    const { status, petition } = req.body;
+    const result = await ComplaintService.updateStatus(req.params.id, status, userId, role, petition);
     return sendSuccess(res, result, 'อัปเดตสถานะสำเร็จ');
   } catch (error: any) {
     if (error.message.includes('ไม่พบ')) return sendError(res, error.message, 404);

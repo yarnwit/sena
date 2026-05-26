@@ -6,12 +6,10 @@ export interface ComplaintRecord {
   ticket_no: string;
   subject: string;
   status: string;
-  phase: string | null;
   description: string;
   reported_date: string;
   location_written: string | null;
   attachment_url: string | null;
-  soi: string | null;
   intake_channel: string | null;
   petition: string | null;
 }
@@ -24,17 +22,14 @@ export interface ComplaintCreateInput {
   status?: string;
   reported_date?: string;
   location_written?: string | null;
-  soi?: string | null;
   intake_channel?: string | null;
   attachment_url?: string | null;
-  phase?: string | null;
 }
 
 export interface ComplaintUpdateInput {
   subject?: string;
   description?: string;
   location_written?: string | null;
-  soi?: string | null;
   intake_channel?: string | null;
   attachment_url?: string | null;
 }
@@ -83,10 +78,13 @@ export const ComplaintModel = {
   async findAll(): Promise<ComplaintRecord[]> {
     const { data, error } = await supabase
       .from('complaints')
-      .select('complaint_id, ticket_no, subject, status, reported_date, location_written, soi, phase, description, attachment_url, intake_channel, petition, resident_id')
+      .select('complaint_id, ticket_no, subject, status, reported_date, location_written, description, attachment_url, intake_channel, petition, resident_id')
       .order('reported_date', { ascending: false });
 
-    if (error) return [];
+    if (error) {
+      console.error('Supabase error in findAll:', error);
+      return [];
+    }
     return (data || []) as ComplaintRecord[];
   },
 
@@ -101,10 +99,8 @@ export const ComplaintModel = {
         status: input.status || 'pending',
         reported_date: input.reported_date || new Date().toISOString(),
         location_written: input.location_written || null,
-        soi: input.soi || null,
         intake_channel: input.intake_channel || null,
         attachment_url: input.attachment_url || null,
-        phase: input.phase || null,
       })
       .select('complaint_id, ticket_no')
       .single();
@@ -120,7 +116,6 @@ export const ComplaintModel = {
         subject: input.subject,
         description: input.description,
         location_written: input.location_written || null,
-        soi: input.soi || null,
         intake_channel: input.intake_channel || null,
         attachment_url: input.attachment_url || null,
       })
@@ -132,10 +127,14 @@ export const ComplaintModel = {
     return data as ComplaintRecord;
   },
 
-  async updateStatus(complaintId: number | string, status: string): Promise<ComplaintRecord | null> {
+  async updateStatus(complaintId: number | string, status: string, petition?: string): Promise<ComplaintRecord | null> {
+    const updateData: Record<string, any> = { status };
+    if (petition !== undefined) {
+      updateData.petition = petition;
+    }
     const { data, error } = await supabase
       .from('complaints')
-      .update({ status })
+      .update(updateData)
       .eq('complaint_id', complaintId)
       .select()
       .single();
