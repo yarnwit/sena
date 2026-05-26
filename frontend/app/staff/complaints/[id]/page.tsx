@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
+import StatusTimeline from "@/components/complaints/StatusTimeline";
+import api from "@/lib/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -135,10 +137,8 @@ export default function StaffComplaintDetailPage() {
           } catch {}
         }
 
-        const res = await fetch(`${API_URL}/complaints/staff/${complaintId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const json = await res.json();
+        const res = await api.get(`/complaints/staff/${complaintId}`);
+        const json = res.data;
         if (json.success && json.data) {
           setComplaint(json.data);
           setSelectedStatus(json.data.status);
@@ -168,12 +168,11 @@ export default function StaffComplaintDetailPage() {
       const token = localStorage.getItem("accessToken");
       if (!token) { alert("กรุณาเข้าสู่ระบบใหม่"); setUpdatingStatus(false); return; }
 
-      const res = await fetch(`${API_URL}/complaints/staff/${complaint.complaint_id}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ status: selectedStatus, petition }),
+      const res = await api.patch(`/complaints/staff/${complaint.complaint_id}/status`, {
+        status: selectedStatus,
+        petition,
       });
-      const json = await res.json();
+      const json = res.data;
       if (json.success) {
         setComplaint({ ...complaint, status: selectedStatus, petition: petition });
         alert("อัปเดตสถานะสำเร็จ");
@@ -181,8 +180,8 @@ export default function StaffComplaintDetailPage() {
       } else {
         alert("เกิดข้อผิดพลาด: " + json.message);
       }
-    } catch {
-      alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+    } catch (error: any) {
+      alert("เกิดข้อผิดพลาดในการบันทึก: " + (error.response?.data?.message || error.message || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์"));
     } finally {
       setUpdatingStatus(false);
     }
@@ -397,35 +396,26 @@ export default function StaffComplaintDetailPage() {
         </div>
       </div>
 
-      {/* Staff Action Card - Status Update */}
-      <div className="bg-white rounded-2xl border border-amber-200 shadow-sm p-6">
-        <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <svg className="w-4 h-4 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+      {/* Staff Action Card - Status Update replaced by Progress Stepper */}
+      <div className="bg-white rounded-2xl border border-amber-200 shadow-sm p-6 md:p-8">
+        <h3 className="text-sm font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <svg className="w-5 h-5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
           </svg>
-          อัปเดตสถานะ
+          ความคืบหน้า (อัปเดตสถานะ)
         </h3>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-            className="flex-1 px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 outline-none transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
-            disabled={complaint.status === "closed"}
-          >
-            {(() => {
-              const isAdmin = userRole === "admin";
-              const displayedStatuses = isAdmin 
-                ? [...availableStatuses, { value: "closed", label: "ปิดเรื่อง" }]
-                : availableStatuses;
-              return displayedStatuses.map((st) => (
-                <option key={st.value} value={st.value}>{st.label}</option>
-              ));
-            })()}
-            {complaint.status === "closed" && userRole !== "admin" && <option value="closed">ปิดเรื่อง (Closed)</option>}
-          </select>
+        <div className="pl-2 mb-8">
+          <StatusTimeline 
+            currentStatus={selectedStatus}
+            isInteractive={true}
+            onStatusChange={(newStatus) => setSelectedStatus(newStatus)}
+            disabled={complaint.status === "closed" && userRole !== "admin"}
+          />
+        </div>
+        <div className="flex justify-end pt-4 border-t border-gray-100">
           <button
             onClick={handleUpdateStatus}
-            disabled={updatingStatus || (selectedStatus === complaint.status && petition === (complaint.petition || "")) || complaint.status === "closed"}
+            disabled={updatingStatus || (selectedStatus === complaint.status && petition === (complaint.petition || "")) || (complaint.status === "closed" && userRole !== "admin")}
             className="px-6 py-3 rounded-xl bg-[#d4a574] hover:bg-[#b8865a] text-white text-sm font-medium border-none cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {updatingStatus ? "กำลังบันทึก..." : "บันทึกการเปลี่ยนแปลง"}

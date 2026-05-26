@@ -20,7 +20,7 @@ export const updateComplaintSchema = z.object({
 });
 
 export const updateStatusSchema = z.object({
-  status: z.enum(['pending', 'in_progress', 'resolved', 'rejected', 'closed'], {
+  status: z.enum(['pending', 'approved', 'in_meeting', 'in_progress', 'resolved', 'rejected', 'closed'], {
     errorMap: () => ({ message: 'สถานะไม่ถูกต้อง' }),
   }),
 });

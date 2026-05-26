@@ -5,15 +5,22 @@ import logger from '../config/logger';
 
 // Status transition rules ตาม README.md
 const STAFF_TRANSITIONS: Record<string, string[]> = {
-  pending: ['in_progress', 'rejected', 'resolved'],
-  in_progress: ['resolved', 'pending'],
+  pending: ['approved', 'in_meeting', 'in_progress', 'rejected', 'resolved'],
+  approved: ['pending', 'in_meeting', 'in_progress', 'rejected', 'resolved'],
+  in_meeting: ['pending', 'approved', 'in_progress', 'rejected', 'resolved'],
+  in_progress: ['pending', 'approved', 'in_meeting', 'resolved', 'rejected'],
+  resolved: ['pending', 'approved', 'in_meeting', 'in_progress', 'rejected'],
+  rejected: ['pending', 'approved', 'in_meeting', 'in_progress', 'resolved'],
 };
 
 const ADMIN_TRANSITIONS: Record<string, string[]> = {
-  pending: ['in_progress', 'rejected', 'closed'],
-  in_progress: ['resolved', 'pending', 'closed'],
-  resolved: ['closed'],
-  rejected: ['pending'],
+  pending: ['approved', 'in_meeting', 'in_progress', 'rejected', 'resolved', 'closed'],
+  approved: ['pending', 'in_meeting', 'in_progress', 'rejected', 'resolved', 'closed'],
+  in_meeting: ['pending', 'approved', 'in_progress', 'rejected', 'resolved', 'closed'],
+  in_progress: ['pending', 'approved', 'in_meeting', 'resolved', 'rejected', 'closed'],
+  resolved: ['pending', 'approved', 'in_meeting', 'in_progress', 'rejected', 'closed'],
+  rejected: ['pending', 'approved', 'in_meeting', 'in_progress', 'resolved', 'closed'],
+  closed: ['pending', 'approved', 'in_meeting', 'in_progress', 'resolved', 'rejected'],
   // admin สามารถ override ได้ทุกสถานะ
 };
 

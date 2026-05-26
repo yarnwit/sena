@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import StatusTimeline from "@/components/complaints/StatusTimeline";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -337,6 +338,22 @@ export default function ComplaintDetailPage() {
             </div>
           </div>
 
+        </div>
+
+        {/* Resident Progress Timeline */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 md:p-8 mt-8">
+          <h3 className="text-sm font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <svg className="w-5 h-5 text-[#d4a574]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+            ความคืบหน้า
+          </h3>
+          <div className="pl-2">
+            <StatusTimeline 
+              currentStatus={complaint.status}
+              isInteractive={false}
+            />
+          </div>
         </div>
 
       </div>

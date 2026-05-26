@@ -9,52 +9,103 @@ interface TimelineEntry {
 }
 
 interface StatusTimelineProps {
-  entries: TimelineEntry[];
+  entries?: TimelineEntry[];
   currentStatus: string;
+  isInteractive?: boolean;
+  onStatusChange?: (status: string) => void;
+  disabled?: boolean;
 }
 
-export default function StatusTimeline({ entries, currentStatus }: StatusTimelineProps) {
-  const allStatuses: ComplaintStatus[] = ['pending', 'in_progress', 'resolved', 'closed'];
+// Linear flow for the stepper
+const LINEAR_FLOW: ComplaintStatus[] = [
+  'pending',
+  'approved',
+  'in_meeting',
+  'in_progress',
+  'resolved',
+  'closed'
+];
 
-  // If no entries provided, show status flow
-  const displayEntries = entries.length > 0
-    ? entries
-    : allStatuses.map((s) => ({
-        status: s,
-        date: '',
-        description: STATUS_LABELS[s],
-      }));
+export default function StatusTimeline({ 
+  entries = [], 
+  currentStatus, 
+  isInteractive = false,
+  onStatusChange,
+  disabled = false
+}: StatusTimelineProps) {
+  
+  const currentIndex = LINEAR_FLOW.indexOf(currentStatus as ComplaintStatus);
+  const isRejected = currentStatus === 'rejected';
 
   return (
     <div className="space-y-4">
-      {displayEntries.map((entry, idx) => {
-        const isActive = entry.status === currentStatus;
-        const isPast = allStatuses.indexOf(entry.status) <= allStatuses.indexOf(currentStatus as ComplaintStatus);
-        const color = STATUS_COLORS[entry.status] || '#6b7280';
+      {/* If rejected, show special state or keep original timeline but mark as rejected? 
+          For now, we just show the linear flow, and if rejected we can show a specific message or just highlight it differently if needed.
+          Since the design is linear without rejected, we'll render the linear flow. 
+      */}
+      {isRejected && (
+        <div className="flex gap-3 mb-6 p-4 bg-red-50 border border-red-100 rounded-xl">
+          <div className="flex flex-col items-center pt-1">
+            <div className="w-3 h-3 rounded-full bg-red-500" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-red-600">สถานะปัจจุบัน: ไม่อนุมัติ</p>
+            <p className="text-xs text-red-500 mt-1">เรื่องร้องเรียนนี้ถูกปฏิเสธหรือไม่ผ่านการอนุมัติ</p>
+          </div>
+        </div>
+      )}
+
+      {LINEAR_FLOW.map((status, idx) => {
+        const isActive = status === currentStatus;
+        const isPast = !isRejected && LINEAR_FLOW.indexOf(status) <= currentIndex;
+        // Find if we have an entry with date for this status
+        const entry = entries.find(e => e.status === status);
+        
+        // Define styling based on state
+        const color = STATUS_COLORS[status] || '#d4a574';
+        
+        const dotStyle = isPast 
+          ? { backgroundColor: color, borderColor: color }
+          : { backgroundColor: 'white', border: `2px solid #e5e7eb` };
 
         return (
-          <div key={idx} className="flex gap-3">
+          <div key={status} className="flex gap-3 group">
             <div className="flex flex-col items-center">
               <div
-                className={`w-3 h-3 rounded-full border-2 ${
-                  isActive ? 'scale-125' : ''
-                } transition-transform`}
+                onClick={() => {
+                  if (isInteractive && !disabled && onStatusChange) {
+                    onStatusChange(status);
+                  }
+                }}
+                className={`w-[14px] h-[14px] rounded-full z-10 transition-all ${
+                  isInteractive && !disabled ? 'cursor-pointer hover:scale-125' : ''
+                } ${isActive ? 'ring-4 ring-opacity-30 scale-110' : ''}`}
                 style={{
-                  backgroundColor: isPast ? color : 'transparent',
-                  borderColor: color,
+                  ...dotStyle,
+                  boxShadow: isActive ? `0 0 0 4px ${color}33` : 'none'
                 }}
               />
-              {idx < displayEntries.length - 1 && (
+              {idx < LINEAR_FLOW.length - 1 && (
                 <div
-                  className="w-0.5 flex-1 min-h-[24px]"
-                  style={{ backgroundColor: isPast ? color : '#e5e7eb' }}
+                  className="w-[2px] flex-1 min-h-[32px] -mt-1 -mb-1"
+                  style={{ backgroundColor: isPast && !isActive ? color : '#e5e7eb' }}
                 />
               )}
             </div>
-            <div className={`pb-4 ${isActive ? 'font-semibold' : 'text-gray-500'}`}>
-              <p className="text-sm">{STATUS_LABELS[entry.status] || entry.status}</p>
-              {entry.date && (
-                <p className="text-xs text-gray-400 mt-0.5">{formatDateTime(entry.date)}</p>
+            <div className={`pb-5 pt-0.5 ${isActive ? 'font-bold' : (isPast ? 'font-medium text-gray-700' : 'text-gray-400')}`}>
+              <span 
+                onClick={() => {
+                  if (isInteractive && !disabled && onStatusChange) {
+                    onStatusChange(status);
+                  }
+                }}
+                className={`${isInteractive && !disabled ? 'cursor-pointer hover:underline' : ''}`}
+                style={{ color: isActive ? color : undefined }}
+              >
+                {STATUS_LABELS[status] || status}
+              </span>
+              {entry?.date && (
+                <p className="text-xs text-gray-400 mt-1 font-normal">{formatDateTime(entry.date)}</p>
               )}
             </div>
           </div>
