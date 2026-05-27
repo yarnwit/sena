@@ -12,6 +12,8 @@ interface Resident {
   phone_number: string;
   first_name: string;
   last_name: string;
+  phase?: string;
+  soi?: string;
 }
 
 const intakeChannelOptions = [
@@ -204,6 +206,9 @@ export default function StaffNewComplaintPage() {
                     <div><label className={lbl}>ชื่อจริง</label><input type="text" value={selectedResident.first_name} className={ro} readOnly /></div>
                     <div><label className={lbl}>นามสกุล</label><input type="text" value={selectedResident.last_name} className={ro} readOnly /></div>
                     <div><label className={lbl}>เบอร์โทร</label><input type="text" value={selectedResident.phone_number || "-"} className={ro} readOnly /></div>
+                    <div><label className={lbl}>บ้านเลขที่</label><input type="text" value={selectedResident.house_no || "-"} className={ro} readOnly /></div>
+                    <div><label className={lbl}>เฟส</label><input type="text" value={selectedResident.phase || "-"} className={ro} readOnly /></div>
+                    <div><label className={lbl}>ซอย</label><input type="text" value={selectedResident.soi || "-"} className={ro} readOnly /></div>
                   </div>
                 )}
               </>

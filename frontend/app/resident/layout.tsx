@@ -30,10 +30,10 @@ const HistoryIcon = () => (
   </svg>
 );
 
-const AnnouncementIcon = () => (
+const ProfileIcon = () => (
   <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
   </svg>
 );
 
@@ -58,7 +58,7 @@ const navItems = [
   { href: "/resident/dashboard", label: "ภาพรวม", icon: OverviewIcon },
   { href: "/resident/complaints/new", label: "สร้างคำร้อง", icon: CreateComplaintIcon },
   { href: "/resident/complaints", label: "ประวัติคำร้องของฉัน", icon: HistoryIcon },
-  { href: "/resident/announcements", label: "ประกาศ/ข่าวสาร", icon: AnnouncementIcon },
+  { href: "/resident/profile", label: "โปรไฟล์", icon: ProfileIcon },
 ];
 
 export default function ResidentLayout({ children }: { children: React.ReactNode }) {
@@ -70,18 +70,24 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const userStr = localStorage.getItem("user");
-      if (userStr) {
-        const user = JSON.parse(userStr);
-        const fullName = user.full_name || `${user.first_name || ""} ${user.last_name || ""}`.trim();
-        setUserName(fullName);
-        setHouseNo(user.house_no || user.address || "88/1 หมู่ 1 ซอย 1");
+    const loadUser = () => {
+      try {
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          const fullName = user.full_name || `${user.first_name || ""} ${user.last_name || ""}`.trim();
+          setUserName(fullName);
+          setHouseNo(user.house_no || user.address || "88/1 หมู่ 1 ซอย 1");
+        }
+      } catch {
+        // ignore parse error
       }
-    } catch {
-      // ignore parse error
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+
+    loadUser();
+    window.addEventListener("user-updated", loadUser);
+    return () => window.removeEventListener("user-updated", loadUser);
   }, []);
 
   const handleLogout = () => {
@@ -106,7 +112,7 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
       {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 h-screen w-[240px] bg-[#fdf5ed] border-r border-[#e8ddd1]
+          fixed top-0 left-0 h-screen w-[270px] bg-gradient-to-b from-[#161D19]/90 to-[#38BC0B] text-white border-none
           flex flex-col z-50
           transition-transform duration-300 ease-in-out
           lg:translate-x-0
@@ -114,17 +120,24 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
         `}
       >
         {/* Logo */}
-        <div className="px-6 pt-6 pb-4">
+        <div className="pt-7 px-6 pb-5 border-b border-white/10">
           <div className="flex flex-col items-center text-center">
-            <div className="w-20 h-[1px] bg-[#b8865a]/40 mb-1" />
-            <span className="text-[10px] tracking-[4px] text-[#8b6f50] uppercase font-serif">SENA</span>
-            <h2 className="text-[18px] font-bold tracking-[2px] text-[#5a4333] font-serif m-0 leading-tight">GRAND HOME</h2>
-            <span className="text-[8px] tracking-[1.5px] text-[#a08b76] font-serif mt-0.5">Rangsit - Tiwanon</span>
+            <div className="w-[120px] h-[1px] bg-white/40 mb-1" />
+            <span className="font-['Times_New_Roman',_'Georgia',_serif] text-[11px] font-normal tracking-[5px] text-white/90 uppercase">SENA</span>
+            <h2 className="font-['Times_New_Roman',_'Georgia',_serif] text-xl font-bold tracking-[3px] text-white m-0 leading-[1.3]">GRAND HOME</h2>
+            <span className="font-['Times_New_Roman',_'Georgia',_serif] text-[9px] tracking-[2px] text-white/60 mt-0.5">Rangsit - Tiwanon</span>
+          </div>
+          <div className="flex justify-center mt-3.5">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-[#38BC0B]/20 border border-[#38BC0B]/35 rounded-full text-[11px] text-green-200 tracking-[0.5px]">
+              <span className="w-1.5 h-1.5 bg-[#4ade80] rounded-full animate-pulse" />
+              ลูกบ้าน
+            </span>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-2 overflow-y-auto">
+        <nav className="flex-1 px-3 py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-white/15 scrollbar-track-transparent">
+          <div className="text-[10px] font-semibold uppercase tracking-[1.5px] text-white/35 px-3 py-2">เมนูหลัก</div>
           {navItems.map((item) => {
             const isActive =
               pathname === item.href ||
@@ -138,11 +151,10 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
                 key={item.href}
                 href={item.href}
                 className={`
-                  flex items-center gap-3 px-4 py-3 rounded-xl mb-1 text-sm font-medium
-                  transition-all duration-200 no-underline
+                  group flex items-center gap-3 px-4 py-3 rounded-lg text-[14px] font-normal transition-all duration-200 mb-0.5 relative no-underline
                   ${isActive
-                    ? "bg-[#d4a574] text-white shadow-md shadow-[#d4a574]/25"
-                    : "text-[#6b5e52] hover:bg-[#eddcc9] hover:text-[#5a4333]"
+                    ? "active bg-[#38BC0B]/20 text-white font-medium before:content-[''] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:bg-[#4ade80] before:rounded-r-[3px]"
+                    : "text-white/65 hover:bg-white/5 hover:text-white"
                   }
                 `}
                 onClick={() => setSidebarOpen(false)}
@@ -155,24 +167,19 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
         </nav>
 
         {/* Footer - Logout */}
-        <div className="px-3 pb-4 pt-2 border-t border-[#e8ddd1]">
+        <div className="p-4 border-t border-white/10">
           <button
             onClick={handleLogout}
-            className="
-              flex items-center gap-3 w-full px-4 py-3 rounded-xl
-              text-sm font-medium text-[#c0392b] hover:bg-red-50
-              transition-all duration-200 cursor-pointer
-              bg-transparent border-none
-            "
+            className="flex items-center justify-center gap-2 w-full p-2.5 bg-white/5 border border-white/10 rounded-lg text-[13px] text-white/60 cursor-pointer transition-all duration-200 hover:bg-red-500/10 hover:border-red-500/25 hover:text-red-400"
           >
             <LogoutIcon />
-            ลงชื่อออก
+            ออกจากระบบ
           </button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 lg:ml-[240px] flex flex-col min-h-screen min-w-0">
+      <div className="flex-1 lg:ml-[270px] flex flex-col min-h-screen min-w-0">
         {/* Top Header Bar */}
         <header className="sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 bg-white border-b border-gray-200">
           <div className="flex items-center gap-3">

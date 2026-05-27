@@ -102,6 +102,27 @@ export const resetPassword = async (req: Request, res: Response) => {
   }
 };
 
+export const changePassword = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return sendError(res, 'Unauthorized', 401);
+    }
+
+    const { newPassword } = req.body;
+    if (!newPassword || newPassword.length < 6) {
+      return sendError(res, 'รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร', 400);
+    }
+
+    await AuthService.changePassword(userId, newPassword);
+
+    return sendSuccess(res, null, 'เปลี่ยนรหัสผ่านสำเร็จ');
+  } catch (error: any) {
+    logger.error('Change password error:', error);
+    return sendError(res, 'เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน');
+  }
+};
+
 export const deleteAccount = async (req: Request, res: Response) => {
   try {
     const { supabase } = await import('../config/supabase');

@@ -81,7 +81,7 @@ export const ComplaintService = {
   async getResidentsList() {
     const { data: residents } = await supabase
       .from('resident')
-      .select('resident_id, house_no, phone_number, resident_type, user_id')
+      .select('resident_id, house_no, phone_number, resident_type, phase, soi, user_id')
       .order('house_no', { ascending: true });
 
     return Promise.all(
@@ -107,6 +107,8 @@ export const ComplaintService = {
           house_no: r.house_no || '',
           phone_number: r.phone_number || '',
           resident_type: r.resident_type || '',
+          phase: r.phase || '',
+          soi: r.soi || '',
           first_name,
           last_name,
         };

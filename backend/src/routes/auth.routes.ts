@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { login, register, refresh, logout, forgotPassword, resetPassword, deleteAccount } from '../controllers/auth.controller';
+import { login, register, refresh, logout, forgotPassword, resetPassword, changePassword, deleteAccount } from '../controllers/auth.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 import { validate } from '../middlewares/validate.middleware';
 import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema } from '../validators/auth.validator';
@@ -13,6 +13,7 @@ router.post('/refresh', refresh);
 router.post('/logout', authenticate, logout);
 router.post('/forgot-password', authLimiter, validate(forgotPasswordSchema), forgotPassword);
 router.post('/reset-password', authLimiter, validate(resetPasswordSchema), resetPassword);
+router.post('/change-password', authenticate, changePassword);
 router.delete('/account', authenticate, deleteAccount);
 
 export default router;

@@ -74,3 +74,10 @@
 {"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-27T05:03:24.246Z"}
 {"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-27T05:03:48.534Z"}
 {"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-27T08:00:12.682Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-27T09:46:14.686Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-27T09:46:22.167Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-27T10:02:03.236Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-27T10:36:24.773Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-27T10:36:31.083Z"}
+{"level":"error","message":"Delete user error: Failed to delete auth account","stack":"Error: Failed to delete auth account\n    at Object.deleteAccount (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\services\\auth.service.ts:260:13)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at deleteUser (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\controllers\\admin.controller.ts:145:5)","timestamp":"2026-05-27T10:43:03.976Z"}
+{"level":"error","message":"Delete user error: Failed to delete auth account","stack":"Error: Failed to delete auth account\n    at Object.deleteAccount (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\services\\auth.service.ts:260:13)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at deleteUser (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\controllers\\admin.controller.ts:145:5)","timestamp":"2026-05-27T10:43:34.072Z"}

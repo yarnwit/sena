@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import api from "@/lib/api";
 
 interface UserProfile {
   first_name: string;
@@ -31,40 +32,27 @@ export default function ProfilePage() {
   const [pwSuccess, setPwSuccess] = useState("");
   const [pwError, setPwError] = useState("");
 
-  // Delete account
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteConfirmText, setDeleteConfirmText] = useState("");
-  const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState("");
-
   useEffect(() => {
     const fetchProfile = async () => {
-      const supabase = createClient();
-      const userStr = localStorage.getItem("user");
-      if (!userStr) {
+      try {
+        const { data } = await api.get("/users/profile");
+        if (data.success) {
+          setUser({
+            first_name: data.data.first_name || "",
+            last_name: data.data.last_name || "",
+            username: data.data.username || ""
+          });
+          setResident({
+            house_no: data.data.house_no || "",
+            phone_number: data.data.phone_number || "",
+            resident_type: data.data.resident_type || ""
+          });
+        }
+      } catch (err) {
+        console.error("Fetch profile error", err);
+      } finally {
         setLoading(false);
-        return;
       }
-      const authUser = JSON.parse(userStr);
-
-      // ดึงข้อมูล user
-      const { data: userData } = await supabase
-        .from("users")
-        .select("first_name, last_name, username")
-        .eq("id", authUser.id)
-        .single();
-
-      if (userData) setUser(userData);
-
-      // ดึงข้อมูล resident
-      const { data: residentData } = await supabase
-        .from("resident")
-        .select("house_no, phone_number, resident_type")
-        .eq("user_id", authUser.id)
-        .single();
-
-      if (residentData) setResident(residentData);
-      setLoading(false);
     };
 
     fetchProfile();
@@ -77,49 +65,32 @@ export default function ProfilePage() {
     setError("");
 
     try {
-      const supabase = createClient();
-      const userStr = localStorage.getItem("user");
-      if (!userStr) {
-        setSaving(false);
-        return;
+      const { data } = await api.patch("/users/profile", {
+        first_name: user.first_name,
+        last_name: user.last_name,
+        house_no: resident.house_no,
+        phone_number: resident.phone_number,
+        resident_type: resident.resident_type,
+      });
+
+      if (data.success) {
+        setSuccess("บันทึกข้อมูลสำเร็จ!");
+        
+        // Update local storage so headers can reflect it without reloading
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+          const authUser = JSON.parse(userStr);
+          authUser.full_name = `${user.first_name} ${user.last_name}`.trim();
+          authUser.house_no = resident.house_no;
+          localStorage.setItem("user", JSON.stringify(authUser));
+          // Dispatch custom event to tell layouts to re-read localStorage
+          window.dispatchEvent(new Event("user-updated"));
+        }
+        
+        setTimeout(() => setSuccess(""), 3000);
       }
-      const authUser = JSON.parse(userStr);
-
-      // อัปเดต users table
-      const { error: userError } = await supabase
-        .from("users")
-        .update({
-          first_name: user.first_name,
-          last_name: user.last_name,
-        })
-        .eq("id", authUser.id);
-
-      if (userError) {
-        setError(`อัปเดตข้อมูลไม่สำเร็จ: ${userError.message}`);
-        setSaving(false);
-        return;
-      }
-
-      // อัปเดต resident table
-      const { error: residentError } = await supabase
-        .from("resident")
-        .update({
-          house_no: resident.house_no,
-          phone_number: resident.phone_number,
-          resident_type: resident.resident_type,
-        })
-        .eq("user_id", authUser.id);
-
-      if (residentError) {
-        setError(`อัปเดตข้อมูลลูกบ้านไม่สำเร็จ: ${residentError.message}`);
-        setSaving(false);
-        return;
-      }
-
-      setSuccess("บันทึกข้อมูลสำเร็จ!");
-      setTimeout(() => setSuccess(""), 3000);
-    } catch {
-      setError("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    } catch (err: any) {
+      setError(err.response?.data?.message || "เกิดข้อผิดพลาด กรุณาลองใหม่");
     } finally {
       setSaving(false);
     }
@@ -143,65 +114,22 @@ export default function ProfilePage() {
     setPwSaving(true);
 
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.updateUser({
-        password: passwords.new_password,
+      const { data } = await api.post("/auth/change-password", {
+        newPassword: passwords.new_password,
       });
 
-      if (error) {
-        setPwError(error.message);
-      } else {
+      if (data.success) {
         setPwSuccess("เปลี่ยนรหัสผ่านสำเร็จ!");
         setPasswords({ current: "", new_password: "", confirm: "" });
         setTimeout(() => setPwSuccess(""), 3000);
       }
-    } catch {
-      setPwError("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    } catch (err: any) {
+      setPwError(err.response?.data?.message || "เกิดข้อผิดพลาด กรุณาลองใหม่");
     } finally {
       setPwSaving(false);
     }
   };
 
-  const handleDeleteAccount = async () => {
-    if (deleteConfirmText !== "ลบบัญชี") return;
-    setDeleting(true);
-    setDeleteError("");
-
-    try {
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session?.access_token) {
-        setDeleteError("ไม่พบ session กรุณาเข้าสู่ระบบใหม่");
-        setDeleting(false);
-        return;
-      }
-
-      const res = await fetch("http://localhost:5000/api/auth/account", {
-        method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${session.access_token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setDeleteError(data.message || "ลบบัญชีไม่สำเร็จ");
-        setDeleting(false);
-        return;
-      }
-
-      // Sign out locally and redirect
-      await supabase.auth.signOut();
-      router.push("/login");
-      router.refresh();
-    } catch {
-      setDeleteError("เกิดข้อผิดพลาด กรุณาลองใหม่");
-      setDeleting(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -415,99 +343,6 @@ export default function ProfilePage() {
           </button>
         </form>
       </div>
-
-      {/* Danger Zone - Delete Account */}
-      <div className="bg-gradient-to-br from-white to-red-50 border border-red-500/20 rounded-xl p-6 sm:p-8 mt-0 shadow-sm">
-        <h3 className="text-base font-semibold text-red-600 m-0 mb-5 pb-3.5 border-b border-red-500/15 flex items-center gap-2">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-            <line x1="12" y1="9" x2="12" y2="13" />
-            <line x1="12" y1="17" x2="12.01" y2="17" />
-          </svg>
-          ลบบัญชี
-        </h3>
-        <p className="text-sm text-gray-600 leading-relaxed mb-5 m-0">
-          เมื่อลบบัญชีแล้ว ข้อมูลทั้งหมดของคุณจะถูกลบอย่างถาวรและไม่สามารถกู้คืนได้
-          รวมถึงข้อมูลส่วนตัว ประวัติการร้องเรียน และข้อมูลอื่นๆ ทั้งหมด
-        </p>
-        <button
-          type="button"
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-6 bg-transparent text-red-600 border border-red-500/30 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-red-600 hover:text-white hover:border-red-600 hover:shadow-[0_4px_16px_rgba(220,38,38,0.25)]"
-          onClick={() => setShowDeleteModal(true)}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="3 6 5 6 21 6" />
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-            <line x1="10" y1="11" x2="10" y2="17" />
-            <line x1="14" y1="11" x2="14" y2="17" />
-          </svg>
-          ลบบัญชีของฉัน
-        </button>
-      </div>
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-[4px] flex items-center justify-center z-[1000] animate-[fadeIn_0.2s_ease]" onClick={() => !deleting && setShowDeleteModal(false)}>
-          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-[440px] w-[90%] shadow-[0_20px_60px_rgba(0,0,0,0.15)] animate-[slideUp_0.3s_ease]" onClick={(e) => e.stopPropagation()}>
-            <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4 text-red-600">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-[#1a1a2e] text-center m-0 mb-2">ยืนยันการลบบัญชี</h3>
-            <p className="text-sm text-gray-500 text-center leading-relaxed m-0 mb-2">
-              การดำเนินการนี้ไม่สามารถย้อนกลับได้ ข้อมูลทั้งหมดจะถูกลบถาวร
-            </p>
-            <p className="text-sm text-gray-500 text-center leading-relaxed m-0 mb-2">
-              กรุณาพิมพ์ <strong className="text-red-600 font-semibold">ลบบัญชี</strong> เพื่อยืนยัน
-            </p>
-
-            {deleteError && (
-              <div className="flex items-center gap-2.5 p-3 px-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm mb-3 mt-3 animate-[slideIn_0.3s_ease]">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="15" y1="9" x2="9" y2="15" />
-                  <line x1="9" y1="9" x2="15" y2="15" />
-                </svg>
-                {deleteError}
-              </div>
-            )}
-
-            <input
-              type="text"
-              className="w-full py-3 px-4 mt-3 border border-red-500/30 rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-red-600 focus:shadow-[0_0_0_3px_rgba(220,38,38,0.1)] placeholder:text-[#aaa]"
-              placeholder='พิมพ์ "ลบบัญชี" ที่นี่'
-              value={deleteConfirmText}
-              onChange={(e) => setDeleteConfirmText(e.target.value)}
-              disabled={deleting}
-            />
-            <div className="flex gap-3 mt-5">
-              <button
-                type="button"
-                className="flex-1 py-3 px-4 bg-[#f3f3f3] border border-[#e0e0e0] rounded-xl text-sm font-medium text-[#333] cursor-pointer transition-colors duration-200 hover:bg-[#e8e8e8]"
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setDeleteConfirmText("");
-                  setDeleteError("");
-                }}
-                disabled={deleting}
-              >
-                ยกเลิก
-              </button>
-              <button
-                type="button"
-                className="flex-1 py-3 px-4 bg-red-600 border-none rounded-xl text-sm font-semibold text-white cursor-pointer transition-all duration-200 hover:not(:disabled):bg-red-700 hover:not(:disabled):shadow-[0_4px_16px_rgba(220,38,38,0.3)] disabled:opacity-40 disabled:cursor-not-allowed"
-                onClick={handleDeleteAccount}
-                disabled={deleteConfirmText !== "ลบบัญชี" || deleting}
-              >
-                {deleting ? "กำลังลบ..." : "ลบบัญชีถาวร"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

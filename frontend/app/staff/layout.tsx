@@ -128,18 +128,24 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
   };
 
   useEffect(() => {
-    try {
-      const userStr = localStorage.getItem("user");
-      if (userStr) {
-        const user = JSON.parse(userStr);
-        const fullName = user.full_name || `${user.first_name || ""} ${user.last_name || ""}`.trim();
-        setUserName(fullName);
-        setUserInitial(fullName ? fullName.charAt(0).toUpperCase() : "?");
+    const loadUser = () => {
+      try {
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          const fullName = user.full_name || `${user.first_name || ""} ${user.last_name || ""}`.trim();
+          setUserName(fullName);
+          setUserInitial(fullName ? fullName.charAt(0).toUpperCase() : "?");
+        }
+      } catch {
+        // ignore parse error
       }
-    } catch {
-      // ignore parse error
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+
+    loadUser();
+    window.addEventListener("user-updated", loadUser);
+    return () => window.removeEventListener("user-updated", loadUser);
   }, []);
 
   const handleLogout = () => {
@@ -169,7 +175,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
       />
 
       {/* Sidebar */}
-      <aside className={`fixed top-0 left-0 w-[270px] h-screen bg-gradient-to-b from-[#1e293b] to-[#0f172a] text-white flex flex-col z-[100] transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] md:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`fixed top-0 left-0 w-[270px] h-screen bg-gradient-to-b from-[#161D19]/90 to-[#007AFF] text-white flex flex-col z-[100] transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] md:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         {/* Logo */}
         <div className="pt-7 px-6 pb-5 border-b border-white/10">
           <div className="flex flex-col items-center text-center">
@@ -179,8 +185,8 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
             <span className="font-['Times_New_Roman',_'Georgia',_serif] text-[9px] tracking-[2px] text-white/60 mt-0.5">Rangsit - Tiwanon</span>
           </div>
           <div className="flex justify-center mt-3.5">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-[#f59e0b]/15 border border-[#f59e0b]/30 rounded-full text-[11px] text-[#fcd34d] tracking-[0.5px]">
-              <span className="w-1.5 h-1.5 bg-[#fbbf24] rounded-full animate-pulse" />
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-[#007AFF]/20 border border-[#007AFF]/35 rounded-full text-[11px] text-blue-200 tracking-[0.5px]">
+              <span className="w-1.5 h-1.5 bg-[#007AFF] rounded-full animate-pulse" />
               เจ้าหน้าที่นิติบุคคล
             </span>
           </div>
@@ -219,7 +225,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
                         <Link
                           key={sIdx}
                           href={sub.href}
-                          className={`flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-[13px] transition-all duration-200 mb-0.5 no-underline ${isActive ? "text-[#fbbf24] bg-[#f59e0b]/10 font-medium" : "text-white/55 hover:text-white/85 hover:bg-white/5"}`}
+                          className={`flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-[13px] transition-all duration-200 mb-0.5 no-underline ${isActive ? "text-[#409cff] bg-[#007AFF]/15 font-medium" : "text-white/55 hover:text-white/85 hover:bg-white/5"}`}
                           onClick={() => setSidebarOpen(false)}
                         >
                           <span className={`w-1 h-1 rounded-full shrink-0 ${isActive ? "bg-current opacity-100 shadow-[0_0_4px_currentColor]" : "bg-current opacity-50"}`}></span>
@@ -241,7 +247,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
               <Link
                 key={item.href || idx}
                 href={item.href || "#"}
-                className={`group flex items-center gap-3 px-4 py-3 rounded-lg text-[14px] font-normal transition-all duration-200 mb-0.5 relative no-underline ${isActive ? "active bg-[#f59e0b]/15 text-white font-medium before:content-[''] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:bg-[#fbbf24] before:rounded-r-[3px]" : "text-white/65 hover:bg-white/5 hover:text-white"}`}
+                className={`group flex items-center gap-3 px-4 py-3 rounded-lg text-[14px] font-normal transition-all duration-200 mb-0.5 relative no-underline ${isActive ? "active bg-[#007AFF]/20 text-white font-medium before:content-[''] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:bg-[#409cff] before:rounded-r-[3px]" : "text-white/65 hover:bg-white/5 hover:text-white"}`}
                 onClick={() => setSidebarOpen(false)}
               >
                 <item.icon />
@@ -253,17 +259,6 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
 
         {/* Footer */}
         <div className="p-4 border-t border-white/10">
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg mb-2">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#f59e0b] to-[#fbbf24] flex items-center justify-center text-sm font-semibold text-white shrink-0">
-              {userInitial || "?"}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-[13px] font-medium text-white whitespace-nowrap overflow-hidden text-ellipsis">
-                {loading ? "กำลังโหลด..." : userName || "ผู้ใช้งาน"}
-              </div>
-              <div className="text-[11px] text-white/45">Staff</div>
-            </div>
-          </div>
           <button onClick={handleLogout} className="flex items-center justify-center gap-2 w-full p-2.5 bg-white/5 border border-white/10 rounded-lg text-[13px] text-white/60 cursor-pointer transition-all duration-200 hover:bg-red-500/10 hover:border-red-500/25 hover:text-red-400">
             <LogoutIcon />
             ออกจากระบบ

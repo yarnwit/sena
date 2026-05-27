@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
 /* ===== Types ===== */
 interface User {
@@ -18,7 +19,8 @@ interface Toast {
 
 interface ModalData {
   user: User;
-  action: "promote" | "demote";
+  action: "changeRole" | "delete";
+  targetRole?: string;
 }
 
 /* ===== SVG Icons ===== */
@@ -124,14 +126,26 @@ function Skeleton({ w, h }: { w?: string; h?: string }) {
 const ITEMS_PER_PAGE = 10;
 
 /* ===== Main Page Component ===== */
-export default function AdminUsersPage() {
+function AdminUsersContent() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
+  const searchParams = useSearchParams();
+  const roleParam = searchParams.get("role");
+  const modeParam = searchParams.get("mode");
+
   // Search & Filter
   const [search, setSearch] = useState("");
-  const [filterRole, setFilterRole] = useState("all");
+  const [filterRole, setFilterRole] = useState(roleParam || "all");
+
+  useEffect(() => {
+    if (roleParam) {
+      setFilterRole(roleParam);
+    } else {
+      setFilterRole("all");
+    }
+  }, [roleParam]);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -152,13 +166,33 @@ export default function AdminUsersPage() {
   /* ── Fetch Users ── */
   const fetchUsers = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/admin/users`, { headers: authHeaders() });
+      let res = await fetch(`${API}/admin/users`, { headers: authHeaders() });
+
+      // If token expired, try to refresh and retry
+      if (res.status === 401) {
+        const refreshToken = localStorage.getItem("refreshToken");
+        if (refreshToken) {
+          const refreshRes = await fetch(`${API}/auth/refresh`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ refreshToken }),
+          });
+          const refreshData = await refreshRes.json();
+          if (refreshRes.ok && refreshData.data?.accessToken) {
+            localStorage.setItem("accessToken", refreshData.data.accessToken);
+            if (refreshData.data.refreshToken) {
+              localStorage.setItem("refreshToken", refreshData.data.refreshToken);
+            }
+            res = await fetch(`${API}/admin/users`, { headers: authHeaders() });
+          }
+        }
+      }
+
       if (res.ok) {
         const data = await res.json();
         const list: User[] = data.data ?? data;
         setUsers(list);
       } else {
-        // Fallback: ถ้า API ยังไม่พร้อม
         setUsers([]);
       }
       setLastUpdated(new Date());
@@ -177,35 +211,43 @@ export default function AdminUsersPage() {
     fetchUsers().finally(() => setLoading(false));
   }, [fetchUsers]);
 
-  /* ── Role Change ── */
-  async function handleRoleChange() {
+  /* ── Modal Confirm Action ── */
+  async function handleConfirmAction() {
     if (!modalData) return;
     setUpdating(true);
 
-    const { user, action } = modalData;
-    const newRole = action === "promote" ? "staff" : "resident";
+    const { user, action, targetRole } = modalData;
 
     try {
-      const res = await fetch(`${API}/admin/users/${user.user_id}`, {
-        method: "PATCH",
-        headers: authHeaders(),
-        body: JSON.stringify({ role: newRole }),
-      });
+      if (action === "changeRole" && targetRole) {
+        const res = await fetch(`${API}/admin/users/${user.user_id}`, {
+          method: "PATCH",
+          headers: authHeaders(),
+          body: JSON.stringify({ role: targetRole }),
+        });
 
-      if (res.ok) {
-        // อัปเดตใน state โดยตรงเพื่อ UX ที่เร็ว
-        setUsers(prev => prev.map(u =>
-          u.user_id === user.user_id ? { ...u, role: newRole } : u
-        ));
-        showToast(
-          action === "promote"
-            ? `เลื่อน ${user.first_name} ${user.last_name} เป็นนิติบุคคลสำเร็จ`
-            : `ลดสิทธิ์ ${user.first_name} ${user.last_name} เป็นลูกบ้านสำเร็จ`,
-          "success"
-        );
-      } else {
-        const errData = await res.json().catch(() => null);
-        showToast(errData?.message || "เกิดข้อผิดพลาดในการเปลี่ยนสิทธิ์", "error");
+        if (res.ok) {
+          setUsers(prev => prev.map(u =>
+            u.user_id === user.user_id ? { ...u, role: targetRole } : u
+          ));
+          showToast(`เปลี่ยนสิทธิ์ ${user.first_name} ${user.last_name} สำเร็จ`, "success");
+        } else {
+          const errData = await res.json().catch(() => null);
+          showToast(errData?.message || "เกิดข้อผิดพลาดในการเปลี่ยนสิทธิ์", "error");
+        }
+      } else if (action === "delete") {
+        const res = await fetch(`${API}/admin/users/${user.user_id}`, {
+          method: "DELETE",
+          headers: authHeaders(),
+        });
+
+        if (res.ok) {
+          setUsers(prev => prev.filter(u => u.user_id !== user.user_id));
+          showToast(`ลบบัญชี ${user.first_name} ${user.last_name} สำเร็จ`, "success");
+        } else {
+          const errData = await res.json().catch(() => null);
+          showToast(errData?.message || "เกิดข้อผิดพลาดในการลบบัญชี", "error");
+        }
       }
     } catch {
       showToast("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้", "error");
@@ -267,10 +309,15 @@ export default function AdminUsersPage() {
 
   return (
     <div className="grid gap-5">
-      {/* ── Header ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+      {/* ── Page Header ── */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
         <div>
-          <h2 className="m-0 text-xl font-bold text-gray-900">จัดการผู้ใช้งาน</h2>
+          <h2 className="text-xl font-bold text-gray-900 m-0">
+            {modeParam === "roles" ? "ปรับสิทธิ์ผู้ใช้งาน" : modeParam === "delete" ? "ลบบัญชีผู้ใช้งาน" : "จัดการบัญชีผู้ใช้งาน"}
+          </h2>
+          <p className="text-sm text-gray-500 mt-1 mb-0">
+            {modeParam === "roles" ? "เปลี่ยนสิทธิ์การเข้าใช้งานของแต่ละบัญชี" : modeParam === "delete" ? "ลบบัญชีผู้ใช้งานออกจากระบบ" : "ค้นหาและจัดการบัญชีผู้ใช้งานทั้งหมดในระบบ"}
+          </p>
           <p className="mt-1 m-0 text-[13px] text-gray-400">
             {lastUpdated
               ? `อัปเดตล่าสุด ${lastUpdated.toLocaleTimeString("th-TH")}`
@@ -368,7 +415,9 @@ export default function AdminUsersPage() {
                   <th className="px-4.5 py-3.5 text-[11px] font-semibold uppercase tracking-wide text-gray-400 bg-gray-50 border-b border-gray-100 whitespace-nowrap">ผู้ใช้งาน</th>
                   <th className="px-4.5 py-3.5 text-[11px] font-semibold uppercase tracking-wide text-gray-400 bg-gray-50 border-b border-gray-100 whitespace-nowrap">Username</th>
                   <th className="px-4.5 py-3.5 text-[11px] font-semibold uppercase tracking-wide text-gray-400 bg-gray-50 border-b border-gray-100 whitespace-nowrap">สิทธิ์ (Role)</th>
+                  {modeParam && (
                   <th className="px-4.5 py-3.5 text-[11px] font-semibold uppercase tracking-wide text-gray-400 bg-gray-50 border-b border-gray-100 whitespace-nowrap">จัดการสิทธิ์</th>
+                  )}
                 </tr>
               </thead>
               <tbody className="block md:table-row-group w-full">
@@ -415,38 +464,39 @@ export default function AdminUsersPage() {
                       </span>
                     </td>
 
-                    {/* ── Actions ── */}
+                    {/* ── Actions (only on mode pages) ── */}
+                    {modeParam && (
                     <td className="block md:table-cell w-full md:w-auto py-1 md:py-4 px-0 md:px-4.5 text-left text-gray-700 align-middle before:content-[attr(data-label)] before:block before:text-[11px] before:font-semibold before:text-gray-400 before:uppercase before:tracking-wide before:mb-1 md:before:hidden" data-label="จัดการ">
-                      <div className="flex gap-1.5 mt-2 md:mt-0">
-                        {user.role === "resident" && (
-                          <button
-                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium border border-indigo-200 bg-indigo-50 text-indigo-700 cursor-pointer transition-all duration-200 whitespace-nowrap hover:bg-indigo-100 hover:border-indigo-300 hover:shadow-[0_2px_8px_rgba(99,102,241,0.15)] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
-                            onClick={() => setModalData({ user, action: "promote" })}
-                            title="เลื่อนเป็นนิติบุคคล"
-                            id={`promote-${user.user_id}`}
+                      <div className="flex gap-2 items-center mt-2 md:mt-0">
+                        {modeParam === "roles" && (
+                          <select
+                            className="py-1.5 px-2.5 border border-gray-200 rounded-lg text-xs text-gray-700 bg-white outline-none cursor-pointer hover:border-gray-300 focus:border-violet-400 focus:shadow-[0_0_0_3px_rgba(167,139,250,0.15)] transition-all duration-200"
+                            value={user.role}
+                            onChange={(e) => {
+                              if (e.target.value !== user.role) {
+                                setModalData({ user, action: "changeRole", targetRole: e.target.value });
+                              }
+                            }}
                           >
-                            <span className="w-3.5 h-3.5"><IconArrowUp /></span>
-                            เลื่อนเป็นนิติ
-                          </button>
+                            <option value="resident">ลูกบ้าน</option>
+                            <option value="staff">นิติบุคคล</option>
+                            <option value="admin">แอดมิน</option>
+                          </select>
                         )}
-                        {user.role === "staff" && (
+                        
+                        {modeParam === "delete" && (
                           <button
-                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium border border-orange-200 bg-orange-50 text-orange-700 cursor-pointer transition-all duration-200 whitespace-nowrap hover:bg-orange-100 hover:border-orange-300 hover:shadow-[0_2px_8px_rgba(234,88,12,0.15)] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
-                            onClick={() => setModalData({ user, action: "demote" })}
-                            title="ลดสิทธิ์เป็นลูกบ้าน"
-                            id={`demote-${user.user_id}`}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-red-200 bg-red-50 text-red-600 cursor-pointer transition-all duration-200 whitespace-nowrap hover:bg-red-100 hover:border-red-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => setModalData({ user, action: "delete" })}
+                            title="ลบบัญชีผู้ใช้"
                           >
-                            <span className="w-3.5 h-3.5"><IconArrowDown /></span>
-                            ลดเป็นลูกบ้าน
+                            <span className="w-3.5 h-3.5"><IconX /></span>
+                            ลบ
                           </button>
-                        )}
-                        {user.role === "admin" && (
-                          <span className="text-xs text-gray-400 italic">
-                            — ผู้ดูแลระบบ
-                          </span>
                         )}
                       </div>
                     </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -490,30 +540,39 @@ export default function AdminUsersPage() {
       {modalData && (
         <div className="fixed inset-0 bg-black/45 backdrop-blur-[4px] flex items-center justify-center z-[200] animate-[users-fade-in_0.2s_ease]" onClick={() => !updating && setModalData(null)}>
           <div className="bg-white rounded-[20px] p-8 max-w-[420px] w-[90%] shadow-[0_20px_60px_rgba(0,0,0,0.2)] animate-[users-modal-pop_0.25s_cubic-bezier(0.34,1.56,0.64,1)]" onClick={e => e.stopPropagation()}>
-            <div className={`w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 ${modalData.action === "promote" ? "bg-gradient-to-br from-indigo-50 to-indigo-100 text-indigo-500" : "bg-gradient-to-br from-orange-50 to-orange-100 text-orange-600"}`}>
+            <div className={`w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 ${modalData.action === "changeRole" ? "bg-gradient-to-br from-indigo-50 to-indigo-100 text-indigo-500" : "bg-gradient-to-br from-red-50 to-red-100 text-red-600"}`}>
               <span className="w-6 h-6">
-                {modalData.action === "promote" ? <IconArrowUp /> : <IconArrowDown />}
+                {modalData.action === "changeRole" ? <IconUsers /> : <IconX />}
               </span>
             </div>
             <h3 className="text-lg font-semibold text-gray-900 text-center m-0 mb-2">
-              {modalData.action === "promote" ? "เลื่อนสิทธิ์เป็นนิติบุคคล" : "ลดสิทธิ์เป็นลูกบ้าน"}
+              {modalData.action === "changeRole" ? "ยืนยันการเปลี่ยนสิทธิ์" : "ยืนยันการลบบัญชี"}
             </h3>
             <p className="text-sm text-gray-500 text-center leading-relaxed m-0 mb-6">
-              คุณต้องการ{modalData.action === "promote" ? "เลื่อนสิทธิ์" : "ลดสิทธิ์"}ของ{" "}
+              {modalData.action === "changeRole" ? "คุณต้องการเปลี่ยนสิทธิ์ของ" : "คุณต้องการลบบัญชีของ"}{" "}
               <span className="font-semibold text-gray-900">
                 {modalData.user.first_name} {modalData.user.last_name}
               </span>{" "}
               ใช่หรือไม่?
+              {modalData.action === "delete" && <span className="block mt-2 text-red-500 font-medium">การดำเนินการนี้ไม่สามารถย้อนกลับได้ ข้อมูลทั้งหมดจะถูกลบถาวร</span>}
             </p>
-            <div className="flex items-center justify-center gap-3 p-3.5 bg-gray-50 rounded-xl mb-6">
-              <span className={`px-3.5 py-1.5 rounded-full text-[13px] font-semibold ${modalData.user.role === 'resident' ? 'bg-emerald-100 text-emerald-800' : 'bg-indigo-100 text-indigo-800'}`}>
-                {roleLabel(modalData.user.role)}
-              </span>
-              <span className="text-base text-gray-400">→</span>
-              <span className={`px-3.5 py-1.5 rounded-full text-[13px] font-semibold ${modalData.action === "promote" ? "bg-indigo-100 text-indigo-800" : "bg-emerald-100 text-emerald-800"}`}>
-                {modalData.action === "promote" ? "นิติบุคคล" : "ลูกบ้าน"}
-              </span>
-            </div>
+            
+            {modalData.action === "changeRole" && modalData.targetRole && (
+              <div className="flex items-center justify-center gap-3 p-3.5 bg-gray-50 rounded-xl mb-6">
+                <span className="px-3.5 py-1.5 rounded-full text-[13px] font-semibold bg-gray-200 text-gray-800">
+                  {roleLabel(modalData.user.role)}
+                </span>
+                <span className="text-base text-gray-400">→</span>
+                <span className={`px-3.5 py-1.5 rounded-full text-[13px] font-semibold ${
+                  modalData.targetRole === "admin" ? "bg-pink-100 text-pink-800" :
+                  modalData.targetRole === "staff" ? "bg-indigo-100 text-indigo-800" :
+                  "bg-emerald-100 text-emerald-800"
+                }`}>
+                  {roleLabel(modalData.targetRole)}
+                </span>
+              </div>
+            )}
+
             <div className="flex gap-2.5">
               <button
                 className="flex-1 py-3 px-4 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 border-none bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-60 disabled:cursor-not-allowed"
@@ -523,12 +582,11 @@ export default function AdminUsersPage() {
                 ยกเลิก
               </button>
               <button
-                className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 border-none text-white disabled:opacity-60 disabled:cursor-not-allowed ${modalData.action === "promote" ? "bg-gradient-to-br from-indigo-500 to-violet-600 hover:shadow-[0_4px_16px_rgba(99,102,241,0.3)]" : "bg-gradient-to-br from-orange-600 to-orange-500 hover:shadow-[0_4px_16px_rgba(234,88,12,0.3)]"}`}
-                onClick={handleRoleChange}
+                className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 border-none text-white disabled:opacity-60 disabled:cursor-not-allowed ${modalData.action === "changeRole" ? "bg-gradient-to-br from-indigo-500 to-violet-600 hover:shadow-[0_4px_16px_rgba(99,102,241,0.3)]" : "bg-red-600 hover:bg-red-700 hover:shadow-[0_4px_16px_rgba(220,38,38,0.3)]"}`}
+                onClick={handleConfirmAction}
                 disabled={updating}
-                id="confirm-role-change-btn"
               >
-                {updating ? "กำลังดำเนินการ..." : "ยืนยัน"}
+                {updating ? "กำลังดำเนินการ..." : (modalData.action === "changeRole" ? "ยืนยัน" : "ลบบัญชีถาวร")}
               </button>
             </div>
           </div>
@@ -545,5 +603,13 @@ export default function AdminUsersPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function AdminUsersPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-gray-500">กำลังโหลดข้อมูล...</div>}>
+      <AdminUsersContent />
+    </Suspense>
   );
 }

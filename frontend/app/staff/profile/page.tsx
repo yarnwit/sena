@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import api from "@/lib/api";
 
 interface UserProfile {
   first_name: string;
@@ -32,37 +33,35 @@ export default function StaffProfilePage() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const supabase = createClient();
-      const userStr = localStorage.getItem("user");
-      if (!userStr) {
+      try {
+        const { data } = await api.get("/users/profile");
+        if (data.success) {
+          setUser({
+            first_name: data.data.first_name || "",
+            last_name: data.data.last_name || "",
+            username: data.data.username || "",
+            role: data.data.role || "staff"
+          });
+        }
+        
+        // ดึง stats ของงานในระบบ (สำหรับ staff ดูทั้งระบบ ไม่ใช่เฉพาะตัวเอง)
+        const supabase = createClient();
+        const { data: complaints } = await supabase
+          .from("complaints")
+          .select("status");
+
+        if (complaints) {
+          setStats({
+            total:       complaints.length,
+            in_progress: complaints.filter((c) => c.status === "in_progress").length,
+            resolved:    complaints.filter((c) => c.status === "resolved" || c.status === "closed").length,
+          });
+        }
+      } catch (err) {
+        console.error("Fetch profile error", err);
+      } finally {
         setLoading(false);
-        return;
       }
-      const authUser = JSON.parse(userStr);
-
-      // ดึงข้อมูล users
-      const { data: userData } = await supabase
-        .from("users")
-        .select("first_name, last_name, username, role")
-        .eq("id", authUser.id)
-        .single();
-
-      if (userData) setUser(userData);
-
-      // ดึง stats ของงานในระบบ (สำหรับ staff ดูทั้งระบบ ไม่ใช่เฉพาะตัวเอง)
-      const { data: complaints } = await supabase
-        .from("complaints")
-        .select("status");
-
-      if (complaints) {
-        setStats({
-          total:       complaints.length,
-          in_progress: complaints.filter((c) => c.status === "in_progress").length,
-          resolved:    complaints.filter((c) => c.status === "resolved" || c.status === "closed").length,
-        });
-      }
-
-      setLoading(false);
     };
 
     fetchProfile();
@@ -75,30 +74,27 @@ export default function StaffProfilePage() {
     setError("");
 
     try {
-      const supabase = createClient();
-      const userStr = localStorage.getItem("user");
-      if (!userStr) {
-        setSaving(false);
-        return;
-      }
-      const authUser = JSON.parse(userStr);
+      const { data } = await api.patch("/users/profile", {
+        first_name: user.first_name,
+        last_name: user.last_name,
+      });
 
-      const { error: userError } = await supabase
-        .from("users")
-        .update({
-          first_name: user.first_name,
-          last_name:  user.last_name,
-        })
-        .eq("id", authUser.id);
-
-      if (userError) {
-        setError(`อัปเดตข้อมูลไม่สำเร็จ: ${userError.message}`);
-      } else {
+      if (data.success) {
         setSuccess("บันทึกข้อมูลสำเร็จ!");
+        
+        // Update local storage so headers can reflect it without reloading
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+          const authUser = JSON.parse(userStr);
+          authUser.full_name = `${user.first_name} ${user.last_name}`.trim();
+          localStorage.setItem("user", JSON.stringify(authUser));
+          window.dispatchEvent(new Event("user-updated"));
+        }
+        
         setTimeout(() => setSuccess(""), 3000);
       }
-    } catch {
-      setError("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    } catch (err: any) {
+      setError(err.response?.data?.message || "เกิดข้อผิดพลาด กรุณาลองใหม่");
     } finally {
       setSaving(false);
     }
@@ -120,18 +116,17 @@ export default function StaffProfilePage() {
 
     setPwSaving(true);
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.updateUser({ password: passwords.new_password });
+      const { data } = await api.post("/auth/change-password", {
+        newPassword: passwords.new_password,
+      });
 
-      if (error) {
-        setPwError(error.message);
-      } else {
+      if (data.success) {
         setPwSuccess("เปลี่ยนรหัสผ่านสำเร็จ!");
         setPasswords({ new_password: "", confirm: "" });
         setTimeout(() => setPwSuccess(""), 3000);
       }
-    } catch {
-      setPwError("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    } catch (err: any) {
+      setPwError(err.response?.data?.message || "เกิดข้อผิดพลาด กรุณาลองใหม่");
     } finally {
       setPwSaving(false);
     }

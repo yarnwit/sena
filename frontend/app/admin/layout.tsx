@@ -23,6 +23,15 @@ const UsersIcon = () => (
   </svg>
 );
 
+const UserPlusIcon = () => (
+  <svg className="w-5 h-5 shrink-0 opacity-80 group-[.active]:opacity-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="8.5" cy="7" r="4" />
+    <line x1="20" y1="8" x2="20" y2="14" />
+    <line x1="23" y1="11" x2="17" y2="11" />
+  </svg>
+);
+
 const ReportsIcon = () => (
   <svg className="w-5 h-5 shrink-0 opacity-80 group-[.active]:opacity-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="18" y1="20" x2="18" y2="10" />
@@ -67,14 +76,19 @@ const CalendarIcon = () => (
 );
 
 /* ===== Navigation Items ===== */
-const mainNavItems = [
+const navItems = [
   { href: "/admin/dashboard", label: "ภาพรวมระบบ", icon: DashboardIcon },
-  { href: "/admin/users", label: "จัดการผู้ใช้งาน", icon: UsersIcon },
-  { href: "/admin/reports", label: "รายงานสรุป", icon: ReportsIcon },
-];
-
-const systemNavItems = [
-  { href: "/admin/logs", label: "Audit Logs", icon: LogsIcon },
+  { href: "/admin/users/new", label: "เพิ่มบัญชีผู้ใช้งาน", icon: UserPlusIcon },
+  { 
+    label: "จัดการบัญชีผู้ใช้งาน", 
+    icon: UsersIcon,
+    subItems: [
+      { href: "/admin/users", label: "บัญชีผู้ใช้ทั้งหมด" },
+      { href: "/admin/users?mode=roles", label: "ปรับสิทธิ์ผู้ใช้งาน" },
+      { href: "/admin/users?mode=delete", label: "ลบบัญชีผู้ใช้งาน" }
+    ]
+  },
+  { href: "/admin/reports", label: "รายงานสรุป", icon: ReportsIcon }
 ];
 
 /* ===== Page Title Map ===== */
@@ -94,21 +108,37 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [userInitial, setUserInitial] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // State for accordion menu
+  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
+    "ผู้ใช้งานและสถิติ": pathname.startsWith("/admin/users") || pathname.startsWith("/admin/reports"),
+    "ระบบ": pathname.startsWith("/admin/logs")
+  });
+
+  const toggleMenu = (label: string) => {
+    setOpenMenus(prev => ({ ...prev, [label]: !prev[label] }));
+  };
+
   const pageInfo = getPageInfo(pathname);
 
   useEffect(() => {
-    try {
-      const userStr = localStorage.getItem("user");
-      if (userStr) {
-        const user = JSON.parse(userStr);
-        const fullName = user.full_name || `${user.first_name || ""} ${user.last_name || ""}`.trim();
-        setUserName(fullName);
-        setUserInitial(fullName ? fullName.charAt(0).toUpperCase() : "?");
+    const loadUser = () => {
+      try {
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          const fullName = user.full_name || `${user.first_name || ""} ${user.last_name || ""}`.trim();
+          setUserName(fullName);
+          setUserInitial(fullName ? fullName.charAt(0).toUpperCase() : "?");
+        }
+      } catch {
+        // ignore parse error
       }
-    } catch {
-      // ignore parse error
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+
+    loadUser();
+    window.addEventListener("user-updated", loadUser);
+    return () => window.removeEventListener("user-updated", loadUser);
   }, []);
 
   const handleLogout = () => {
@@ -143,7 +173,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       />
 
       {/* Sidebar */}
-      <aside className={`fixed top-0 left-0 w-[270px] h-screen bg-gradient-to-b from-[#1e1b4b] to-[#0f0a2e] text-white flex flex-col z-[100] transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] md:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`fixed top-0 left-0 w-[270px] h-screen bg-gradient-to-b from-[#161D19]/90 to-[#B31B1B] text-white flex flex-col z-[100] transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] md:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         {/* Logo */}
         <div className="pt-7 px-6 pb-5 border-b border-white/10">
           <div className="flex flex-col items-center text-center">
@@ -153,8 +183,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <span className="font-['Times_New_Roman',_'Georgia',_serif] text-[9px] tracking-[2px] text-white/60 mt-0.5">Rangsit - Tiwanon</span>
           </div>
           <div className="flex justify-center mt-3.5">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-[#8b5cf6]/20 border border-[#8b5cf6]/35 rounded-full text-[11px] text-[#c4b5fd] tracking-[0.5px]">
-              <span className="w-1.5 h-1.5 bg-[#a78bfa] rounded-full animate-pulse" />
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-[#B31B1B]/20 border border-[#B31B1B]/35 rounded-full text-[11px] text-red-200 tracking-[0.5px]">
+              <span className="w-1.5 h-1.5 bg-[#ff6b6b] rounded-full animate-pulse" />
               ผู้ดูแลระบบ
             </span>
           </div>
@@ -162,48 +192,86 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Navigation */}
         <nav className="flex-1 px-3 py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-white/15 scrollbar-track-transparent">
-          {/* Main Menu */}
           <div className="text-[10px] font-semibold uppercase tracking-[1.5px] text-white/35 px-3 py-2">เมนูหลัก</div>
-          {mainNavItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`group flex items-center gap-3 px-4 py-3 rounded-lg text-[14px] font-normal transition-all duration-200 mb-0.5 relative no-underline ${isNavActive(item.href) ? "active bg-[#8b5cf6]/20 text-white font-medium before:content-[''] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:bg-[#a78bfa] before:rounded-r-[3px]" : "text-white/65 hover:bg-white/5 hover:text-white"}`}
-              onClick={() => setSidebarOpen(false)}
-            >
-              <item.icon />
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item, idx) => {
+            if (item.subItems) {
+              const isMenuOpen = openMenus[item.label];
+              const isChildActive = item.subItems.some(sub => {
+                // Exact match for the sub link
+                if (pathname === sub.href) return true;
+                // Avoid matching /admin/users/new when checking /admin/users
+                if (sub.href === "/admin/users" && pathname === "/admin/users/new") return false;
+                return pathname.startsWith(sub.href + "/");
+              });
+              
+              return (
+                <div key={idx} className="mb-0.5 group">
+                  <button
+                    className={`w-full text-left flex items-center justify-between border-none bg-transparent cursor-pointer px-4 py-3 rounded-lg text-[14px] font-normal transition-all duration-200 relative ${isChildActive && !isMenuOpen ? "bg-[#B31B1B]/20 text-white" : "text-white/65 hover:bg-white/5 hover:text-white"}`}
+                    onClick={() => toggleMenu(item.label)}
+                  >
+                    <div className="flex items-center gap-[12px]">
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </div>
+                    <svg 
+                      className={`w-4 h-4 transition-transform duration-200 ${isMenuOpen ? "rotate-180" : ""}`} 
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </button>
+                  
+                  <div className={`pl-5 overflow-hidden transition-all duration-300 ${isMenuOpen ? "max-h-48 opacity-100 mt-1" : "max-h-0 opacity-0"}`}>
+                    {item.subItems.map((sub, sIdx) => {
+                      // Check if sub.href matches pathname and query params
+                      // Since we use query params like ?role=resident, we must check window.location.search or just use exact string matching if possible.
+                      // For now, simpler: compare pathname and query in layout? Layout doesn't have useSearchParams without suspense.
+                      // We will just match sub.href exactly with pathname + search, but Next.js usePathname only gives pathname.
+                      // We can just rely on the layout client-side check using window.location.href, or just simple matching:
+                      let isActive = false;
+                      if (typeof window !== "undefined") {
+                        const currentPath = window.location.pathname + window.location.search;
+                        isActive = currentPath === sub.href;
+                      } else {
+                        isActive = pathname === sub.href;
+                      }
+                      
+                      return (
+                        <Link
+                          key={sIdx}
+                          href={sub.href}
+                          className={`flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-[13px] transition-all duration-200 mb-0.5 no-underline ${isActive ? "text-[#ff6b6b] bg-[#ff6b6b]/15 font-medium" : "text-white/55 hover:text-white/85 hover:bg-white/5"}`}
+                          onClick={() => setSidebarOpen(false)}
+                        >
+                          <span className={`w-1 h-1 rounded-full shrink-0 ${isActive ? "bg-current opacity-100 shadow-[0_0_4px_currentColor]" : "bg-current opacity-50"}`}></span>
+                          {sub.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            }
 
-          {/* System Menu */}
-          <div className="text-[10px] font-semibold uppercase tracking-[1.5px] text-white/35 px-3 py-2 mt-2">ระบบ</div>
-          {systemNavItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`group flex items-center gap-3 px-4 py-3 rounded-lg text-[14px] font-normal transition-all duration-200 mb-0.5 relative no-underline ${isNavActive(item.href) ? "active bg-[#8b5cf6]/20 text-white font-medium before:content-[''] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:bg-[#a78bfa] before:rounded-r-[3px]" : "text-white/65 hover:bg-white/5 hover:text-white"}`}
-              onClick={() => setSidebarOpen(false)}
-            >
-              <item.icon />
-              {item.label}
-            </Link>
-          ))}
+            const isActive = pathname === item.href || (item.href !== "/admin/dashboard" && pathname.startsWith(item.href + "/"));
+
+            return (
+              <Link
+                key={item.href || idx}
+                href={item.href || "#"}
+                className={`group flex items-center gap-3 px-4 py-3 rounded-lg text-[14px] font-normal transition-all duration-200 mb-0.5 relative no-underline ${isActive ? "active bg-[#B31B1B]/20 text-white font-medium before:content-[''] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:bg-[#ff6b6b] before:rounded-r-[3px]" : "text-white/65 hover:bg-white/5 hover:text-white"}`}
+                onClick={() => setSidebarOpen(false)}
+              >
+                <item.icon />
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Footer */}
         <div className="p-4 border-t border-white/10">
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg mb-2">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#a78bfa] flex items-center justify-center text-sm font-semibold text-white shrink-0">
-              {userInitial || "?"}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-[13px] font-medium text-white whitespace-nowrap overflow-hidden text-ellipsis">
-                {loading ? "กำลังโหลด..." : userName || "ผู้ใช้งาน"}
-              </div>
-              <div className="text-[11px] text-white/45">Administrator</div>
-            </div>
-          </div>
           <button onClick={handleLogout} className="flex items-center justify-center gap-2 w-full p-2.5 bg-white/5 border border-white/10 rounded-lg text-[13px] text-white/60 cursor-pointer transition-all duration-200 hover:bg-red-500/10 hover:border-red-500/25 hover:text-red-400">
             <LogoutIcon />
             ออกจากระบบ

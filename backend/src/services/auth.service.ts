@@ -86,6 +86,8 @@ export const AuthService = {
     house_no?: string;
     phone_number?: string;
     resident_type?: string;
+    phase?: string;
+    soi?: string;
     role?: string;
   }) {
     const { data: result, error } = await supabase.auth.admin.createUser({
@@ -99,6 +101,8 @@ export const AuthService = {
         house_no: data.house_no,
         phone_number: data.phone_number,
         resident_type: data.resident_type,
+        phase: data.phase,
+        soi: data.soi,
         role: data.role || 'resident',
       },
     });
@@ -129,6 +133,8 @@ export const AuthService = {
           house_no: data.house_no,
           phone_number: data.phone_number,
           resident_type: data.resident_type || 'owner',
+          phase: data.phase,
+          soi: data.soi,
         });
         
         if (insertResidentError && insertResidentError.code !== '23505') {
@@ -210,6 +216,25 @@ export const AuthService = {
     }
 
     logger.info(`Password reset successful for user ID: ${decoded.userId}`);
+  },
+
+  async changePassword(userId: string, newPassword: string): Promise<void> {
+    // 1. Hash new password
+    const hashedPassword = await hashPassword(newPassword);
+
+    // 2. Update in DB
+    const success = await UserModel.updatePassword(userId, hashedPassword);
+    if (!success) {
+      throw new Error('ไม่สามารถเปลี่ยนรหัสผ่านได้');
+    }
+
+    // 3. Try to update Supabase Auth
+    const { error } = await supabase.auth.admin.updateUserById(userId, { password: newPassword });
+    if (error && error.message !== 'User not found') {
+      logger.warn(`Failed to update Supabase Auth for user ${userId}: ${error.message}`);
+    }
+
+    logger.info(`Password changed successfully for user ID: ${userId}`);
   },
 
   async deleteAccount(userId: string): Promise<void> {

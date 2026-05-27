@@ -106,7 +106,28 @@ export default function AdminLogsPage() {
   /* ── Fetch Logs ── */
   const fetchLogs = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/admin/logs`, { headers: authHeaders() });
+      let res = await fetch(`${API}/admin/logs`, { headers: authHeaders() });
+
+      // If token expired, try to refresh and retry
+      if (res.status === 401) {
+        const refreshToken = localStorage.getItem("refreshToken");
+        if (refreshToken) {
+          const refreshRes = await fetch(`${API}/auth/refresh`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ refreshToken }),
+          });
+          const refreshData = await refreshRes.json();
+          if (refreshRes.ok && refreshData.data?.accessToken) {
+            localStorage.setItem("accessToken", refreshData.data.accessToken);
+            if (refreshData.data.refreshToken) {
+              localStorage.setItem("refreshToken", refreshData.data.refreshToken);
+            }
+            res = await fetch(`${API}/admin/logs`, { headers: authHeaders() });
+          }
+        }
+      }
+
       if (res.ok) {
         const data = await res.json();
         const list: AuditLog[] = data.data ?? data;
