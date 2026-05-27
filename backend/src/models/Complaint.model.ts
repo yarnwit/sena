@@ -180,6 +180,16 @@ export const ComplaintModel = {
           }
         }
       }
+    } else if (complaint.description && complaint.description.startsWith('[ผู้ร้อง:')) {
+      // Extract manual info embedded by staff
+      const match = complaint.description.match(/^\[ผู้ร้อง:\s*(.*?)\s*\|\s*บ้านเลขที่:\s*([^\]|]+)/);
+      if (match) {
+        const fullName = match[1].trim();
+        const parts = fullName.split(' ');
+        first_name = parts[0];
+        last_name = parts.slice(1).join(' ');
+        house_no = match[2].trim();
+      }
     }
 
     return { ...complaint, house_no, first_name, last_name };

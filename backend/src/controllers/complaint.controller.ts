@@ -123,6 +123,37 @@ export const updateComplaintStatus = async (req: Request, res: Response) => {
   }
 };
 
+// ===== PATCH /api/complaints/staff/bulk-status =====
+export const bulkUpdateComplaintStatus = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const role = req.user?.role;
+    if (!userId || !role) return sendError(res, 'Unauthorized', 401);
+
+    const { complaintIds, status, petition } = req.body;
+    
+    if (!Array.isArray(complaintIds) || complaintIds.length === 0) {
+      return sendError(res, 'กรุณาระบุรายการคำร้องที่ต้องการอัปเดต', 400);
+    }
+    
+    if (!status) {
+      return sendError(res, 'กรุณาระบุสถานะที่ต้องการเปลี่ยน', 400);
+    }
+
+    const result = await ComplaintService.bulkUpdateStatus(complaintIds, status, userId, role, petition);
+    
+    // If there were any successes, we consider the request partially or fully successful
+    if (result.results.length > 0) {
+      return sendSuccess(res, result, `อัปเดตสำเร็จ ${result.results.length} รายการ${result.errors.length > 0 ? `, ล้มเหลว ${result.errors.length} รายการ` : ''}`);
+    } else {
+      return sendError(res, `ไม่สามารถอัปเดตสถานะได้เลย: ${result.errors[0]?.message}`, 400);
+    }
+  } catch (error: any) {
+    logger.error('Bulk update complaint status error:', error);
+    return sendError(res, 'Internal server error');
+  }
+};
+
 // ===== PATCH /api/complaints/:id =====
 export const updateComplaint = async (req: Request, res: Response) => {
   try {

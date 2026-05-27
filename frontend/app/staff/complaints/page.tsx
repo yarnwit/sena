@@ -22,18 +22,22 @@ interface Complaint {
 
 const statusConfig: Record<string, { label: string; bgClass: string; textClass: string }> = {
   pending: { label: "รอดำเนินการ", bgClass: "bg-amber-100", textClass: "text-amber-700" },
-  in_progress: { label: "กำลังดำเนินการ", bgClass: "bg-red-100", textClass: "text-red-600" },
-  resolved: { label: "อนุมัติ/แก้ไขแล้ว", bgClass: "bg-green-100", textClass: "text-green-700" },
-  rejected: { label: "ไม่อนุมัติ", bgClass: "bg-red-100", textClass: "text-red-600" },
+  approved: { label: "อนุมัติรับเรื่อง", bgClass: "bg-green-100", textClass: "text-green-700" },
+  in_meeting: { label: "เข้าที่ประชุม", bgClass: "bg-purple-100", textClass: "text-purple-700" },
+  in_progress: { label: "กำลังดำเนินการ", bgClass: "bg-blue-100", textClass: "text-blue-700" },
+  resolved: { label: "แก้ไขแล้ว", bgClass: "bg-green-100", textClass: "text-green-700" },
+  rejected: { label: "ไม่อนุมัติ", bgClass: "bg-red-100", textClass: "text-red-700" },
   closed: { label: "ปิดเรื่อง", bgClass: "bg-gray-100", textClass: "text-gray-500" },
 };
 
 const filterOptions = [
   { key: "all", label: "ทั้งหมด" },
   { key: "pending", label: "รอดำเนินการ" },
+  { key: "approved", label: "อนุมัติรับเรื่อง" },
+  { key: "in_meeting", label: "เข้าที่ประชุม" },
   { key: "in_progress", label: "กำลังดำเนินการ" },
   { key: "resolved", label: "แก้ไขแล้ว" },
-  { key: "rejected", label: "ปฏิเสธ" },
+  { key: "rejected", label: "ไม่อนุมัติ" },
   { key: "closed", label: "ปิดเรื่อง" },
 ];
 

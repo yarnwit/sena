@@ -288,6 +288,25 @@ export const ComplaintService = {
   },
 
   /**
+   * อัปเดตสถานะ complaint แบบหลายรายการพร้อมกัน (staff/admin)
+   */
+  async bulkUpdateStatus(complaintIds: (number | string)[], newStatus: string, userId: string, role: string, petition?: string) {
+    const results = [];
+    const errors = [];
+
+    for (const complaintId of complaintIds) {
+      try {
+        const result = await this.updateStatus(complaintId, newStatus, userId, role, petition);
+        results.push(result);
+      } catch (err: any) {
+        errors.push({ complaintId, message: err.message });
+      }
+    }
+
+    return { results, errors };
+  },
+
+  /**
    * ดึงชื่อผู้เปลี่ยนสถานะล่าสุด
    */
   async getReviewerName(complaintId: number | string): Promise<string | null> {
@@ -332,6 +351,14 @@ export const ComplaintService = {
           .eq('user_id', rData.user_id)
           .single();
         userData = uData;
+      }
+    } else if (complaint.description && complaint.description.startsWith('[ผู้ร้อง:')) {
+      const match = complaint.description.match(/^\[ผู้ร้อง:\s*(.*?)\s*\|\s*บ้านเลขที่:\s*([^\]|]+)/);
+      if (match) {
+        const fullName = match[1].trim();
+        const parts = fullName.split(' ');
+        userData = { first_name: parts[0], last_name: parts.slice(1).join(' ') };
+        residentData = { house_no: match[2].trim() };
       }
     }
 

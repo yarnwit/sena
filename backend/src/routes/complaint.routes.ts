@@ -10,6 +10,7 @@ import {
   getAllComplaints,
   getComplaintByIdForStaff,
   updateComplaintStatus,
+  bulkUpdateComplaintStatus,
   getResidentsList,
   createComplaintForStaff,
   deleteComplaint,
@@ -32,6 +33,9 @@ router.get('/staff/:id', authenticate, authorize('staff', 'admin'), getComplaint
 
 // อัปเดตสถานะคำร้อง (สำหรับ staff/admin) — PATCH ตาม spec
 router.patch('/staff/:id/status', authenticate, authorize('staff', 'admin'), updateComplaintStatus);
+
+// อัปเดตสถานะคำร้องแบบกลุ่ม (สำหรับ staff/admin)
+router.patch('/staff/bulk-status', authenticate, authorize('staff', 'admin'), bulkUpdateComplaintStatus);
 
 // สร้างคำร้องโดย staff (เลือกลูกบ้านจากระบบ)
 router.post('/staff', authenticate, authorize('staff', 'admin'), createComplaintForStaff);

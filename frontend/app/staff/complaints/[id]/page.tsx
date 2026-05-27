@@ -41,11 +41,13 @@ interface Comment {
 
 /* ===== Config Maps ===== */
 const statusConfig: Record<string, { label: string; bgClass: string; textClass: string }> = {
-  pending:      { label: "รอดำเนินการ",     bgClass: "bg-red-600",    textClass: "text-white" },
-  in_progress:  { label: "กำลังดำเนินการ",  bgClass: "bg-blue-600",   textClass: "text-white" },
-  resolved:     { label: "อนุมัติ/แก้ไขแล้ว", bgClass: "bg-green-600",  textClass: "text-white" },
-  rejected:     { label: "ไม่อนุมัติ",       bgClass: "bg-gray-600",   textClass: "text-white" },
-  closed:       { label: "ปิดเรื่อง",        bgClass: "bg-gray-400",   textClass: "text-white" },
+  pending:      { label: "รอดำเนินการ",     bgClass: "bg-amber-100",   textClass: "text-amber-700" },
+  approved:     { label: "อนุมัติรับเรื่อง", bgClass: "bg-green-100", textClass: "text-green-700" },
+  in_meeting:   { label: "เข้าที่ประชุม",    bgClass: "bg-purple-100",  textClass: "text-purple-700" },
+  in_progress:  { label: "กำลังดำเนินการ",  bgClass: "bg-blue-100",    textClass: "text-blue-700" },
+  resolved:     { label: "แก้ไขแล้ว",       bgClass: "bg-green-100",   textClass: "text-green-700" },
+  rejected:     { label: "ไม่อนุมัติ",       bgClass: "bg-red-100",     textClass: "text-red-700" },
+  closed:       { label: "ปิดเรื่อง",        bgClass: "bg-gray-100",    textClass: "text-gray-500" },
 };
 
 const channelLabels: Record<string, string> = {
@@ -97,9 +99,10 @@ const ChatBubbleIcon = () => (
   </svg>
 );
 
-/* ===== Status Update Options ===== */
 const availableStatuses = [
   { value: "pending", label: "รอดำเนินการ" },
+  { value: "approved", label: "อนุมัติรับเรื่อง" },
+  { value: "in_meeting", label: "เข้าที่ประชุม" },
   { value: "in_progress", label: "กำลังดำเนินการ" },
   { value: "resolved", label: "แก้ไขแล้ว" },
   { value: "rejected", label: "ไม่อนุมัติ" },
@@ -161,63 +164,68 @@ export default function StaffComplaintDetailPage() {
     fetchData();
   }, [complaintId]);
 
-  const handleUpdateStatus = async () => {
-    if (!complaint || (selectedStatus === complaint.status && petition === (complaint.petition || ""))) return;
+  const handleUpdateStatusAndComment = async () => {
+    const statusChanged = selectedStatus !== complaint?.status || petition !== (complaint?.petition || "");
+    const commentFilled = newComment.trim().length > 0;
+
+    if (!statusChanged && !commentFilled) return;
+
     setUpdatingStatus(true);
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) { alert("กรุณาเข้าสู่ระบบใหม่"); setUpdatingStatus(false); return; }
 
-      const res = await api.patch(`/complaints/staff/${complaint.complaint_id}/status`, {
-        status: selectedStatus,
-        petition,
-      });
-      const json = res.data;
-      if (json.success) {
-        setComplaint({ ...complaint, status: selectedStatus, petition: petition });
-        alert("อัปเดตสถานะสำเร็จ");
+      let hasError = false;
+
+      // 1. Update Status
+      if (statusChanged && complaint) {
+        const res = await api.patch(`/complaints/staff/${complaint.complaint_id}/status`, {
+          status: selectedStatus,
+          petition,
+        });
+        if (res.data.success) {
+          setComplaint({ ...complaint, status: selectedStatus, petition: petition });
+        } else {
+          hasError = true;
+          alert("เกิดข้อผิดพลาดในการอัปเดตสถานะ: " + res.data.message);
+        }
+      }
+
+      // 2. Insert Comment
+      if (commentFilled && !hasError) {
+        const supabase = createClient();
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          const { data: userData } = await supabase
+            .from("users").select("first_name, last_name, role").eq("id", user.id).single();
+
+          const { data: insertedComment, error } = await supabase
+            .from("comments")
+            .insert({
+              complaint_id: parseInt(complaintId),
+              user_id: user.id,
+              content: newComment,
+              user_name: userData ? `${userData.first_name} ${userData.last_name}` : "ผู้ใช้",
+              user_role: userData?.role || "staff",
+            })
+            .select().single();
+
+          if (!error && insertedComment) {
+            setComments([...comments, insertedComment]);
+            setNewComment("");
+          }
+        }
+      }
+
+      if (!hasError) {
+        alert("อัปเดตข้อมูลสำเร็จ");
         router.refresh();
-      } else {
-        alert("เกิดข้อผิดพลาด: " + json.message);
       }
     } catch (error: any) {
       alert("เกิดข้อผิดพลาดในการบันทึก: " + (error.response?.data?.message || error.message || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์"));
     } finally {
       setUpdatingStatus(false);
-    }
-  };
-
-  const handleSendComment = async () => {
-    if (!newComment.trim()) return;
-    setSending(true);
-    try {
-      const supabase = createClient();
-      const userStr = localStorage.getItem("user");
-      if (!userStr) { setSending(false); return; }
-      const user = JSON.parse(userStr);
-
-      const { data: userData } = await supabase
-        .from("users").select("first_name, last_name, role").eq("id", user.id).single();
-
-      const { data: insertedComment, error } = await supabase
-        .from("comments")
-        .insert({
-          complaint_id: parseInt(complaintId),
-          user_id: user.id,
-          content: newComment,
-          user_name: userData ? `${userData.first_name} ${userData.last_name}` : "ผู้ใช้",
-          user_role: userData?.role || "staff",
-        })
-        .select().single();
-
-      if (!error && insertedComment) {
-        setComments([...comments, insertedComment]);
-        setNewComment("");
-      }
-    } catch {
-      // ignore
-    } finally {
-      setSending(false);
     }
   };
 
@@ -348,13 +356,13 @@ export default function StaffComplaintDetailPage() {
                 type="button"
                 onClick={() => {
                   if (complaint.status !== 'closed') {
-                    setSelectedStatus('resolved');
+                    setSelectedStatus('approved');
                   }
                 }}
-                className={`flex items-center gap-3 px-6 py-2.5 bg-white border ${selectedStatus === 'approved' || selectedStatus === 'resolved' ? 'border-green-400 shadow-sm ring-2 ring-green-100' : 'border-gray-200 hover:border-gray-300'} rounded-xl cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`flex items-center gap-3 px-6 py-2.5 bg-white border ${selectedStatus === 'approved' ? 'border-green-400 shadow-sm ring-2 ring-green-100' : 'border-gray-200 hover:border-gray-300'} rounded-xl cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 disabled={complaint.status === 'closed'}
               >
-                <CheckCircleIcon active={selectedStatus === 'approved' || selectedStatus === 'resolved'} />
+                <CheckCircleIcon active={selectedStatus === 'approved'} />
                 <span className="text-xs font-bold text-gray-700">อนุมัติ</span>
               </button>
               <button
@@ -396,13 +404,13 @@ export default function StaffComplaintDetailPage() {
         </div>
       </div>
 
-      {/* Staff Action Card - Status Update replaced by Progress Stepper */}
-      <div className="bg-white rounded-2xl border border-amber-200 shadow-sm p-6 md:p-8">
+      {/* Staff Action Card - Unified Status & Progress Update */}
+      <div className="bg-white rounded-2xl border border-amber-200 shadow-sm p-6 md:p-8 mt-8">
         <h3 className="text-sm font-bold text-gray-800 mb-6 flex items-center gap-2">
           <svg className="w-5 h-5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
           </svg>
-          ความคืบหน้า (อัปเดตสถานะ)
+          อัปเดตสถานะและความคืบหน้า
         </h3>
         <div className="pl-2 mb-8">
           <StatusTimeline 
@@ -412,24 +420,36 @@ export default function StaffComplaintDetailPage() {
             disabled={complaint.status === "closed" && userRole !== "admin"}
           />
         </div>
+        
+        <div className="mb-6">
+          <label className="block text-xs font-semibold text-gray-700 mb-2">บันทึกความคืบหน้า หรือ ตอบกลับลูกบ้าน (ถ้ามี)</label>
+          <textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="พิมพ์อัปเดตความคืบหน้าให้ลูกบ้านทราบ..."
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 placeholder-gray-400 outline-none transition-all focus:border-[#d4a574] focus:ring-2 focus:ring-amber-100 min-h-[100px] resize-y"
+            disabled={complaint.status === "closed" && userRole !== "admin"}
+          />
+        </div>
+
         <div className="flex justify-end pt-4 border-t border-gray-100">
           <button
-            onClick={handleUpdateStatus}
-            disabled={updatingStatus || (selectedStatus === complaint.status && petition === (complaint.petition || "")) || (complaint.status === "closed" && userRole !== "admin")}
-            className="px-6 py-3 rounded-xl bg-[#d4a574] hover:bg-[#b8865a] text-white text-sm font-medium border-none cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={handleUpdateStatusAndComment}
+            disabled={updatingStatus || (selectedStatus === complaint.status && petition === (complaint.petition || "") && newComment.trim() === "") || (complaint.status === "closed" && userRole !== "admin")}
+            className="px-8 py-3.5 rounded-xl bg-[#d4a574] hover:bg-[#b8865a] text-white text-sm font-bold border-none cursor-pointer transition-colors shadow-lg shadow-amber-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {updatingStatus ? "กำลังบันทึก..." : "บันทึกการเปลี่ยนแปลง"}
+            {updatingStatus ? "กำลังบันทึก..." : "อัปเดตข้อมูล"}
           </button>
         </div>
       </div>
 
-      {/* Comments Section */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+      {/* Comments History Section */}
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mt-8">
         <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
           <svg className="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
-          ความคิดเห็นและการติดต่อ
+          ประวัติความคืบหน้าและการติดต่อ
         </h3>
 
         {comments.length === 0 ? (
@@ -461,28 +481,6 @@ export default function StaffComplaintDetailPage() {
             ))}
           </div>
         )}
-
-        <div className="flex gap-3">
-          <input
-            type="text"
-            placeholder="ตอบกลับลูกบ้าน หรือบันทึกโน้ตภายใน..."
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSendComment()}
-            disabled={sending}
-            className="flex-1 px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 outline-none transition-all focus:border-[#d4a574] focus:ring-2 focus:ring-amber-100"
-          />
-          <button
-            onClick={handleSendComment}
-            disabled={sending || !newComment.trim()}
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#d4a574] hover:bg-[#b8865a] text-white text-sm font-medium border-none cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-          >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
-            </svg>
-            {sending ? "กำลังส่ง..." : "ส่ง"}
-          </button>
-        </div>
       </div>
     </div>
   );
