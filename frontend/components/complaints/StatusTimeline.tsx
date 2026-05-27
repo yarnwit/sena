@@ -22,8 +22,7 @@ const LINEAR_FLOW: ComplaintStatus[] = [
   'approved',
   'in_meeting',
   'in_progress',
-  'resolved',
-  'closed'
+  'resolved'
 ];
 
 export default function StatusTimeline({ 
