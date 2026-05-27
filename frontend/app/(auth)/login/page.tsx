@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import "./login.css";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -66,24 +65,24 @@ export default function LoginPage() {
 
 
   return (
-    <div className="login-page">
-      <div className="login-card">
+    <div className="flex items-center justify-center min-h-screen bg-[#f3f3f3] p-4">
+      <div className="bg-white rounded-2xl p-8 sm:px-10 sm:py-12 w-full max-w-[460px] shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
         {/* Logo Section */}
-        <div className="logo-section">
-          <div className="logo-text">
-            <div className="logo-divider-top"></div>
-            <span className="logo-sena">SENA</span>
-            <h1 className="logo-grand-home">GRAND HOME</h1>
-            <span className="logo-location">Rangsit - Tiwanon</span>
+        <div className="text-center mb-8">
+          <div className="flex flex-col items-center gap-0">
+            <div className="w-[160px] sm:w-[200px] h-[1.5px] bg-[#1a1a2e] mb-1.5"></div>
+            <span className="font-['Times_New_Roman',_'Georgia',_serif] text-sm sm:text-base font-normal tracking-[6px] text-[#1a1a2e] uppercase">SENA</span>
+            <h1 className="font-['Times_New_Roman',_'Georgia',_serif] text-[26px] sm:text-[32px] font-bold tracking-[4px] text-[#1a1a2e] m-0 leading-[1.2]">GRAND HOME</h1>
+            <span className="font-['Times_New_Roman',_'Georgia',_serif] text-sm font-normal tracking-[2px] text-[#1a1a2e] mt-0.5">Rangsit - Tiwanon</span>
           </div>
-          <p className="logo-description">
+          <p className="text-[13px] text-[#555] mt-3 leading-relaxed">
             ระบบจัดการรับเรื่องร้องเรียนและติดตามปัญหานิติบุคคล
           </p>
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="error-message">
+          <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-[13px] mb-1 transition-all">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -94,6 +93,7 @@ export default function LoginPage() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              className="shrink-0"
             >
               <circle cx="12" cy="12" r="10" />
               <line x1="15" y1="9" x2="9" y2="15" />
@@ -104,20 +104,20 @@ export default function LoginPage() {
         )}
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="login-form">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           {/* Username Field */}
-          <div className="form-group">
-            <label htmlFor="username" className="form-label">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="username" className="text-sm font-medium text-[#1a1a2e]">
               ชื่อผู้ใช้งาน
             </label>
-            <div className="input-wrapper">
+            <div className="relative">
               <input
                 id="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="กรอกชื่อผู้ใช้งาน"
-                className="form-input"
+                className="w-full px-4 py-3.5 border border-[#e0e0e0] rounded-lg text-[15px] text-[#333] bg-white outline-none transition-all duration-200 placeholder:text-[#999] focus:border-[#3b5bff] focus:ring-[3px] focus:ring-[#3b5bff]/10 disabled:bg-[#f5f5f5] disabled:cursor-not-allowed"
                 autoComplete="username"
                 required
                 disabled={loading}
@@ -126,18 +126,18 @@ export default function LoginPage() {
           </div>
 
           {/* Password Field */}
-          <div className="form-group">
-            <label htmlFor="password" className="form-label">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="password" className="text-sm font-medium text-[#1a1a2e]">
               รหัสผ่าน
             </label>
-            <div className="input-wrapper password-wrapper">
+            <div className="relative">
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••"
-                className="form-input"
+                className="w-full pl-4 pr-12 py-3.5 border border-[#e0e0e0] rounded-lg text-[15px] text-[#333] bg-white outline-none transition-all duration-200 placeholder:text-[#999] focus:border-[#3b5bff] focus:ring-[3px] focus:ring-[#3b5bff]/10 disabled:bg-[#f5f5f5] disabled:cursor-not-allowed"
                 autoComplete="current-password"
                 required
                 disabled={loading}
@@ -145,7 +145,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="password-toggle"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-[#888] p-1 flex items-center justify-center transition-colors duration-200 hover:text-[#333]"
                 aria-label={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
                 disabled={loading}
               >
@@ -189,19 +189,19 @@ export default function LoginPage() {
           </div>
 
           {/* Remember Me & Forgot Password */}
-          <div className="form-options">
-            <label className="remember-me" htmlFor="remember">
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-2 cursor-pointer group" htmlFor="remember">
               <input
                 id="remember"
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="remember-checkbox"
+                className="w-[18px] h-[18px] border-[1.5px] border-[#d0d0d0] rounded cursor-pointer accent-[#3b5bff]"
                 disabled={loading}
               />
-              <span className="remember-text">จดจำไว้ในระบบ</span>
+              <span className="text-[13px] text-[#555] select-none">จดจำไว้ในระบบ</span>
             </label>
-            <Link href="/forgot-password" className="forgot-password">
+            <Link href="/forgot-password" className="text-[13px] text-[#555] no-underline transition-colors duration-200 hover:text-[#3b5bff] hover:underline">
               ลืมรหัสผ่าน?
             </Link>
           </div>
@@ -209,13 +209,13 @@ export default function LoginPage() {
           <button
             type="submit"
             id="login-button"
-            className="login-button"
+            className="w-full p-4 bg-[#1400ff] text-white text-base font-semibold border-none rounded-xl cursor-pointer transition-all duration-200 mt-2 hover:bg-[#1000d6] hover:shadow-[0_4px_16px_rgba(20,0,255,0.3)] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none disabled:hover:bg-[#1400ff] disabled:hover:shadow-none"
             disabled={loading}
           >
             {loading ? (
-              <span className="login-loading">
+              <span className="flex items-center justify-center gap-2">
                 <svg
-                  className="spinner"
+                  className="animate-spin"
                   xmlns="http://www.w3.org/2000/svg"
                   width="20"
                   height="20"
@@ -236,9 +236,9 @@ export default function LoginPage() {
           </button>
 
           {/* Register Link */}
-          <div className="register-link-container">
-            <span className="register-text">ไม่มีบัญชีใช่ไหม? </span>
-            <Link href="/register" className="register-link">
+          <div className="text-center mt-4 text-sm">
+            <span className="text-[#555]">ไม่มีบัญชีใช่ไหม? </span>
+            <Link href="/register" className="text-[#3b5bff] no-underline font-medium transition-colors duration-200 hover:text-[#1400ff] hover:underline">
               สมัครสมาชิก
             </Link>
           </div>

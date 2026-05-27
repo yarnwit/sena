@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
-import "./register.css";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -105,24 +104,24 @@ export default function RegisterPage() {
   );
 
   return (
-    <div className="register-page">
-      <div className="register-card">
+    <div className="flex items-center justify-center min-h-screen bg-[#f3f3f3] p-4">
+      <div className="bg-white rounded-2xl p-8 sm:px-10 sm:py-12 w-full max-w-[460px] shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
         {/* Logo Section */}
-        <div className="logo-section">
-          <div className="logo-text">
-            <div className="logo-divider-top"></div>
-            <span className="logo-sena">SENA</span>
-            <h1 className="logo-grand-home">GRAND HOME</h1>
-            <span className="logo-location">Rangsit - Tiwanon</span>
+        <div className="text-center mb-8">
+          <div className="flex flex-col items-center gap-0">
+            <div className="w-[160px] sm:w-[200px] h-[1.5px] bg-[#1a1a2e] mb-1.5"></div>
+            <span className="font-['Times_New_Roman',_'Georgia',_serif] text-sm sm:text-base font-normal tracking-[6px] text-[#1a1a2e] uppercase">SENA</span>
+            <h1 className="font-['Times_New_Roman',_'Georgia',_serif] text-[26px] sm:text-[32px] font-bold tracking-[4px] text-[#1a1a2e] m-0 leading-[1.2]">GRAND HOME</h1>
+            <span className="font-['Times_New_Roman',_'Georgia',_serif] text-sm font-normal tracking-[2px] text-[#1a1a2e] mt-0.5">Rangsit - Tiwanon</span>
           </div>
-          <p className="logo-description">
+          <p className="text-[13px] text-[#555] mt-3 leading-relaxed">
             ระบบจัดการรับเรื่องร้องเรียนและติดตามปัญหานิติบุคคล
           </p>
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="error-message">
+          <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-[13px] mb-1 animate-[shake_0.3s_ease-in-out]">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -133,6 +132,7 @@ export default function RegisterPage() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              className="shrink-0"
             >
               <circle cx="12" cy="12" r="10" />
               <line x1="15" y1="9" x2="9" y2="15" />
@@ -144,7 +144,7 @@ export default function RegisterPage() {
 
         {/* Success Message */}
         {success && (
-          <div className="success-message">
+          <div className="flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-lg text-green-600 text-[13px] mb-1 animate-[fadeIn_0.3s_ease-in-out]">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -155,6 +155,7 @@ export default function RegisterPage() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              className="shrink-0"
             >
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
               <polyline points="22 4 12 14.01 9 11.01" />
@@ -164,20 +165,20 @@ export default function RegisterPage() {
         )}
 
         {/* Register Form */}
-        <form onSubmit={handleSubmit} className="register-form">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           {/* First Name Field */}
-          <div className="form-group">
-            <label htmlFor="firstName" className="form-label">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="firstName" className="text-sm font-medium text-[#1a1a2e]">
               ชื่อ
             </label>
-            <div className="input-wrapper">
+            <div className="relative">
               <input
                 id="firstName"
                 type="text"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder="กรอกชื่อ"
-                className="form-input"
+                className="w-full px-4 py-3.5 border border-[#e0e0e0] rounded-lg text-[15px] text-[#333] bg-white outline-none transition-all duration-200 placeholder:text-[#999] focus:border-[#3b5bff] focus:ring-[3px] focus:ring-[#3b5bff]/10 disabled:bg-[#f5f5f5] disabled:cursor-not-allowed"
                 autoComplete="given-name"
                 required
                 disabled={loading}
@@ -186,18 +187,18 @@ export default function RegisterPage() {
           </div>
 
           {/* Last Name Field */}
-          <div className="form-group">
-            <label htmlFor="lastName" className="form-label">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="lastName" className="text-sm font-medium text-[#1a1a2e]">
               นามสกุล
             </label>
-            <div className="input-wrapper">
+            <div className="relative">
               <input
                 id="lastName"
                 type="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 placeholder="กรอกนามสกุล"
-                className="form-input"
+                className="w-full px-4 py-3.5 border border-[#e0e0e0] rounded-lg text-[15px] text-[#333] bg-white outline-none transition-all duration-200 placeholder:text-[#999] focus:border-[#3b5bff] focus:ring-[3px] focus:ring-[#3b5bff]/10 disabled:bg-[#f5f5f5] disabled:cursor-not-allowed"
                 autoComplete="family-name"
                 required
                 disabled={loading}
@@ -206,18 +207,18 @@ export default function RegisterPage() {
           </div>
 
           {/* Username Field */}
-          <div className="form-group">
-            <label htmlFor="username" className="form-label">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="username" className="text-sm font-medium text-[#1a1a2e]">
               ชื่อผู้ใช้งาน
             </label>
-            <div className="input-wrapper">
+            <div className="relative">
               <input
                 id="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="กรอกชื่อผู้ใช้งาน"
-                className="form-input"
+                className="w-full px-4 py-3.5 border border-[#e0e0e0] rounded-lg text-[15px] text-[#333] bg-white outline-none transition-all duration-200 placeholder:text-[#999] focus:border-[#3b5bff] focus:ring-[3px] focus:ring-[#3b5bff]/10 disabled:bg-[#f5f5f5] disabled:cursor-not-allowed"
                 autoComplete="username"
                 required
                 disabled={loading}
@@ -226,18 +227,18 @@ export default function RegisterPage() {
           </div>
 
           {/* House No Field */}
-          <div className="form-group">
-            <label htmlFor="houseNo" className="form-label">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="houseNo" className="text-sm font-medium text-[#1a1a2e]">
               บ้านเลขที่
             </label>
-            <div className="input-wrapper">
+            <div className="relative">
               <input
                 id="houseNo"
                 type="text"
                 value={houseNo}
                 onChange={(e) => setHouseNo(e.target.value)}
                 placeholder="กรอกบ้านเลขที่"
-                className="form-input"
+                className="w-full px-4 py-3.5 border border-[#e0e0e0] rounded-lg text-[15px] text-[#333] bg-white outline-none transition-all duration-200 placeholder:text-[#999] focus:border-[#3b5bff] focus:ring-[3px] focus:ring-[#3b5bff]/10 disabled:bg-[#f5f5f5] disabled:cursor-not-allowed"
                 required
                 disabled={loading}
               />
@@ -245,54 +246,54 @@ export default function RegisterPage() {
           </div>
 
           {/* Phase Field */}
-          <div className="form-group">
-            <label htmlFor="phase" className="form-label">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="phase" className="text-sm font-medium text-[#1a1a2e]">
               เฟส
             </label>
-            <div className="input-wrapper">
+            <div className="relative">
               <input
                 id="phase"
                 type="text"
                 value={phase}
                 onChange={(e) => setPhase(e.target.value)}
                 placeholder="กรอกเฟส (เช่น 1, 2, 3)"
-                className="form-input"
+                className="w-full px-4 py-3.5 border border-[#e0e0e0] rounded-lg text-[15px] text-[#333] bg-white outline-none transition-all duration-200 placeholder:text-[#999] focus:border-[#3b5bff] focus:ring-[3px] focus:ring-[#3b5bff]/10 disabled:bg-[#f5f5f5] disabled:cursor-not-allowed"
                 disabled={loading}
               />
             </div>
           </div>
 
           {/* Soi Field */}
-          <div className="form-group">
-            <label htmlFor="soi" className="form-label">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="soi" className="text-sm font-medium text-[#1a1a2e]">
               ซอย
             </label>
-            <div className="input-wrapper">
+            <div className="relative">
               <input
                 id="soi"
                 type="text"
                 value={soi}
                 onChange={(e) => setSoi(e.target.value)}
                 placeholder="กรอกซอย"
-                className="form-input"
+                className="w-full px-4 py-3.5 border border-[#e0e0e0] rounded-lg text-[15px] text-[#333] bg-white outline-none transition-all duration-200 placeholder:text-[#999] focus:border-[#3b5bff] focus:ring-[3px] focus:ring-[#3b5bff]/10 disabled:bg-[#f5f5f5] disabled:cursor-not-allowed"
                 disabled={loading}
               />
             </div>
           </div>
 
           {/* Phone Number Field */}
-          <div className="form-group">
-            <label htmlFor="phoneNumber" className="form-label">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="phoneNumber" className="text-sm font-medium text-[#1a1a2e]">
               เบอร์โทรศัพท์
             </label>
-            <div className="input-wrapper">
+            <div className="relative">
               <input
                 id="phoneNumber"
                 type="tel"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder="กรอกเบอร์โทรศัพท์"
-                className="form-input"
+                className="w-full px-4 py-3.5 border border-[#e0e0e0] rounded-lg text-[15px] text-[#333] bg-white outline-none transition-all duration-200 placeholder:text-[#999] focus:border-[#3b5bff] focus:ring-[3px] focus:ring-[#3b5bff]/10 disabled:bg-[#f5f5f5] disabled:cursor-not-allowed"
                 required
                 disabled={loading}
               />
@@ -300,17 +301,16 @@ export default function RegisterPage() {
           </div>
 
           {/* Resident Type Field */}
-          <div className="form-group">
-            <label htmlFor="residentType" className="form-label">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="residentType" className="text-sm font-medium text-[#1a1a2e]">
               ประเภทผู้อยู่อาศัย
             </label>
-            <div className="input-wrapper">
+            <div className="relative">
               <select
                 id="residentType"
                 value={residentType}
                 onChange={(e) => setResidentType(e.target.value)}
-                className="form-input"
-                style={{ appearance: "auto", cursor: "pointer" }}
+                className="w-full px-4 py-3.5 border border-[#e0e0e0] rounded-lg text-[15px] text-[#333] bg-white outline-none transition-all duration-200 placeholder:text-[#999] focus:border-[#3b5bff] focus:ring-[3px] focus:ring-[#3b5bff]/10 disabled:bg-[#f5f5f5] disabled:cursor-not-allowed appearance-auto cursor-pointer"
                 required
                 disabled={loading}
               >
@@ -322,18 +322,18 @@ export default function RegisterPage() {
           </div>
 
           {/* Password Field */}
-          <div className="form-group">
-            <label htmlFor="password" className="form-label">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="password" className="text-sm font-medium text-[#1a1a2e]">
               รหัสผ่าน
             </label>
-            <div className="input-wrapper password-wrapper">
+            <div className="relative">
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••"
-                className="form-input"
+                className="w-full pl-4 pr-12 py-3.5 border border-[#e0e0e0] rounded-lg text-[15px] text-[#333] bg-white outline-none transition-all duration-200 placeholder:text-[#999] focus:border-[#3b5bff] focus:ring-[3px] focus:ring-[#3b5bff]/10 disabled:bg-[#f5f5f5] disabled:cursor-not-allowed"
                 autoComplete="new-password"
                 required
                 disabled={loading}
@@ -341,7 +341,7 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="password-toggle"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-[#888] p-1 flex items-center justify-center transition-colors duration-200 hover:text-[#333]"
                 aria-label={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
                 disabled={loading}
               >
@@ -351,18 +351,18 @@ export default function RegisterPage() {
           </div>
 
           {/* Confirm Password Field */}
-          <div className="form-group">
-            <label htmlFor="confirmPassword" className="form-label">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="confirmPassword" className="text-sm font-medium text-[#1a1a2e]">
               ยืนยันรหัสผ่าน
             </label>
-            <div className="input-wrapper password-wrapper">
+            <div className="relative">
               <input
                 id="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••••"
-                className="form-input"
+                className="w-full pl-4 pr-12 py-3.5 border border-[#e0e0e0] rounded-lg text-[15px] text-[#333] bg-white outline-none transition-all duration-200 placeholder:text-[#999] focus:border-[#3b5bff] focus:ring-[3px] focus:ring-[#3b5bff]/10 disabled:bg-[#f5f5f5] disabled:cursor-not-allowed"
                 autoComplete="new-password"
                 required
                 disabled={loading}
@@ -370,7 +370,7 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="password-toggle"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-[#888] p-1 flex items-center justify-center transition-colors duration-200 hover:text-[#333]"
                 aria-label={showConfirmPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
                 disabled={loading}
               >
@@ -383,13 +383,13 @@ export default function RegisterPage() {
           <button
             type="submit"
             id="register-button"
-            className="register-button"
+            className="w-full p-4 bg-[#1400ff] text-white text-base font-semibold border-none rounded-xl cursor-pointer transition-all duration-200 mt-2 hover:bg-[#1000d6] hover:shadow-[0_4px_16px_rgba(20,0,255,0.3)] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none disabled:hover:bg-[#1400ff] disabled:hover:shadow-none"
             disabled={loading}
           >
             {loading ? (
-              <span className="register-loading">
+              <span className="flex items-center justify-center gap-2">
                 <svg
-                  className="spinner"
+                  className="animate-spin"
                   xmlns="http://www.w3.org/2000/svg"
                   width="20"
                   height="20"
@@ -411,9 +411,9 @@ export default function RegisterPage() {
         </form>
 
         {/* Login Link */}
-        <div className="login-link-section">
+        <div className="text-center mt-5 text-[13px] text-[#555]">
           มีบัญชีอยู่แล้ว?{" "}
-          <Link href="/login" className="login-link">
+          <Link href="/login" className="text-[#3b5bff] font-medium no-underline transition-colors duration-200 hover:text-[#1000d6] hover:underline">
             เข้าสู่ระบบ
           </Link>
         </div>

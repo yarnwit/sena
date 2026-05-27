@@ -121,7 +121,7 @@ export default function StaffReportsPage() {
       </div>
 
       {/* Overview Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden group hover:border-[#d4a574]/30 transition-colors">
           <div className="absolute -right-6 -top-6 w-24 h-24 bg-gray-50 rounded-full group-hover:bg-[#d4a574]/5 transition-colors" />
           <p className="text-sm font-medium text-gray-500 relative z-10">เรื่องร้องเรียนทั้งหมด</p>
@@ -201,7 +201,7 @@ export default function StaffReportsPage() {
             ประสิทธิภาพการทำงาน (Funnel)
           </h3>
           
-          <div className="flex-1 flex flex-col justify-center space-y-3 px-8">
+          <div className="flex-1 flex flex-col justify-center space-y-3 px-4 sm:px-8">
             <div className="w-full relative">
               <div className="bg-gray-800 text-white py-3 rounded-xl text-center text-sm font-semibold shadow-md relative z-30 transform hover:scale-105 transition-transform">
                 เรื่องเข้าทั้งหมด ({total})

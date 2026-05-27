@@ -222,77 +222,130 @@ function StaffMeetingsContent() {
               </div>
             </div>
 
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs text-gray-400 uppercase tracking-wider bg-gray-50/50">
-                  <th className="px-6 py-3.5 font-medium w-12 no-print">
-                    <input 
-                      type="checkbox" 
-                      className="w-4 h-4 rounded border-gray-300 text-[#d4a574] focus:ring-[#d4a574] cursor-pointer"
-                      checked={filtered.length > 0 && selectedIds.length === filtered.length}
-                      onChange={handleSelectAll}
-                    />
-                  </th>
-                  <th className="px-6 py-3.5 font-medium">เลขที่</th>
-                  <th className="px-6 py-3.5 font-medium">หัวข้อ</th>
-                  <th className="px-6 py-3.5 font-medium">บ้านเลขที่</th>
-                  <th className="px-6 py-3.5 font-medium">ชื่อลูกบ้าน</th>
-                  <th className="px-6 py-3.5 font-medium">สถานะ</th>
-                  <th className="px-6 py-3.5 font-medium">วันที่แจ้ง</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {filtered.map((c) => {
-                  const isSelected = selectedIds.includes(c.complaint_id);
-                  return (
-                    <tr
-                      key={c.complaint_id}
-                      className={`transition-colors cursor-pointer ${isSelected ? 'bg-amber-50/50' : 'hover:bg-gray-50'}`}
-                      onClick={() => handleToggleSelect(c.complaint_id)}
-                    >
-                      <td className="px-6 py-4 no-print" onClick={(e) => e.stopPropagation()}>
-                        <input 
-                          type="checkbox" 
-                          className="w-4 h-4 rounded border-gray-300 text-[#d4a574] focus:ring-[#d4a574] cursor-pointer"
-                          checked={isSelected}
-                          onChange={() => handleToggleSelect(c.complaint_id)}
-                        />
-                      </td>
-                      <td className="px-6 py-4 font-semibold text-[#d4a574] text-sm">
-                        {c.ticket_no || `#${c.complaint_id}`}
-                      </td>
-                      <td className="px-6 py-4 font-medium text-gray-700 max-w-[300px]">
+            {/* Desktop Table View */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-gray-400 uppercase tracking-wider bg-gray-50/50">
+                    <th className="px-6 py-3.5 font-medium w-12 no-print">
+                      <input 
+                        type="checkbox" 
+                        className="w-4 h-4 rounded border-gray-300 text-[#d4a574] focus:ring-[#d4a574] cursor-pointer"
+                        checked={filtered.length > 0 && selectedIds.length === filtered.length}
+                        onChange={handleSelectAll}
+                      />
+                    </th>
+                    <th className="px-6 py-3.5 font-medium">เลขที่</th>
+                    <th className="px-6 py-3.5 font-medium">หัวข้อ</th>
+                    <th className="px-6 py-3.5 font-medium">บ้านเลขที่</th>
+                    <th className="px-6 py-3.5 font-medium">ชื่อลูกบ้าน</th>
+                    <th className="px-6 py-3.5 font-medium">สถานะ</th>
+                    <th className="px-6 py-3.5 font-medium">วันที่แจ้ง</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {filtered.map((c) => {
+                    const isSelected = selectedIds.includes(c.complaint_id);
+                    return (
+                      <tr
+                        key={c.complaint_id}
+                        className={`transition-colors cursor-pointer ${isSelected ? 'bg-amber-50/50' : 'hover:bg-gray-50'}`}
+                        onClick={() => handleToggleSelect(c.complaint_id)}
+                      >
+                        <td className="px-6 py-4 no-print" onClick={(e) => e.stopPropagation()}>
+                          <input 
+                            type="checkbox" 
+                            className="w-4 h-4 rounded border-gray-300 text-[#d4a574] focus:ring-[#d4a574] cursor-pointer"
+                            checked={isSelected}
+                            onChange={() => handleToggleSelect(c.complaint_id)}
+                          />
+                        </td>
+                        <td className="px-6 py-4 font-semibold text-[#d4a574] text-sm">
+                          {c.ticket_no || `#${c.complaint_id}`}
+                        </td>
+                        <td className="px-6 py-4 font-medium text-gray-700 max-w-[300px]">
+                          {c.subject}
+                        </td>
+                        <td className="px-6 py-4 text-sm">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 font-semibold text-xs">
+                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                              <polyline points="9 22 9 12 15 12 15 22" />
+                            </svg>
+                            {c.house_no || "-"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-gray-700 text-sm">
+                          {c.first_name && c.last_name ? `${c.first_name} ${c.last_name}` : "-"}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusConfig[c.status]?.bgClass || "bg-gray-100"} ${statusConfig[c.status]?.textClass || "text-gray-500"}`}>
+                            {statusConfig[c.status]?.label || "ไม่ระบุ"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-gray-500 text-sm">
+                          {new Date(c.reported_date).toLocaleDateString("th-TH", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="sm:hidden divide-y divide-gray-100 no-print">
+              {filtered.map((c) => {
+                const isSelected = selectedIds.includes(c.complaint_id);
+                return (
+                  <div
+                    key={c.complaint_id}
+                    className={`p-4 flex items-start gap-3 transition-colors cursor-pointer ${
+                      isSelected ? "bg-amber-50/50" : "bg-white hover:bg-gray-50"
+                    }`}
+                    onClick={() => handleToggleSelect(c.complaint_id)}
+                  >
+                    <div className="shrink-0 mt-1" onClick={(e) => e.stopPropagation()}>
+                      <input 
+                        type="checkbox" 
+                        className="w-4 h-4 rounded border-gray-300 text-[#d4a574] focus:ring-[#d4a574] cursor-pointer"
+                        checked={isSelected}
+                        onChange={() => handleToggleSelect(c.complaint_id)}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="text-xs font-semibold text-[#d4a574]">
+                          {c.ticket_no || `#${c.complaint_id}`}
+                        </span>
+                        <span className="text-xs text-gray-400">
+                          {new Date(c.reported_date).toLocaleDateString("th-TH", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </span>
+                      </div>
+                      <h4 className="text-sm font-semibold text-gray-800 mt-1 mb-1 truncate">
                         {c.subject}
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 font-semibold text-xs">
-                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                            <polyline points="9 22 9 12 15 12 15 22" />
-                          </svg>
-                          {c.house_no || "-"}
+                      </h4>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-amber-50 text-amber-700 font-semibold text-xs shrink-0">
+                          🏠 {c.house_no || "-"}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 text-gray-700 text-sm">
-                        {c.first_name && c.last_name ? `${c.first_name} ${c.last_name}` : "-"}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusConfig[c.status]?.bgClass || "bg-gray-100"} ${statusConfig[c.status]?.textClass || "text-gray-500"}`}>
-                          {statusConfig[c.status]?.label || "ไม่ระบุ"}
+                        <span className="text-xs text-gray-500 truncate">
+                          {c.first_name && c.last_name ? `${c.first_name} ${c.last_name}` : "-"}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 text-gray-500 text-sm">
-                        {new Date(c.reported_date).toLocaleDateString("th-TH", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 

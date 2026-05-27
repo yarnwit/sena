@@ -282,39 +282,39 @@ export default function StaffComplaintDetailPage() {
 
           {/* Info Grid */}
           <div className="bg-[#f8f9fa] rounded-2xl p-6 md:p-8 mb-8">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-y-8 gap-x-4">
-              <div className="col-span-1 md:col-span-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-y-6 sm:gap-y-8 gap-x-4">
+              <div className="col-span-1">
                 <p className="text-xs font-bold text-gray-700 mb-2">ชื่อจริง</p>
                 <p className="text-sm text-gray-500">{complaint.first_name || "-"}</p>
               </div>
-              <div className="col-span-1 md:col-span-1">
+              <div className="col-span-1">
                 <p className="text-xs font-bold text-gray-700 mb-2">นามสกุล</p>
                 <p className="text-sm text-gray-500">{complaint.last_name || "-"}</p>
               </div>
-              <div className="col-span-1 md:col-span-1">
+              <div className="col-span-1">
                 <p className="text-xs font-bold text-gray-700 mb-2">บ้านเลขที่</p>
                 <p className="text-sm text-gray-500">{complaint.house_no || "-"}</p>
               </div>
-              <div className="col-span-1 md:col-span-1">
+              <div className="col-span-1">
                 <p className="text-xs font-bold text-gray-700 mb-2">เฟส</p>
                 <p className="text-sm text-gray-500">{complaint.phase || "1"}</p>
               </div>
-              <div className="col-span-2 md:col-span-1">
+              <div className="col-span-1">
                 <p className="text-xs font-bold text-gray-700 mb-2">ซอย</p>
                 <p className="text-sm text-gray-500">{complaint.soi || "-"}</p>
               </div>
 
-              <div className="col-span-2 md:col-span-2">
+              <div className="col-span-1 sm:col-span-2">
                 <p className="text-xs font-bold text-gray-700 mb-2">ช่องทางการร้องเรียน</p>
                 <p className="text-sm text-gray-500">
                   {complaint.intake_channel ? (channelLabels[complaint.intake_channel] || complaint.intake_channel) : "-"}
                 </p>
               </div>
-              <div className="col-span-1 md:col-span-1">
+              <div className="col-span-1">
                 <p className="text-xs font-bold text-gray-700 mb-2">วันที่แจ้ง</p>
                 <p className="text-sm text-gray-500">{fmtDate}</p>
               </div>
-              <div className="col-span-1 md:col-span-2">
+              <div className="col-span-1 sm:col-span-2">
                 <p className="text-xs font-bold text-gray-700 mb-2">เบอร์โทรศัพท์</p>
                 <p className="text-sm text-gray-500">{complaint.phone_number || "-"}</p>
               </div>
@@ -351,7 +351,7 @@ export default function StaffComplaintDetailPage() {
             <h3 className="text-sm font-bold text-gray-900 mb-2">ส่วนพิจารณาคำร้อง</h3>
             <p className="text-xs text-gray-500 mb-6">การพิจารณาผลดำเนินการ หรือ การอนุมัติตามระเบียบนิติบุคคล</p>
 
-            <div className="flex flex-wrap gap-4 mb-8">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8">
               <button
                 type="button"
                 onClick={() => {
@@ -359,7 +359,7 @@ export default function StaffComplaintDetailPage() {
                     setSelectedStatus('approved');
                   }
                 }}
-                className={`flex items-center gap-3 px-6 py-2.5 bg-white border ${['approved', 'in_meeting', 'in_progress', 'resolved'].includes(selectedStatus) ? 'border-green-400 shadow-sm ring-2 ring-green-100' : 'border-gray-200 hover:border-gray-300'} rounded-xl cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`flex items-center justify-center gap-3 px-6 py-2.5 bg-white border ${['approved', 'in_meeting', 'in_progress', 'resolved'].includes(selectedStatus) ? 'border-green-400 shadow-sm ring-2 ring-green-100' : 'border-gray-200 hover:border-gray-300'} rounded-xl cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto`}
                 disabled={complaint.status === 'closed'}
               >
                 <CheckCircleIcon active={['approved', 'in_meeting', 'in_progress', 'resolved'].includes(selectedStatus)} />
@@ -372,7 +372,7 @@ export default function StaffComplaintDetailPage() {
                     setSelectedStatus('rejected');
                   }
                 }}
-                className={`flex items-center gap-3 px-6 py-2.5 bg-white border ${selectedStatus === 'rejected' ? 'border-red-400 shadow-sm ring-2 ring-red-100' : 'border-gray-200 hover:border-gray-300'} rounded-xl cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`flex items-center justify-center gap-3 px-6 py-2.5 bg-white border ${selectedStatus === 'rejected' ? 'border-red-400 shadow-sm ring-2 ring-red-100' : 'border-gray-200 hover:border-gray-300'} rounded-xl cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto`}
                 disabled={complaint.status === 'closed'}
               >
                 <XCircleIcon active={selectedStatus === 'rejected'} />
@@ -436,7 +436,7 @@ export default function StaffComplaintDetailPage() {
           <button
             onClick={handleUpdateStatusAndComment}
             disabled={updatingStatus || (selectedStatus === complaint.status && petition === (complaint.petition || "") && newComment.trim() === "") || (complaint.status === "closed" && userRole !== "admin")}
-            className="px-8 py-3.5 rounded-xl bg-[#d4a574] hover:bg-[#b8865a] text-white text-sm font-bold border-none cursor-pointer transition-colors shadow-lg shadow-amber-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-8 py-3.5 rounded-xl bg-[#d4a574] hover:bg-[#b8865a] text-white text-sm font-bold border-none cursor-pointer transition-colors shadow-lg shadow-amber-500/20 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto text-center"
           >
             {updatingStatus ? "กำลังบันทึก..." : "อัปเดตข้อมูล"}
           </button>

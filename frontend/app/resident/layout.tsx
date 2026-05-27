@@ -172,7 +172,7 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 lg:ml-[240px] flex flex-col min-h-screen">
+      <div className="flex-1 lg:ml-[240px] flex flex-col min-h-screen min-w-0">
         {/* Top Header Bar */}
         <header className="sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 bg-white border-b border-gray-200">
           <div className="flex items-center gap-3">
@@ -211,7 +211,7 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="flex-1 min-w-0 w-full p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );

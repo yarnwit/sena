@@ -121,10 +121,11 @@ export default function ComplaintsPage() {
       </div>
 
       {/* Top Bar: Search + Date Filters + New Button */}
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1">
+      <div className="flex flex-col md:flex-row gap-3 w-full">
+        {/* Left Side: Search and Filter */}
+        <div className="flex flex-col sm:flex-row gap-3 flex-1">
           {/* Search */}
-          <div className="relative flex-1 max-w-md">
+          <div className="relative flex-1">
             <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -139,10 +140,10 @@ export default function ComplaintsPage() {
           </div>
 
           {/* Date Filter Dropdown */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all text-sm font-medium ${
+              className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border transition-all text-sm font-medium ${
                 (startDate || endDate) 
                   ? "bg-amber-50 border-amber-200 text-amber-700" 
                   : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
@@ -159,7 +160,7 @@ export default function ComplaintsPage() {
 
             {/* Dropdown Menu */}
             {isFilterOpen && (
-              <div className="absolute left-0 top-full mt-2 w-72 bg-white rounded-2xl shadow-xl border border-gray-100 p-5 z-50 animate-in fade-in slide-in-from-top-2">
+              <div className="absolute left-0 right-0 sm:right-auto sm:left-0 top-full mt-2 sm:w-72 bg-white rounded-2xl shadow-xl border border-gray-100 p-5 z-50 animate-in fade-in slide-in-from-top-2">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-sm font-bold text-gray-800 m-0">กรองตามวันที่</h4>
                   {(startDate || endDate) && (
@@ -197,25 +198,28 @@ export default function ComplaintsPage() {
           </div>
         </div>
 
-        <Link
-          href="/resident/complaints/new"
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#d4a574] hover:bg-[#b8865a] text-white rounded-xl text-sm font-medium no-underline transition-colors shrink-0"
-        >
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          สร้างคำร้องใหม่
-        </Link>
+        {/* Right Side: New Complaint Button */}
+        <div className="shrink-0">
+          <Link
+            href="/resident/complaints/new"
+            className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#d4a574] hover:bg-[#b8865a] text-white rounded-xl text-sm font-medium no-underline transition-colors shrink-0"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            สร้างคำร้องใหม่
+          </Link>
+        </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
+      <div className="flex flex-wrap gap-2 pb-2 w-full">
         {filterOptions.map((option) => (
           <button
             key={option.key}
             className={`
-              inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium border transition-all whitespace-nowrap cursor-pointer
+              inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium border transition-all cursor-pointer
               ${filter === option.key
                 ? "bg-[#5a4333] border-[#5a4333] text-white"
                 : "bg-white border-gray-200 text-gray-500 hover:border-[#d4a574] hover:text-[#d4a574]"
@@ -263,15 +267,15 @@ export default function ComplaintsPage() {
       ) : (
         <>
           {/* Desktop Table */}
-          <div className="hidden sm:block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="hidden md:block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+            <table className="w-full text-sm min-w-[700px]">
               <thead>
                 <tr className="text-left text-xs text-gray-400 uppercase tracking-wider bg-gray-50/50">
-                  <th className="px-6 py-3.5 font-medium">รหัสคำร้อง</th>
-                  <th className="px-6 py-3.5 font-medium">หัวข้อ</th>
-                  <th className="px-6 py-3.5 font-medium">สถานะ</th>
-                  <th className="px-6 py-3.5 font-medium">วันที่แจ้ง</th>
-                  <th className="px-6 py-3.5 font-medium"></th>
+                  <th className="px-4 md:px-6 py-3.5 font-medium">รหัสคำร้อง</th>
+                  <th className="px-4 md:px-6 py-3.5 font-medium">หัวข้อ</th>
+                  <th className="px-4 md:px-6 py-3.5 font-medium">สถานะ</th>
+                  <th className="px-4 md:px-6 py-3.5 font-medium">วันที่แจ้ง</th>
+                  <th className="px-4 md:px-6 py-3.5 font-medium"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -283,25 +287,25 @@ export default function ComplaintsPage() {
                       className="hover:bg-amber-50/30 transition-colors cursor-pointer"
                       onClick={() => window.location.href = `/resident/complaints/${c.complaint_id}`}
                     >
-                      <td className="px-6 py-4 font-semibold text-[#d4a574] text-sm">
+                      <td className="px-4 md:px-6 py-4 font-semibold text-[#d4a574] text-sm">
                         {c.ticket_no || `#${c.complaint_id}`}
                       </td>
-                      <td className="px-6 py-4 font-medium text-gray-700 max-w-[280px] truncate">
+                      <td className="px-4 md:px-6 py-4 font-medium text-gray-700 max-w-[280px] truncate">
                         {c.subject}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 md:px-6 py-4">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${config.bgClass} ${config.textClass}`}>
                           {config.label}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-gray-500">
+                      <td className="px-4 md:px-6 py-4 text-gray-500">
                         {new Date(c.reported_date).toLocaleDateString("th-TH", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
                         })}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 md:px-6 py-4">
                         <Link
                           href={`/resident/complaints/${c.complaint_id}`}
                           className="text-[#d4a574] hover:text-[#b8865a] text-xs font-medium no-underline transition-colors"
@@ -318,7 +322,7 @@ export default function ComplaintsPage() {
           </div>
 
           {/* Mobile Card View */}
-          <div className="sm:hidden space-y-3">
+          <div className="md:hidden space-y-3">
             {filtered.map((c) => {
               const config = statusConfig[c.status] || statusConfig.pending;
               return (

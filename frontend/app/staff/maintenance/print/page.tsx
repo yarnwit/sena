@@ -112,6 +112,14 @@ function WorkOrderPrintContent() {
           padding: 20mm;
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
+        @media screen and (max-width: 768px) {
+          .a4-container {
+            width: 100%;
+            margin: 0;
+            padding: 1.5rem;
+            min-height: auto;
+          }
+        }
         @media print {
           .a4-container {
             width: 100%;
@@ -158,7 +166,7 @@ function WorkOrderPrintContent() {
         {/* Section 1: Customer Info */}
         <div className="mb-8">
           <div className="bg-gray-100 px-4 py-2 font-bold text-gray-800 mb-4 border-l-4 border-[#d4a574]">1. ข้อมูลผู้แจ้ง และ สถานที่</div>
-          <div className="grid grid-cols-2 gap-y-4 gap-x-8 px-4 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 px-4 text-sm">
             <div>
               <span className="text-gray-500 block mb-1">ชื่อ-นามสกุล:</span>
               <strong className="text-gray-900 text-base">{data.first_name} {data.last_name}</strong>

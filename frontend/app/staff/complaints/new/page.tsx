@@ -187,11 +187,15 @@ export default function StaffNewComplaintPage() {
                     <div className="text-center py-6 text-sm text-gray-400">ไม่พบลูกบ้าน</div>
                   ) : filteredResidents.map((r) => (
                     <button key={r.resident_id} type="button" onClick={() => setSelectedResidentId(r.resident_id)} disabled={loading || success}
-                      className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors cursor-pointer border-none ${selectedResidentId === r.resident_id ? "bg-amber-50 ring-1 ring-amber-300" : "bg-white hover:bg-gray-50"}`}>
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 font-semibold text-xs shrink-0">🏠 {r.house_no || "-"}</span>
-                      <span className="text-sm text-gray-700 font-medium">{r.first_name} {r.last_name}</span>
-                      <span className="text-xs text-gray-400 ml-auto">{r.phone_number || ""}</span>
-                      {selectedResidentId === r.resident_id && <span className="text-amber-500 font-bold">✓</span>}
+                      className={`w-full flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 px-4 py-3 text-left transition-colors cursor-pointer border-none ${selectedResidentId === r.resident_id ? "bg-amber-50 ring-1 ring-amber-300" : "bg-white hover:bg-gray-50"}`}>
+                      <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 font-semibold text-xs shrink-0">🏠 {r.house_no || "-"}</span>
+                        <span className="text-sm text-gray-700 font-medium">{r.first_name} {r.last_name}</span>
+                      </div>
+                      <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto sm:ml-auto">
+                        <span className="text-xs text-gray-400">{r.phone_number || ""}</span>
+                        {selectedResidentId === r.resident_id && <span className="text-amber-500 font-bold sm:ml-2">✓</span>}
+                      </div>
                     </button>
                   ))}
                 </div>
