@@ -307,8 +307,8 @@ export default function ComplaintDetailPage() {
 
           {/* Approve / Reject Badges */}
           <div className="flex flex-wrap gap-4 mb-8">
-            <div className={`flex items-center gap-3 px-6 py-2.5 bg-white border ${complaint.status === 'approved' || complaint.status === 'resolved' ? 'border-green-400 shadow-sm' : 'border-gray-200'} rounded-xl`}>
-              <CheckCircleIcon active={complaint.status === 'approved' || complaint.status === 'resolved'} />
+            <div className={`flex items-center gap-3 px-6 py-2.5 bg-white border ${['approved', 'in_meeting', 'in_progress', 'resolved'].includes(complaint.status) ? 'border-green-400 shadow-sm' : 'border-gray-200'} rounded-xl`}>
+              <CheckCircleIcon active={['approved', 'in_meeting', 'in_progress', 'resolved'].includes(complaint.status)} />
               <span className="text-xs font-bold text-gray-700">อนุมัติ</span>
             </div>
             

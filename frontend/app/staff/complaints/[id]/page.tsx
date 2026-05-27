@@ -359,10 +359,10 @@ export default function StaffComplaintDetailPage() {
                     setSelectedStatus('approved');
                   }
                 }}
-                className={`flex items-center gap-3 px-6 py-2.5 bg-white border ${selectedStatus === 'approved' ? 'border-green-400 shadow-sm ring-2 ring-green-100' : 'border-gray-200 hover:border-gray-300'} rounded-xl cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`flex items-center gap-3 px-6 py-2.5 bg-white border ${['approved', 'in_meeting', 'in_progress', 'resolved'].includes(selectedStatus) ? 'border-green-400 shadow-sm ring-2 ring-green-100' : 'border-gray-200 hover:border-gray-300'} rounded-xl cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 disabled={complaint.status === 'closed'}
               >
-                <CheckCircleIcon active={selectedStatus === 'approved'} />
+                <CheckCircleIcon active={['approved', 'in_meeting', 'in_progress', 'resolved'].includes(selectedStatus)} />
                 <span className="text-xs font-bold text-gray-700">อนุมัติ</span>
               </button>
               <button
