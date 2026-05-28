@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
 import api from "@/lib/api";
 
 interface UserProfile {
@@ -11,15 +10,8 @@ interface UserProfile {
   role: string;
 }
 
-interface WorkStats {
-  total: number;
-  in_progress: number;
-  resolved: number;
-}
-
-export default function StaffProfilePage() {
-  const [user, setUser] = useState<UserProfile>({ first_name: "", last_name: "", username: "", role: "staff" });
-  const [stats, setStats] = useState<WorkStats>({ total: 0, in_progress: 0, resolved: 0 });
+export default function AdminProfilePage() {
+  const [user, setUser] = useState<UserProfile>({ first_name: "", last_name: "", username: "", role: "admin" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState("");
@@ -40,21 +32,7 @@ export default function StaffProfilePage() {
             first_name: data.data.first_name || "",
             last_name: data.data.last_name || "",
             username: data.data.username || "",
-            role: data.data.role || "staff"
-          });
-        }
-        
-        // ดึง stats ของงานในระบบ (สำหรับ staff ดูทั้งระบบ ไม่ใช่เฉพาะตัวเอง)
-        const supabase = createClient();
-        const { data: complaints } = await supabase
-          .from("complaints")
-          .select("status");
-
-        if (complaints) {
-          setStats({
-            total:       complaints.length,
-            in_progress: complaints.filter((c) => c.status === "in_progress").length,
-            resolved:    complaints.filter((c) => c.status === "resolved" || c.status === "closed").length,
+            role: data.data.role || "admin"
           });
         }
       } catch (err) {
@@ -135,21 +113,21 @@ export default function StaffProfilePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-16">
-        <div className="w-10 h-10 border-4 border-gray-200 border-t-amber-500 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-red-600 rounded-full animate-spin" />
       </div>
     );
   }
 
-  const initials = user.first_name ? user.first_name.charAt(0).toUpperCase() : "S";
+  const initials = user.first_name ? user.first_name.charAt(0).toUpperCase() : "A";
 
   return (
     <div className="max-w-[720px] flex flex-col gap-6">
       {/* ===== Header Card ===== */}
-      <div className="bg-gradient-to-br from-[#161D19] to-[#007AFF] rounded-2xl p-8 text-white flex flex-col sm:flex-row items-center sm:items-start gap-6 relative overflow-hidden text-center sm:text-left">
+      <div className="bg-gradient-to-br from-[#161D19] to-[#B31B1B] rounded-2xl p-8 text-white flex flex-col sm:flex-row items-center sm:items-start gap-6 relative overflow-hidden text-center sm:text-left">
         <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full" />
         <div className="absolute -bottom-16 right-[70px] w-[120px] h-[120px] bg-white/5 rounded-full" />
         
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#007AFF] to-[#409cff] flex items-center justify-center text-[32px] font-bold text-white shrink-0 border-4 border-white/20 z-10">
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#B31B1B] to-[#ff6b6b] flex items-center justify-center text-[32px] font-bold text-white shrink-0 border-4 border-white/20 z-10">
           {initials}
         </div>
         <div className="z-10 flex-1">
@@ -157,49 +135,9 @@ export default function StaffProfilePage() {
             {user.first_name} {user.last_name}
           </div>
           <div className="text-[13px] text-white/50 mb-2">@{user.username}</div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#007AFF]/20 border border-[#007AFF]/30 rounded-full text-xs text-blue-200">
-            <span className="w-1.5 h-1.5 bg-[#409cff] rounded-full animate-[pulse-dot_2s_ease-in-out_infinite]" />
-            เจ้าหน้าที่นิติบุคคล (Staff)
-          </div>
-        </div>
-      </div>
-
-      {/* ===== Work Stats Row ===== */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl p-5 shadow-[0_1px_6px_rgba(0,0,0,0.04)] border border-black/5 flex items-center gap-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_18px_rgba(0,0,0,0.08)]">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
-              <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
-            </svg>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-gray-900 leading-none">{stats.total}</div>
-            <div className="text-xs text-gray-500 mt-1">เรื่องร้องเรียนทั้งหมด</div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-5 shadow-[0_1px_6px_rgba(0,0,0,0.04)] border border-black/5 flex items-center gap-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_18px_rgba(0,0,0,0.08)]">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-            </svg>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-gray-900 leading-none">{stats.in_progress}</div>
-            <div className="text-xs text-gray-500 mt-1">กำลังดำเนินการ</div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-5 shadow-[0_1px_6px_rgba(0,0,0,0.04)] border border-black/5 flex items-center gap-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_18px_rgba(0,0,0,0.08)] col-span-2 sm:col-span-1">
-          <div className="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-600 flex items-center justify-center shrink-0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-gray-900 leading-none">{stats.resolved}</div>
-            <div className="text-xs text-gray-500 mt-1">แก้ไขแล้ว / ปิด</div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#B31B1B]/20 border border-[#B31B1B]/30 rounded-full text-xs text-red-200">
+            <span className="w-1.5 h-1.5 bg-[#ff6b6b] rounded-full animate-[pulse-dot_2s_ease-in-out_infinite]" />
+            ผู้ดูแลระบบ (Admin)
           </div>
         </div>
       </div>
@@ -254,7 +192,7 @@ export default function StaffProfilePage() {
                 type="text"
                 value={user.first_name}
                 onChange={(e) => setUser({ ...user, first_name: e.target.value })}
-                className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-white outline-none transition-all duration-200 focus:border-amber-500 focus:shadow-[0_0_0_3px_rgba(245,158,11,0.1)] disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
+                className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-white outline-none transition-all duration-200 focus:border-red-600 focus:shadow-[0_0_0_3px_rgba(220,38,38,0.1)] disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
                 disabled={saving}
                 required
               />
@@ -265,7 +203,7 @@ export default function StaffProfilePage() {
                 type="text"
                 value={user.last_name}
                 onChange={(e) => setUser({ ...user, last_name: e.target.value })}
-                className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-white outline-none transition-all duration-200 focus:border-amber-500 focus:shadow-[0_0_0_3px_rgba(245,158,11,0.1)] disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
+                className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-white outline-none transition-all duration-200 focus:border-red-600 focus:shadow-[0_0_0_3px_rgba(220,38,38,0.1)] disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
                 disabled={saving}
                 required
               />
@@ -277,14 +215,14 @@ export default function StaffProfilePage() {
             <label className="text-[13px] font-medium text-gray-900">ระดับสิทธิ์</label>
             <input
               type="text"
-              value="เจ้าหน้าที่นิติบุคคล (Staff)"
+              value="ผู้ดูแลระบบ (Admin)"
               className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-gray-50 cursor-not-allowed"
               disabled
             />
-            <span className="text-[11px] text-gray-400 mt-px">สิทธิ์นี้กำหนดโดยผู้ดูแลระบบ ไม่สามารถเปลี่ยนได้</span>
+            <span className="text-[11px] text-gray-400 mt-px">สิทธิ์สูงสูดในระบบ ไม่สามารถเปลี่ยนได้</span>
           </div>
 
-          <button type="submit" className="self-end sm:self-end w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-7 bg-amber-500 text-white rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 hover:not(:disabled):bg-amber-600 hover:not(:disabled):shadow-[0_4px_16px_rgba(245,158,11,0.35)] disabled:opacity-60 disabled:cursor-not-allowed mt-2" disabled={saving}>
+          <button type="submit" className="self-end sm:self-end w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-7 bg-red-600 text-white rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 hover:not(:disabled):bg-red-700 hover:not(:disabled):shadow-[0_4px_16px_rgba(220,38,38,0.35)] disabled:opacity-60 disabled:cursor-not-allowed mt-2" disabled={saving}>
             {saving ? (
               <>
                 <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
@@ -341,7 +279,7 @@ export default function StaffProfilePage() {
               value={passwords.new_password}
               onChange={(e) => setPasswords({ ...passwords, new_password: e.target.value })}
               placeholder="กรอกรหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)"
-              className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-white outline-none transition-all duration-200 focus:border-amber-500 focus:shadow-[0_0_0_3px_rgba(245,158,11,0.1)] disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed placeholder:text-gray-400"
+              className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-white outline-none transition-all duration-200 focus:border-red-600 focus:shadow-[0_0_0_3px_rgba(220,38,38,0.1)] disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed placeholder:text-gray-400"
               required
               disabled={pwSaving}
             />
@@ -353,12 +291,12 @@ export default function StaffProfilePage() {
               value={passwords.confirm}
               onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
               placeholder="กรอกรหัสผ่านใหม่อีกครั้ง"
-              className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-white outline-none transition-all duration-200 focus:border-amber-500 focus:shadow-[0_0_0_3px_rgba(245,158,11,0.1)] disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed placeholder:text-gray-400"
+              className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-white outline-none transition-all duration-200 focus:border-red-600 focus:shadow-[0_0_0_3px_rgba(220,38,38,0.1)] disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed placeholder:text-gray-400"
               required
               disabled={pwSaving}
             />
           </div>
-          <button type="submit" className="self-end sm:self-end w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-7 bg-amber-500 text-white rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 hover:not(:disabled):bg-amber-600 hover:not(:disabled):shadow-[0_4px_16px_rgba(245,158,11,0.35)] disabled:opacity-60 disabled:cursor-not-allowed mt-2" disabled={pwSaving}>
+          <button type="submit" className="self-end sm:self-end w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-7 bg-red-600 text-white rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 hover:not(:disabled):bg-red-700 hover:not(:disabled):shadow-[0_4px_16px_rgba(220,38,38,0.35)] disabled:opacity-60 disabled:cursor-not-allowed mt-2" disabled={pwSaving}>
             {pwSaving ? (
               <>
                 <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />

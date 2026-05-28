@@ -15,12 +15,14 @@ interface ResidentProfile {
   house_no: string;
   phone_number: string;
   resident_type: string;
+  phase: string;
+  soi: string;
 }
 
 export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState<UserProfile>({ first_name: "", last_name: "", username: "" });
-  const [resident, setResident] = useState<ResidentProfile>({ house_no: "", phone_number: "", resident_type: "" });
+  const [resident, setResident] = useState<ResidentProfile>({ house_no: "", phone_number: "", resident_type: "", phase: "", soi: "" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState("");
@@ -45,7 +47,9 @@ export default function ProfilePage() {
           setResident({
             house_no: data.data.house_no || "",
             phone_number: data.data.phone_number || "",
-            resident_type: data.data.resident_type || ""
+            resident_type: data.data.resident_type || "",
+            phase: data.data.phase || "",
+            soi: data.data.soi || ""
           });
         }
       } catch (err) {
@@ -71,6 +75,8 @@ export default function ProfilePage() {
         house_no: resident.house_no,
         phone_number: resident.phone_number,
         resident_type: resident.resident_type,
+        phase: resident.phase,
+        soi: resident.soi,
       });
 
       if (data.success) {
@@ -144,11 +150,11 @@ export default function ProfilePage() {
   return (
     <div className="max-w-[720px] flex flex-col gap-6 w-full mx-auto pb-8">
       {/* Header Card */}
-      <div className="bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] rounded-2xl p-8 text-white flex flex-col sm:flex-row items-center sm:items-start gap-6 relative overflow-hidden text-center sm:text-left">
-        <div className="absolute -top-10 -right-10 w-[150px] h-[150px] bg-[#3b5bff]/15 rounded-full" />
-        <div className="absolute -bottom-16 right-[60px] w-[120px] h-[120px] bg-[#3b5bff]/10 rounded-full" />
+      <div className="bg-gradient-to-br from-[#161D19] to-[#38BC0B] rounded-2xl p-8 text-white flex flex-col sm:flex-row items-center sm:items-start gap-6 relative overflow-hidden text-center sm:text-left">
+        <div className="absolute -top-10 -right-10 w-[150px] h-[150px] bg-white/10 rounded-full" />
+        <div className="absolute -bottom-16 right-[60px] w-[120px] h-[120px] bg-white/5 rounded-full" />
 
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#3b5bff] to-[#6c8aff] flex items-center justify-center text-[32px] font-bold text-white shrink-0 border-4 border-white/20 z-10">
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#38BC0B] to-[#4ade80] flex items-center justify-center text-[32px] font-bold text-white shrink-0 border-4 border-white/20 z-10">
           {initials}
         </div>
         <div className="z-10 flex-1">
@@ -244,6 +250,31 @@ export default function ProfilePage() {
                 value={resident.phone_number}
                 onChange={(e) => setResident({ ...resident, phone_number: e.target.value })}
                 placeholder="เช่น 081-234-5678"
+                className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#3b5bff] focus:shadow-[0_0_0_3px_rgba(59,91,255,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed placeholder:text-[#aaa]"
+                disabled={saving}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[13px] font-medium text-[#1a1a2e]">เฟส</label>
+              <input
+                type="text"
+                value={resident.phase}
+                onChange={(e) => setResident({ ...resident, phase: e.target.value })}
+                placeholder="เช่น เฟส 1"
+                className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#3b5bff] focus:shadow-[0_0_0_3px_rgba(59,91,255,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed placeholder:text-[#aaa]"
+                disabled={saving}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[13px] font-medium text-[#1a1a2e]">ซอย</label>
+              <input
+                type="text"
+                value={resident.soi}
+                onChange={(e) => setResident({ ...resident, soi: e.target.value })}
+                placeholder="เช่น ซอย 1"
                 className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#3b5bff] focus:shadow-[0_0_0_3px_rgba(59,91,255,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed placeholder:text-[#aaa]"
                 disabled={saving}
               />

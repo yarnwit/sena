@@ -24,6 +24,8 @@ export const getProfile = async (req: Request, res: Response) => {
       house_no: residentInfo.house_no,
       phone_number: residentInfo.phone_number,
       resident_type: residentInfo.resident_type,
+      phase: residentInfo.phase,
+      soi: residentInfo.soi,
     });
   } catch (error) {
     logger.error('Get profile error:', error);
@@ -37,7 +39,7 @@ export const updateProfile = async (req: Request, res: Response) => {
     const userId = req.user?.id;
     if (!userId) return sendError(res, 'Unauthorized', 401);
 
-    const { first_name, last_name, house_no, phone_number, resident_type } = req.body;
+    const { first_name, last_name, house_no, phone_number, resident_type, phase, soi } = req.body;
 
     const success = await UserModel.updateProfile(userId, {
       ...(first_name && { first_name }),
@@ -47,12 +49,14 @@ export const updateProfile = async (req: Request, res: Response) => {
     if (!success) return sendError(res, 'Failed to update profile');
 
     // Update resident table if resident fields are provided
-    if (house_no || phone_number || resident_type) {
+    if (house_no || phone_number || resident_type || phase !== undefined || soi !== undefined) {
       const { supabase } = await import('../config/supabase');
       await supabase.from('resident').update({
         ...(house_no && { house_no }),
         ...(phone_number && { phone_number }),
         ...(resident_type && { resident_type }),
+        ...(phase !== undefined && { phase }),
+        ...(soi !== undefined && { soi }),
       }).eq('user_id', userId);
     }
 

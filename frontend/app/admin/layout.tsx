@@ -32,6 +32,13 @@ const UserPlusIcon = () => (
   </svg>
 );
 
+const ProfileIcon = () => (
+  <svg className="w-5 h-5 shrink-0 opacity-80 group-[.active]:opacity-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+);
+
 const ReportsIcon = () => (
   <svg className="w-5 h-5 shrink-0 opacity-80 group-[.active]:opacity-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="18" y1="20" x2="18" y2="10" />
@@ -88,7 +95,8 @@ const navItems = [
       { href: "/admin/users?mode=delete", label: "ลบบัญชีผู้ใช้งาน" }
     ]
   },
-  { href: "/admin/reports", label: "รายงานสรุป", icon: ReportsIcon }
+  { href: "/admin/reports", label: "รายงานสรุป", icon: ReportsIcon },
+  { href: "/admin/profile", label: "โปรไฟล์", icon: ProfileIcon }
 ];
 
 /* ===== Page Title Map ===== */
@@ -97,6 +105,7 @@ function getPageInfo(pathname: string) {
   if (pathname === "/admin/users") return { title: "จัดการผู้ใช้งาน", subtitle: "เพิ่ม ลบ แก้ไขสิทธิ์ผู้ใช้ทุก Role" };
   if (pathname === "/admin/reports") return { title: "รายงานสรุป", subtitle: "สถิติและรายงานภาพรวมเรื่องร้องเรียน" };
   if (pathname === "/admin/logs") return { title: "Audit Logs", subtitle: "บันทึกการเปลี่ยนแปลงและกิจกรรมในระบบ" };
+  if (pathname === "/admin/profile") return { title: "โปรไฟล์ผู้ดูแลระบบ", subtitle: "จัดการข้อมูลส่วนตัวของผู้ดูแลระบบ" };
   return { title: "ผู้ดูแลระบบ", subtitle: "" };
 }
 
