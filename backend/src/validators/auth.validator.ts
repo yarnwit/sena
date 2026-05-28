@@ -6,12 +6,13 @@ export const loginSchema = z.object({
 });
 
 export const registerSchema = z.object({
-  email: z.string().email('อีเมลไม่ถูกต้อง'),
   password: z.string().min(6, 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร'),
   username: z.string().min(1, 'กรุณากรอกชื่อผู้ใช้'),
   first_name: z.string().min(1, 'กรุณากรอกชื่อจริง'),
   last_name: z.string().min(1, 'กรุณากรอกนามสกุล'),
   house_no: z.string().optional(),
+  phase: z.string().optional(),
+  soi: z.string().optional(),
   phone_number: z.string().optional(),
   resident_type: z.string().optional(),
   role: z.enum(['resident', 'staff', 'admin']).default('resident'),

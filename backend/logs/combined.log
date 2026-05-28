@@ -4209,3 +4209,57 @@
 {"level":"info","message":"::1 - - [28/May/2026:03:16:35 +0000] \"GET /api/admin/reports HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-28T03:16:35.402Z"}
 {"level":"info","message":"::1 - - [28/May/2026:03:16:36 +0000] \"GET /api/complaints/all?limit=8&sort=desc HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-28T03:16:36.105Z"}
 {"level":"info","message":"::1 - - [28/May/2026:03:17:21 +0000] \"GET /api/users/profile HTTP/1.1\" 200 241 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-28T03:17:21.392Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-28T03:21:54.075Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-28T03:21:54.078Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-28T03:21:54.078Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-28T03:21:54.078Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-28T03:21:54.079Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-28T03:21:54.079Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-28T03:21:54.079Z"}
+{"level":"error","message":"Registration error from Supabase:","timestamp":"2026-05-28T03:22:09.341Z"}
+{"level":"error","message":"Registration error: Cannot create a user without either an email or phone","stack":"Error: Cannot create a user without either an email or phone\n    at Object.register (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\services\\auth.service.ts:112:13)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at register (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\controllers\\auth.controller.ts:35:20)","timestamp":"2026-05-28T03:22:09.407Z"}
+{"level":"info","message":"::1 - - [28/May/2026:03:22:09 +0000] \"POST /api/auth/register HTTP/1.1\" 400 83 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-28T03:22:09.424Z"}
+{"level":"error","message":"Registration error from Supabase:","timestamp":"2026-05-28T03:22:19.403Z"}
+{"level":"error","message":"Registration error: Cannot create a user without either an email or phone","stack":"Error: Cannot create a user without either an email or phone\n    at Object.register (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\services\\auth.service.ts:112:13)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at register (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\controllers\\auth.controller.ts:35:20)","timestamp":"2026-05-28T03:22:19.410Z"}
+{"level":"info","message":"::1 - - [28/May/2026:03:22:19 +0000] \"POST /api/auth/register HTTP/1.1\" 400 83 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-28T03:22:19.429Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-28T03:22:20.468Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-28T03:22:20.472Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-28T03:22:20.472Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-28T03:22:20.473Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-28T03:22:20.473Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-28T03:22:20.474Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-28T03:22:20.474Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-28T03:23:49.337Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-28T03:23:49.340Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-28T03:23:49.340Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-28T03:23:49.341Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-28T03:23:49.341Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-28T03:23:49.341Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-28T03:23:49.342Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-28T03:23:59.758Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-28T03:23:59.762Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-28T03:23:59.763Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-28T03:23:59.763Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-28T03:23:59.764Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-28T03:23:59.765Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-28T03:23:59.765Z"}
+{"level":"info","message":"::1 - - [28/May/2026:03:24:02 +0000] \"POST /api/auth/register HTTP/1.1\" 400 97 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-28T03:24:02.401Z"}
+{"level":"info","message":"::1 - - [28/May/2026:03:24:07 +0000] \"POST /api/auth/register HTTP/1.1\" 400 97 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-28T03:24:07.977Z"}
+{"level":"info","message":"::1 - - [28/May/2026:03:24:08 +0000] \"POST /api/auth/register HTTP/1.1\" 400 97 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-28T03:24:08.580Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-28T03:26:53.737Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-28T03:26:53.740Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-28T03:26:53.740Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-28T03:26:53.741Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-28T03:26:53.741Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-28T03:26:53.742Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-28T03:26:53.742Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-28T03:27:15.514Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-28T03:27:15.517Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-28T03:27:15.518Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-28T03:27:15.518Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-28T03:27:15.518Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-28T03:27:15.518Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-28T03:27:15.519Z"}
+{"level":"info","message":"New user registered: bosstest02","timestamp":"2026-05-28T03:28:21.255Z"}
+{"level":"info","message":"New user registered: undefined","timestamp":"2026-05-28T03:28:21.259Z"}
+{"level":"info","message":"::1 - - [28/May/2026:03:28:21 +0000] \"POST /api/auth/register HTTP/1.1\" 201 147 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-28T03:28:21.320Z"}

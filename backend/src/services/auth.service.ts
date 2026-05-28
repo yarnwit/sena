@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { randomUUID } from 'crypto';
 import { supabase, supabaseAnon } from '../config/supabase';
 import { UserModel } from '../models/User.model';
 import { AuditLogModel } from '../models/AuditLog.model';
@@ -78,7 +79,6 @@ export const AuthService = {
   },
 
   async register(data: {
-    email: string;
     password: string;
     username: string;
     first_name: string;
@@ -90,64 +90,48 @@ export const AuthService = {
     soi?: string;
     role?: string;
   }) {
-    const { data: result, error } = await supabase.auth.admin.createUser({
-      email: data.email,
-      password: data.password,
-      email_confirm: true,
-      user_metadata: {
-        username: data.username,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        house_no: data.house_no,
-        phone_number: data.phone_number,
-        resident_type: data.resident_type,
-        phase: data.phase,
-        soi: data.soi,
-        role: data.role || 'resident',
-      },
+    // Check if username already exists
+    const existingUser = await UserModel.findByUsername(data.username);
+    if (existingUser) {
+      throw new Error('Username already exists');
+    }
+
+    const hashedPassword = await hashPassword(data.password);
+    const userId = randomUUID();
+
+    const { error: insertUserError } = await supabase.from('users').insert({
+      user_id: userId,
+      username: data.username,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      role: data.role || 'resident',
+      password_hash: hashedPassword
     });
 
-    if (error) {
-      logger.error('Registration error from Supabase:', error.message);
-      throw new Error(error.message);
+    if (insertUserError) {
+      logger.error('Error inserting user manually:', insertUserError);
+      throw new Error('Failed to create user in database');
     }
 
-    // Insert user into database manually to avoid webhook delay causing "username not found" during immediate login
-    if (result.user?.id) {
-      const { error: insertUserError } = await supabase.from('users').insert({
-        user_id: result.user.id,
-        username: data.username,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        role: data.role || 'resident',
-        password_hash: 'handled_by_supabase_auth'
+    if ((data.role || 'resident') === 'resident') {
+      const { error: insertResidentError } = await supabase.from('resident').insert({
+        user_id: userId,
+        house_no: data.house_no,
+        phone_number: data.phone_number,
+        resident_type: data.resident_type || 'owner',
+        phase: data.phase,
+        soi: data.soi,
       });
-
-      if (insertUserError && insertUserError.code !== '23505') { // 23505 = unique_violation
-        logger.error('Error inserting user manually:', insertUserError);
-      }
-
-      if ((data.role || 'resident') === 'resident') {
-        const { error: insertResidentError } = await supabase.from('resident').insert({
-          user_id: result.user.id,
-          house_no: data.house_no,
-          phone_number: data.phone_number,
-          resident_type: data.resident_type || 'owner',
-          phase: data.phase,
-          soi: data.soi,
-        });
-        
-        if (insertResidentError && insertResidentError.code !== '23505') {
-          logger.error('Error inserting resident manually:', insertResidentError);
-        }
+      
+      if (insertResidentError && insertResidentError.code !== '23505') {
+        logger.error('Error inserting resident manually:', insertResidentError);
       }
     }
 
-    logger.info(`New user registered: ${data.email}`);
+    logger.info(`New user registered: ${data.username}`);
 
     return {
-      id: result.user?.id,
-      email: result.user?.email,
+      id: userId,
       username: data.username,
       role: data.role || 'resident',
     };
