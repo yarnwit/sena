@@ -227,9 +227,7 @@ function AdminUsersContent() {
         });
 
         if (res.ok) {
-          setUsers(prev => prev.map(u =>
-            u.user_id === user.user_id ? { ...u, role: targetRole } : u
-          ));
+          await fetchUsers();
           showToast(`เปลี่ยนสิทธิ์ ${user.first_name} ${user.last_name} สำเร็จ`, "success");
         } else {
           const errData = await res.json().catch(() => null);
@@ -242,8 +240,10 @@ function AdminUsersContent() {
         });
 
         if (res.ok) {
-          setUsers(prev => prev.filter(u => u.user_id !== user.user_id));
           showToast(`ลบบัญชี ${user.first_name} ${user.last_name} สำเร็จ`, "success");
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
         } else {
           const errData = await res.json().catch(() => null);
           showToast(errData?.message || "เกิดข้อผิดพลาดในการลบบัญชี", "error");

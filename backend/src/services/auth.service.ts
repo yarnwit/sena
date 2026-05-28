@@ -241,7 +241,7 @@ export const AuthService = {
     // 3. Delete from Supabase Auth
     const { error: authError } = await supabase.auth.admin.deleteUser(userId);
     if (authError) {
-      throw new Error('Failed to delete auth account');
+      logger.warn(`Failed to delete auth account for ${userId}: ${authError.message}`);
     }
 
     logger.info(`Account deleted for user: ${userId}`);

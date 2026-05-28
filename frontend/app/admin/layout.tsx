@@ -116,6 +116,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [userName, setUserName] = useState("");
   const [userInitial, setUserInitial] = useState("");
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   // State for accordion menu
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
@@ -143,6 +144,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         // ignore parse error
       }
       setLoading(false);
+      setMounted(true);
     };
 
     loadUser();
@@ -239,7 +241,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       // We will just match sub.href exactly with pathname + search, but Next.js usePathname only gives pathname.
                       // We can just rely on the layout client-side check using window.location.href, or just simple matching:
                       let isActive = false;
-                      if (typeof window !== "undefined") {
+                      if (mounted) {
                         const currentPath = window.location.pathname + window.location.search;
                         isActive = currentPath === sub.href;
                       } else {
