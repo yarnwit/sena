@@ -3,8 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import api from "@/lib/api";
 
 const intakeChannelOptions = [
   { value: "", label: "-- เลือกช่องทาง --" },
@@ -17,11 +16,10 @@ const intakeChannelOptions = [
 ];
 
 /* ===== Icons ===== */
-const WarningIcon = () => (
+const EditIcon = () => (
   <svg className="w-7 h-7 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-    <line x1="12" y1="9" x2="12" y2="13" />
-    <line x1="12" y1="17" x2="12.01" y2="17" />
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
   </svg>
 );
 
@@ -58,7 +56,7 @@ const PaperclipIcon = () => (
   </svg>
 );
 
-export default function EditComplaintPage() {
+export default function StaffEditComplaintPage() {
   const router = useRouter();
   const params = useParams();
   const complaintId = params.id as string;
@@ -71,7 +69,7 @@ export default function EditComplaintPage() {
   const [file, setFile] = useState<File | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  // ข้อมูลลูกบ้าน (read-only, ดึงมาพร้อมคำร้อง)
+  // ข้อมูลผู้ร้อง (read-only)
   const [userInfo, setUserInfo] = useState({
     first_name: "",
     last_name: "",
@@ -81,7 +79,7 @@ export default function EditComplaintPage() {
     soi: "",
   });
 
-  // ข้อมูลคำร้อง (กรอกและแก้ไขได้)
+  // ข้อมูลคำร้อง (แก้ไขได้)
   const [form, setForm] = useState({
     subject: "",
     description: "",
@@ -91,24 +89,15 @@ export default function EditComplaintPage() {
     attachment_url: "",
   });
 
-  // ดึงข้อมูลคำร้องจาก Backend API
+  // ดึงข้อมูลคำร้องจาก Backend API (ใช้ staff endpoint)
   useEffect(() => {
     const fetchComplaint = async () => {
       try {
-        const token = localStorage.getItem("accessToken");
-        if (!token) {
-          setPageLoading(false);
-          return;
-        }
-
-        const res = await fetch(`${API_URL}/complaints/${complaintId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const json = await res.json();
+        const res = await api.get(`/complaints/staff/${complaintId}`);
+        const json = res.data;
         if (json.success && json.data) {
           const c = json.data;
-          
+
           setUserInfo({
             first_name: c.first_name || "",
             last_name: c.last_name || "",
@@ -118,8 +107,9 @@ export default function EditComplaintPage() {
             soi: c.soi || "",
           });
 
-          // วันที่รายงาน (ตัดเวลาออก)
-          const rDate = c.reported_date ? new Date(c.reported_date).toISOString().split("T")[0] : new Date().toISOString().split("T")[0];
+          const rDate = c.reported_date
+            ? new Date(c.reported_date).toISOString().split("T")[0]
+            : new Date().toISOString().split("T")[0];
 
           setForm({
             subject: c.subject || "",
@@ -141,7 +131,11 @@ export default function EditComplaintPage() {
     fetchComplaint();
   }, [complaintId]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -153,7 +147,7 @@ export default function EditComplaintPage() {
 
   const removeFile = () => {
     setFile(null);
-    setForm(prev => ({ ...prev, attachment_url: "" })); // เคลียร์ไฟล์เก่าออกถ้าลบ
+    setForm((prev) => ({ ...prev, attachment_url: "" }));
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -168,40 +162,24 @@ export default function EditComplaintPage() {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("accessToken");
-      if (!token) {
-        setError("กรุณาเข้าสู่ระบบก่อน");
-        setLoading(false);
-        return;
-      }
-
-      // ในโปรเจกต์จริง ส่วนนี้ต้องเป็นการอัปโหลดไฟล์ไป Storage ก่อน
-      // แต่ตอนนี้เราสมมติว่าใช้ attachment_url เดิม หรือถ้ายกเลิกก็ส่งค่าว่าง
       let finalAttachmentUrl = form.attachment_url;
       if (file) {
-        // Mock upload url...
-        finalAttachmentUrl = URL.createObjectURL(file); // ใช้ชั่วคราว
+        // Mock upload url — ใช้ชั่วคราว
+        finalAttachmentUrl = URL.createObjectURL(file);
       }
 
-      // ส่งแก้ไขคำร้องผ่าน Backend API (PATCH)
-      const res = await fetch(`${API_URL}/complaints/${complaintId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          subject: form.subject,
-          description: form.description,
-          location_written: form.location_written || null,
-          intake_channel: form.intake_channel || null,
-          attachment_url: finalAttachmentUrl || null,
-        }),
+      // ส่งแก้ไขคำร้องผ่าน Staff API (PATCH)
+      const res = await api.patch(`/complaints/staff/${complaintId}`, {
+        subject: form.subject,
+        description: form.description,
+        location_written: form.location_written || null,
+        intake_channel: form.intake_channel || null,
+        attachment_url: finalAttachmentUrl || null,
       });
 
-      const json = await res.json();
+      const json = res.data;
 
-      if (!res.ok || !json.success) {
+      if (!json.success) {
         setError(json.message || "เกิดข้อผิดพลาดในการบันทึก");
         setLoading(false);
         return;
@@ -209,17 +187,22 @@ export default function EditComplaintPage() {
 
       setSuccess(true);
       setTimeout(() => {
-        router.push(`/resident/complaints/${complaintId}`);
+        router.push(`/staff/complaints/${complaintId}`);
       }, 2000);
-    } catch (err) {
-      setError("เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่");
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message ||
+          "เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่"
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const inputClasses = "w-full px-4 py-3 rounded-xl border border-amber-200 bg-amber-50/30 text-sm text-gray-700 placeholder-gray-400 outline-none transition-all duration-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 disabled:opacity-50 disabled:cursor-not-allowed";
-  const readOnlyClasses = "w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-600 outline-none cursor-not-allowed";
+  const inputClasses =
+    "w-full px-4 py-3 rounded-xl border border-amber-200 bg-amber-50/30 text-sm text-gray-700 placeholder-gray-400 outline-none transition-all duration-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 disabled:opacity-50 disabled:cursor-not-allowed";
+  const readOnlyClasses =
+    "w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-600 outline-none cursor-not-allowed";
   const labelClasses = "block text-sm font-medium text-gray-600 mb-1.5";
 
   if (pageLoading) {
@@ -235,7 +218,13 @@ export default function EditComplaintPage() {
       {/* Success Message */}
       {success && (
         <div className="mb-6 flex items-center gap-3 px-5 py-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 text-sm font-medium">
-          <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            className="w-5 h-5 shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
             <polyline points="22 4 12 14.01 9 11.01" />
           </svg>
@@ -246,7 +235,13 @@ export default function EditComplaintPage() {
       {/* Error Message */}
       {error && (
         <div className="mb-6 flex items-center gap-3 px-5 py-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm font-medium">
-          <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            className="w-5 h-5 shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <circle cx="12" cy="12" r="10" />
             <line x1="15" y1="9" x2="9" y2="15" />
             <line x1="9" y1="9" x2="15" y2="15" />
@@ -260,36 +255,59 @@ export default function EditComplaintPage() {
         {/* Header */}
         <div className="flex items-start gap-4 px-6 sm:px-8 py-6 bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-100">
           <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center shrink-0">
-            <WarningIcon />
+            <EditIcon />
           </div>
           <div>
-            <h1 className="text-lg sm:text-xl font-bold text-gray-800 m-0">แก้ไขเรื่องร้องเรียน</h1>
-            <p className="text-sm text-gray-500 mt-1 m-0">ปรับปรุงข้อมูลและบันทึกการแก้ไข</p>
+            <h1 className="text-lg sm:text-xl font-bold text-gray-800 m-0">
+              แก้ไขเรื่องร้องเรียน
+            </h1>
+            <p className="text-sm text-gray-500 mt-1 m-0">
+              ปรับปรุงข้อมูลเรื่องร้องเรียนโดยเจ้าหน้าที่นิติบุคคล
+            </p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-8">
-          {/* ===== Section 1: ข้อมูลผู้ร้องเรียน (READ-ONLY จาก DB) ===== */}
+          {/* ===== Section 1: ข้อมูลผู้ร้องเรียน (READ-ONLY) ===== */}
           <div>
             <div className="flex items-center gap-2 mb-5">
               <PersonIcon />
-              <h2 className="text-sm font-semibold text-gray-700 m-0">1.ข้อมูลผู้ร้องเรียน</h2>
-              <span className="text-xs text-gray-400 ml-auto">(ดึงจากระบบอัตโนมัติ)</span>
+              <h2 className="text-sm font-semibold text-gray-700 m-0">
+                1.ข้อมูลผู้ร้องเรียน
+              </h2>
+              <span className="text-xs text-gray-400 ml-auto">
+                (ดึงจากระบบอัตโนมัติ)
+              </span>
             </div>
 
             {/* Row 1: ชื่อจริง, นามสกุล, เบอร์โทร */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
               <div>
                 <label className={labelClasses}>ชื่อจริง</label>
-                <input type="text" value={userInfo.first_name} className={readOnlyClasses} readOnly />
+                <input
+                  type="text"
+                  value={userInfo.first_name}
+                  className={readOnlyClasses}
+                  readOnly
+                />
               </div>
               <div>
                 <label className={labelClasses}>นามสกุล</label>
-                <input type="text" value={userInfo.last_name} className={readOnlyClasses} readOnly />
+                <input
+                  type="text"
+                  value={userInfo.last_name}
+                  className={readOnlyClasses}
+                  readOnly
+                />
               </div>
               <div>
                 <label className={labelClasses}>เบอร์โทรศัพท์</label>
-                <input type="text" value={userInfo.phone_number || "-"} className={readOnlyClasses} readOnly />
+                <input
+                  type="text"
+                  value={userInfo.phone_number || "-"}
+                  className={readOnlyClasses}
+                  readOnly
+                />
               </div>
             </div>
 
@@ -297,15 +315,30 @@ export default function EditComplaintPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className={labelClasses}>บ้านเลขที่</label>
-                <input type="text" value={userInfo.house_no || "-"} className={readOnlyClasses} readOnly />
+                <input
+                  type="text"
+                  value={userInfo.house_no || "-"}
+                  className={readOnlyClasses}
+                  readOnly
+                />
               </div>
               <div>
                 <label className={labelClasses}>เฟส</label>
-                <input type="text" value={userInfo.phase || "-"} className={readOnlyClasses} readOnly />
+                <input
+                  type="text"
+                  value={userInfo.phase || "-"}
+                  className={readOnlyClasses}
+                  readOnly
+                />
               </div>
               <div>
                 <label className={labelClasses}>ซอย</label>
-                <input type="text" value={userInfo.soi || "-"} className={readOnlyClasses} readOnly />
+                <input
+                  type="text"
+                  value={userInfo.soi || "-"}
+                  className={readOnlyClasses}
+                  readOnly
+                />
               </div>
             </div>
           </div>
@@ -317,14 +350,17 @@ export default function EditComplaintPage() {
           <div>
             <div className="flex items-center gap-2 mb-5">
               <DocumentIcon />
-              <h2 className="text-sm font-semibold text-gray-700 m-0">2.ความประสงค์ / รายละเอียดปัญหา</h2>
+              <h2 className="text-sm font-semibold text-gray-700 m-0">
+                2.ความประสงค์ / รายละเอียดปัญหา
+              </h2>
             </div>
 
             <div className="space-y-4">
               {/* Subject */}
               <div>
                 <label className={labelClasses}>
-                  หัวข้อเรื่องที่ร้องเรียน/ความประสงค์ <span className="text-red-500">*</span>
+                  หัวข้อเรื่องที่ร้องเรียน/ความประสงค์{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -341,7 +377,8 @@ export default function EditComplaintPage() {
               {/* Description */}
               <div>
                 <label className={labelClasses}>
-                  รายละเอียดเพิ่มเติม <span className="text-red-500">*</span>
+                  รายละเอียดเพิ่มเติม{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   name="description"
@@ -357,27 +394,44 @@ export default function EditComplaintPage() {
 
               {/* File Upload */}
               <div>
-                <label className={labelClasses}>ไฟล์แนบ/รูปภาพประกอบคำร้อง</label>
+                <label className={labelClasses}>
+                  ไฟล์แนบ/รูปภาพประกอบคำร้อง
+                </label>
                 <div
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed cursor-pointer transition-all duration-200 ${
                     file || form.attachment_url
                       ? "border-green-300 bg-green-50/50"
                       : "border-amber-200 bg-amber-50/20 hover:border-amber-400 hover:bg-amber-50/50"
                   }`}
-                  onClick={() => !loading && !success && fileInputRef.current?.click()}
+                  onClick={() =>
+                    !loading && !success && fileInputRef.current?.click()
+                  }
                 >
                   <PaperclipIcon />
                   <span className="text-sm text-gray-500">
-                    {file ? file.name : form.attachment_url ? "มีไฟล์แนบอยู่แล้ว (คลิกเพื่อเปลี่ยน)" : "แนบไฟล์เอกสาร/ รูปภาพ"}
+                    {file
+                      ? file.name
+                      : form.attachment_url
+                        ? "มีไฟล์แนบอยู่แล้ว (คลิกเพื่อเปลี่ยน)"
+                        : "แนบไฟล์เอกสาร/ รูปภาพ"}
                   </span>
                   {(file || form.attachment_url) && (
                     <button
                       type="button"
                       className="ml-auto p-1 rounded-full hover:bg-red-100 transition-colors bg-transparent border-none cursor-pointer"
-                      onClick={(e) => { e.stopPropagation(); removeFile(); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeFile();
+                      }}
                       title="ลบไฟล์"
                     >
-                      <svg className="w-4 h-4 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <svg
+                        className="w-4 h-4 text-red-400"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
                         <line x1="18" y1="6" x2="6" y2="18" />
                         <line x1="6" y1="6" x2="18" y2="18" />
                       </svg>
@@ -403,7 +457,9 @@ export default function EditComplaintPage() {
           <div>
             <div className="flex items-center gap-2 mb-5">
               <ListIcon />
-              <h2 className="text-sm font-semibold text-gray-700 m-0">3.ข้อมูลเอกสารและการรับเรื่อง</h2>
+              <h2 className="text-sm font-semibold text-gray-700 m-0">
+                3.ข้อมูลเอกสารและการรับเรื่อง
+              </h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -452,7 +508,7 @@ export default function EditComplaintPage() {
           {/* Action Buttons */}
           <div className="flex items-center justify-end gap-3 pt-2">
             <Link
-              href={`/resident/complaints/${complaintId}`}
+              href={`/staff/complaints/${complaintId}`}
               className="inline-flex items-center justify-center px-8 py-3 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 no-underline transition-colors"
             >
               ยกเลิก
@@ -464,7 +520,13 @@ export default function EditComplaintPage() {
             >
               {loading ? (
                 <>
-                  <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    className="w-4 h-4 animate-spin"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                   </svg>
                   กำลังบันทึก...
@@ -482,24 +544,36 @@ export default function EditComplaintPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center animate-in zoom-in-95 duration-200">
             <div className="w-20 h-20 mx-auto bg-[#22c55e] rounded-full flex items-center justify-center mb-6 shadow-lg shadow-green-500/30">
-              <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                className="w-10 h-10 text-white"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">ยืนยันการบันทึกข้อมูล</h3>
-            <p className="text-sm text-gray-500 mb-8">คุณต้องการยืนยันการบันทึกข้อมูลนี้ใช่หรือไม่</p>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              ยืนยันการบันทึกข้อมูล
+            </h3>
+            <p className="text-sm text-gray-500 mb-8">
+              คุณต้องการยืนยันการบันทึกการแก้ไขข้อมูลนี้ใช่หรือไม่
+            </p>
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
                 onClick={() => setShowConfirmModal(false)}
-                className="px-6 py-3.5 border border-gray-200 rounded-2xl text-gray-700 font-bold hover:bg-gray-50 transition-colors"
+                className="px-6 py-3.5 border border-gray-200 rounded-2xl text-gray-700 font-bold hover:bg-gray-50 transition-colors cursor-pointer bg-white"
               >
                 ยกเลิก
               </button>
               <button
                 type="button"
                 onClick={executeSubmit}
-                className="px-6 py-3.5 bg-[#22c55e] text-white rounded-2xl font-bold hover:bg-[#16a34a] shadow-lg shadow-green-500/30 transition-all"
+                className="px-6 py-3.5 bg-[#22c55e] text-white rounded-2xl font-bold hover:bg-[#16a34a] shadow-lg shadow-green-500/30 transition-all cursor-pointer border-none"
               >
                 ยืนยัน
               </button>

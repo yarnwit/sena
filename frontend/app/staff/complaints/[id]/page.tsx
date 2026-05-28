@@ -268,6 +268,22 @@ export default function StaffComplaintDetailPage() {
             <DocumentIcon />
             <span className="text-sm font-bold text-gray-800">รายละเอียดเรื่องร้องเรียน</span>
           </div>
+          <Link
+            href={complaint.status !== 'closed' ? `/staff/complaints/${complaint.complaint_id}/edit` : '#'}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold no-underline transition-all ${
+              complaint.status === 'closed'
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed pointer-events-none'
+                : 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 hover:border-amber-300'
+            }`}
+            title={complaint.status === 'closed' ? 'ไม่สามารถแก้ไขเรื่องที่ปิดแล้ว' : 'แก้ไขข้อมูลเรื่องร้องเรียน'}
+            aria-disabled={complaint.status === 'closed'}
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+            แก้ไข
+          </Link>
         </div>
 
         {/* Content */}

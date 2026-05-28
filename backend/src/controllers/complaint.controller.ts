@@ -178,6 +178,27 @@ export const updateComplaint = async (req: Request, res: Response) => {
   }
 };
 
+// ===== PATCH /api/complaints/staff/:id =====
+export const updateComplaintByStaff = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return sendError(res, 'Unauthorized', 401);
+
+    // Staff/Admin ไม่ต้องตรวจ ownership — จัดการได้ทุกเรื่อง
+    const complaint = await ComplaintModel.findById(req.params.id);
+    if (!complaint) return sendError(res, 'ไม่พบคำร้องนี้', 404);
+
+    const result = await ComplaintModel.update(req.params.id, req.body);
+    if (!result) return sendError(res, 'Failed to update complaint');
+
+    logger.info(`Complaint updated by staff: ${req.params.id} by user ${userId}`);
+    return sendSuccess(res, result, 'อัปเดตคำร้องสำเร็จ');
+  } catch (error) {
+    logger.error('Staff update complaint error:', error);
+    return sendError(res, 'Internal server error');
+  }
+};
+
 // ===== DELETE /api/complaints/:id =====
 export const deleteComplaint = async (req: Request, res: Response) => {
   try {

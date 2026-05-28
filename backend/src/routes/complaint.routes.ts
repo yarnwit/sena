@@ -7,6 +7,7 @@ import {
   getUserInfo,
   createComplaint,
   updateComplaint,
+  updateComplaintByStaff,
   getAllComplaints,
   getComplaintByIdForStaff,
   updateComplaintStatus,
@@ -39,6 +40,9 @@ router.patch('/staff/bulk-status', authenticate, authorize('staff', 'admin'), bu
 
 // สร้างคำร้องโดย staff (เลือกลูกบ้านจากระบบ)
 router.post('/staff', authenticate, authorize('staff', 'admin'), createComplaintForStaff);
+
+// แก้ไขคำร้องโดย staff/admin (ไม่ต้องตรวจ ownership)
+router.patch('/staff/:id', authenticate, authorize('staff', 'admin'), updateComplaintByStaff);
 
 // ดึงคำร้องทั้งหมดของลูกบ้าน
 router.get('/my', authenticate, getMyComplaints);
