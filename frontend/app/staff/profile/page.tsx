@@ -143,7 +143,11 @@ export default function StaffProfilePage() {
   const initials = user.first_name ? user.first_name.charAt(0).toUpperCase() : "S";
 
   return (
-    <div className="max-w-[720px] flex flex-col gap-6">
+    <div className="w-full pb-8">
+
+
+      <div className="max-w-[720px] flex flex-col gap-6 w-full mx-auto">
+
       {/* ===== Header Card ===== */}
       <div className="bg-gradient-to-br from-[#161D19] to-[#007AFF] rounded-2xl p-8 text-white flex flex-col sm:flex-row items-center sm:items-start gap-6 relative overflow-hidden text-center sm:text-left">
         <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full" />
@@ -164,45 +168,6 @@ export default function StaffProfilePage() {
         </div>
       </div>
 
-      {/* ===== Work Stats Row ===== */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl p-5 shadow-[0_1px_6px_rgba(0,0,0,0.04)] border border-black/5 flex items-center gap-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_18px_rgba(0,0,0,0.08)]">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
-              <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
-            </svg>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-gray-900 leading-none">{stats.total}</div>
-            <div className="text-xs text-gray-500 mt-1">เรื่องร้องเรียนทั้งหมด</div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-5 shadow-[0_1px_6px_rgba(0,0,0,0.04)] border border-black/5 flex items-center gap-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_18px_rgba(0,0,0,0.08)]">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-            </svg>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-gray-900 leading-none">{stats.in_progress}</div>
-            <div className="text-xs text-gray-500 mt-1">กำลังดำเนินการ</div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-5 shadow-[0_1px_6px_rgba(0,0,0,0.04)] border border-black/5 flex items-center gap-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_18px_rgba(0,0,0,0.08)] col-span-2 sm:col-span-1">
-          <div className="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-600 flex items-center justify-center shrink-0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-gray-900 leading-none">{stats.resolved}</div>
-            <div className="text-xs text-gray-500 mt-1">แก้ไขแล้ว / ปิด</div>
-          </div>
-        </div>
-      </div>
 
       {/* ===== Personal Info Form ===== */}
       <div className="bg-white rounded-xl p-6 sm:p-8 shadow-[0_1px_8px_rgba(0,0,0,0.04)] border border-black/5">
@@ -370,6 +335,7 @@ export default function StaffProfilePage() {
           </button>
         </form>
       </div>
+    </div>
     </div>
   );
 }

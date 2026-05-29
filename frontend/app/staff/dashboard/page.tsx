@@ -117,17 +117,17 @@ export default function StaffDashboardPage() {
 
         const res = await api.get('/complaints/all');
         const json = res.data;
-        
+
         if (json.success && json.data) {
           const complaints = json.data;
-          
+
           // คำนวณ Stats
           setStats({
-            total:       complaints.length,
-            pending:     complaints.filter((c: Complaint) => c.status === "pending").length,
+            total: complaints.length,
+            pending: complaints.filter((c: Complaint) => c.status === "pending").length,
             in_progress: complaints.filter((c: Complaint) => c.status === "in_progress").length,
-            resolved:    complaints.filter((c: Complaint) => c.status === "resolved" || c.status === "closed").length,
-            rejected:    complaints.filter((c: Complaint) => c.status === "rejected").length,
+            resolved: complaints.filter((c: Complaint) => c.status === "resolved" || c.status === "closed").length,
+            rejected: complaints.filter((c: Complaint) => c.status === "rejected").length,
           });
 
           // เรื่องเร่งด่วน = pending ที่นานเกิน 3 วัน + pending ใหม่ทั้งหมด
@@ -160,6 +160,10 @@ export default function StaffDashboardPage() {
 
   return (
     <div className="flex flex-col gap-7">
+      <div className="mb-1">
+        <h1 className="text-[18px] md:text-2xl font-bold text-gray-900 m-0 tracking-tight">ภาพรวมงาน</h1>
+        <p className="text-sm text-gray-500 mt-1 m-0">สรุปงานที่ต้องรับผิดชอบ</p>
+      </div>
 
       {/* ===== Stats Cards ===== */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
@@ -349,20 +353,18 @@ export default function StaffDashboardPage() {
                         <strong className="text-[#1a1a2e] font-semibold">{c.subject}</strong>
                       </div>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium whitespace-nowrap ${
-                          c.status === 'pending' ? 'bg-amber-100 text-amber-800' :
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium whitespace-nowrap ${c.status === 'pending' ? 'bg-amber-100 text-amber-800' :
                           c.status === 'in_progress' ? 'bg-emerald-100 text-emerald-800' :
-                          c.status === 'resolved' ? 'bg-violet-100 text-violet-800' :
-                          c.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                          'bg-gray-100 text-gray-600'
-                        }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${
-                            c.status === 'pending' ? 'bg-amber-500' :
+                            c.status === 'resolved' ? 'bg-violet-100 text-violet-800' :
+                              c.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                'bg-gray-100 text-gray-600'
+                          }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${c.status === 'pending' ? 'bg-amber-500' :
                             c.status === 'in_progress' ? 'bg-emerald-500' :
-                            c.status === 'resolved' ? 'bg-violet-500' :
-                            c.status === 'rejected' ? 'bg-red-500' :
-                            'bg-gray-500'
-                          }`} />
+                              c.status === 'resolved' ? 'bg-violet-500' :
+                                c.status === 'rejected' ? 'bg-red-500' :
+                                  'bg-gray-500'
+                            }`} />
                           {statusLabels[c.status] || c.status}
                         </span>
                         <span className="text-[11px] text-[#bbb] mt-0.5">

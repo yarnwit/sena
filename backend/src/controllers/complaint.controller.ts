@@ -66,6 +66,8 @@ export const getComplaintById = async (req: Request, res: Response) => {
       house_no: residentInfo.house_no,
       phone_number: residentInfo.phone_number,
       resident_type: residentInfo.resident_type,
+      phase: complaint.phase || residentInfo.phase,
+      soi: complaint.soi || residentInfo.soi,
       reviewer_name,
     });
   } catch (error) {

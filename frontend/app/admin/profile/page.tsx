@@ -122,6 +122,11 @@ export default function AdminProfilePage() {
 
   return (
     <div className="max-w-[720px] flex flex-col gap-6">
+      <div className="mb-1">
+        <h1 className="text-[18px] md:text-2xl font-bold text-gray-900 m-0 tracking-tight">โปรไฟล์ผู้ดูแลระบบ</h1>
+        <p className="text-sm text-gray-500 mt-1 m-0">จัดการข้อมูลส่วนตัวของคุณ</p>
+      </div>
+
       {/* ===== Header Card ===== */}
       <div className="bg-gradient-to-br from-[#161D19] to-[#B31B1B] rounded-2xl p-8 text-white flex flex-col sm:flex-row items-center sm:items-start gap-6 relative overflow-hidden text-center sm:text-left">
         <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full" />

@@ -200,7 +200,7 @@ export default function StaffEditComplaintPage() {
   };
 
   const inputClasses =
-    "w-full px-4 py-3 rounded-xl border border-amber-200 bg-amber-50/30 text-sm text-gray-700 placeholder-gray-400 outline-none transition-all duration-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 disabled:opacity-50 disabled:cursor-not-allowed";
+    "w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 outline-none transition-all duration-200 focus:border-gray-300 focus:ring-2 focus:ring-gray-100 disabled:opacity-50 disabled:cursor-not-allowed";
   const readOnlyClasses =
     "w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-600 outline-none cursor-not-allowed";
   const labelClasses = "block text-sm font-medium text-gray-600 mb-1.5";
@@ -401,7 +401,7 @@ export default function StaffEditComplaintPage() {
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed cursor-pointer transition-all duration-200 ${
                     file || form.attachment_url
                       ? "border-green-300 bg-green-50/50"
-                      : "border-amber-200 bg-amber-50/20 hover:border-amber-400 hover:bg-amber-50/50"
+                      : "border-gray-200 bg-white hover:border-gray-300"
                   }`}
                   onClick={() =>
                     !loading && !success && fileInputRef.current?.click()

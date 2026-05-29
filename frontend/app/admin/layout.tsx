@@ -101,12 +101,12 @@ const navItems = [
 
 /* ===== Page Title Map ===== */
 function getPageInfo(pathname: string) {
-  if (pathname === "/admin/dashboard") return { title: "ภาพรวมระบบ", subtitle: "สรุปข้อมูลทั้งระบบสำหรับผู้ดูแล" };
-  if (pathname === "/admin/users") return { title: "จัดการผู้ใช้งาน", subtitle: "เพิ่ม ลบ แก้ไขสิทธิ์ผู้ใช้ทุก Role" };
-  if (pathname === "/admin/reports") return { title: "รายงานสรุป", subtitle: "สถิติและรายงานภาพรวมเรื่องร้องเรียน" };
-  if (pathname === "/admin/logs") return { title: "Audit Logs", subtitle: "บันทึกการเปลี่ยนแปลงและกิจกรรมในระบบ" };
-  if (pathname === "/admin/profile") return { title: "โปรไฟล์ผู้ดูแลระบบ", subtitle: "จัดการข้อมูลส่วนตัวของผู้ดูแลระบบ" };
-  return { title: "ผู้ดูแลระบบ", subtitle: "" };
+  if (pathname === "/admin/dashboard") return { icon: DashboardIcon, title: "ภาพรวมระบบ", subtitle: "สรุปข้อมูลทั้งระบบสำหรับผู้ดูแล" };
+  if (pathname === "/admin/users") return { icon: UsersIcon, parent: "จัดการบัญชีผู้ใช้งาน", title: "บัญชีผู้ใช้ทั้งหมด", subtitle: "เพิ่ม ลบ แก้ไขสิทธิ์ผู้ใช้ทุก Role" };
+  if (pathname === "/admin/reports") return { icon: ReportsIcon, title: "รายงานสรุป", subtitle: "สถิติและรายงานภาพรวมเรื่องร้องเรียน" };
+  if (pathname === "/admin/logs") return { icon: ReportsIcon, title: "Audit Logs", subtitle: "บันทึกการเปลี่ยนแปลงและกิจกรรมในระบบ" };
+  if (pathname === "/admin/profile") return { icon: ProfileIcon, title: "โปรไฟล์ผู้ดูแลระบบ", subtitle: "จัดการข้อมูลส่วนตัวของผู้ดูแลระบบ" };
+  return { icon: DashboardIcon, title: "ผู้ดูแลระบบ", subtitle: "" };
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -252,7 +252,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         <Link
                           key={sIdx}
                           href={sub.href}
-                          className={`flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-[13px] transition-all duration-200 mb-0.5 no-underline ${isActive ? "text-[#ff6b6b] bg-[#ff6b6b]/15 font-medium" : "text-white/55 hover:text-white/85 hover:bg-white/5"}`}
+                          className={`flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-[13px] transition-all duration-200 mb-0.5 no-underline ${isActive ? "text-white bg-white/10 font-medium" : "text-white/55 hover:text-white/85 hover:bg-white/5"}`}
                           onClick={() => setSidebarOpen(false)}
                         >
                           <span className={`w-1 h-1 rounded-full shrink-0 ${isActive ? "bg-current opacity-100 shadow-[0_0_4px_currentColor]" : "bg-current opacity-50"}`}></span>
@@ -303,9 +303,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <MenuIcon />
             </button>
             <div>
-              <h1 className="text-[17px] md:text-xl font-semibold text-[#1a1a2e] m-0">{pageInfo.title}</h1>
-              {pageInfo.subtitle && (
-               <p className="text-[13px] text-[#888] mt-0.5 m-0">{pageInfo.subtitle}</p>
+              {pageInfo.parent ? (
+                <nav className="flex items-center gap-2 text-[14px] md:text-[16px] font-medium text-gray-500 m-0">
+                  <span className="flex items-center gap-1.5 hover:text-gray-800 transition-colors cursor-pointer">
+                    {pageInfo.icon && <pageInfo.icon />}
+                    {pageInfo.parent}
+                  </span>
+                  <svg className="w-4 h-4 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  <span className="text-[#ff6b6b] font-medium">{pageInfo.title}</span>
+                </nav>
+              ) : (
+                <nav className="flex items-center gap-2 text-[14px] md:text-[16px] font-medium text-gray-500 m-0">
+                  <span className="flex items-center gap-1.5 text-[#ff6b6b] font-medium">
+                    {pageInfo.icon && <pageInfo.icon />}
+                    {pageInfo.title}
+                  </span>
+                </nav>
               )}
             </div>
           </div>

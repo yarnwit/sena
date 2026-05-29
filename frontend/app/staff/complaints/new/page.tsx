@@ -24,6 +24,34 @@ const intakeChannelOptions = [
   { value: "email", label: "อีเมล" },
 ];
 
+/* ===== Icons ===== */
+const PersonIcon = () => (
+  <svg className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+);
+
+const ListIcon = () => (
+  <svg className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="8" y1="6" x2="21" y2="6" />
+    <line x1="8" y1="12" x2="21" y2="12" />
+    <line x1="8" y1="18" x2="21" y2="18" />
+    <line x1="3" y1="6" x2="3.01" y2="6" />
+    <line x1="3" y1="12" x2="3.01" y2="12" />
+    <line x1="3" y1="18" x2="3.01" y2="18" />
+  </svg>
+);
+
+const DocumentIcon = () => (
+  <svg className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+    <line x1="16" y1="13" x2="8" y2="13" />
+    <line x1="16" y1="17" x2="8" y2="17" />
+  </svg>
+);
+
 export default function StaffNewComplaintPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -129,7 +157,7 @@ export default function StaffNewComplaintPage() {
     } catch { setError("เกิดข้อผิดพลาด"); } finally { setLoading(false); }
   };
 
-  const inp = "w-full px-4 py-3 rounded-xl border border-amber-200 bg-amber-50/30 text-sm text-gray-700 placeholder-gray-400 outline-none transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-100 disabled:opacity-50";
+  const inp = "w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 outline-none transition-all focus:border-gray-300 focus:ring-2 focus:ring-gray-100 disabled:opacity-50";
   const ro = "w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-600 outline-none cursor-not-allowed";
   const lbl = "block text-sm font-medium text-gray-600 mb-1.5";
 
@@ -150,16 +178,19 @@ export default function StaffNewComplaintPage() {
           <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center shrink-0">
             <svg className="w-7 h-7 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
           </div>
-          <div>
-            <h1 className="text-lg sm:text-xl font-bold text-gray-800 m-0">สร้างรายการร้องเรียนใหม่</h1>
-            <p className="text-sm text-gray-500 mt-1 m-0">เลือกลูกบ้านจากระบบ หรือกรอกข้อมูลเอง</p>
-          </div>
+            <div>
+              <h1 className="text-[18px] md:text-2xl font-bold text-gray-900 m-0 tracking-tight">สร้างเรื่องร้องเรียนใหม่</h1>
+              <p className="text-sm text-gray-500 mt-1 m-0">บันทึกข้อมูลเข้าระบบเพื่อติดตามการแก้ไข</p>
+            </div>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-8">
           {/* ===== Section 1: ข้อมูลผู้ร้อง ===== */}
           <div>
-            <h2 className="text-sm font-semibold text-gray-700 mb-4">1. ข้อมูลผู้ร้องเรียน</h2>
+            <div className="flex items-center gap-2 mb-4">
+              <PersonIcon />
+              <h2 className="text-sm font-semibold text-gray-700 m-0">1. ข้อมูลผู้ร้องเรียน</h2>
+            </div>
 
             {/* Mode Tabs */}
             <div className="flex gap-2 mb-5">
@@ -180,7 +211,7 @@ export default function StaffNewComplaintPage() {
                   <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
                   <input type="text" value={searchResident} onChange={(e) => setSearchResident(e.target.value)}
                     placeholder="พิมพ์บ้านเลขที่ หรือ ชื่อ-นามสกุล..."
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-amber-200 bg-amber-50/30 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-gray-300 focus:ring-2 focus:ring-gray-100"
                     disabled={loading || success} />
                 </div>
                 {/* Resident List */}
@@ -235,14 +266,17 @@ export default function StaffNewComplaintPage() {
 
           {/* ===== Section 2: รายละเอียด ===== */}
           <div>
-            <h2 className="text-sm font-semibold text-gray-700 mb-4">2. ความประสงค์ / รายละเอียดปัญหา</h2>
+            <div className="flex items-center gap-2 mb-4">
+              <ListIcon />
+              <h2 className="text-sm font-semibold text-[#475467] m-0">2. ความประสงค์ / รายละเอียดปัญหา</h2>
+            </div>
             <div className="space-y-4">
               <div><label className={lbl}>หัวข้อเรื่องที่ร้องเรียน <span className="text-red-500">*</span></label>
                 <input type="text" name="subject" value={form.subject} onChange={handleChange} placeholder="เช่น น้ำรั่วซึม" className={inp} required disabled={loading || success} /></div>
               <div><label className={lbl}>รายละเอียดเพิ่มเติม <span className="text-red-500">*</span></label>
                 <textarea name="description" value={form.description} onChange={handleChange} placeholder="อธิบายรายละเอียดปัญหา..." rows={5} className={`${inp} resize-none`} required disabled={loading || success} /></div>
               <div><label className={lbl}>ไฟล์แนบ</label>
-                <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed cursor-pointer transition-all ${file ? "border-green-300 bg-green-50/50" : "border-amber-200 bg-amber-50/20 hover:border-amber-400"}`}
+                <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed cursor-pointer transition-all ${file ? "border-green-300 bg-green-50/50" : "border-gray-200 bg-white hover:border-gray-300"}`}
                   onClick={() => !loading && !success && fileInputRef.current?.click()}>
                   <span className="text-sm text-gray-500">{file ? file.name : "📎 แนบไฟล์เอกสาร/ รูปภาพ"}</span>
                   {file && <button type="button" className="ml-auto text-red-400 bg-transparent border-none cursor-pointer" onClick={(e) => { e.stopPropagation(); setFile(null); }}>✕</button>}
@@ -256,7 +290,10 @@ export default function StaffNewComplaintPage() {
 
           {/* ===== Section 3: เอกสาร ===== */}
           <div>
-            <h2 className="text-sm font-semibold text-gray-700 mb-4">3. ข้อมูลเอกสารและการรับเรื่อง</h2>
+            <div className="flex items-center gap-2 mb-4">
+              <DocumentIcon />
+              <h2 className="text-sm font-semibold text-[#475467] m-0">3. ข้อมูลเอกสารและการรับเรื่อง</h2>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div><label className={lbl}>สถานที่รับคำร้อง</label>
                 <input type="text" name="location_written" value={form.location_written} onChange={handleChange} placeholder="สำนักงาน" className={inp} disabled={loading || success} /></div>

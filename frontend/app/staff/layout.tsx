@@ -77,8 +77,8 @@ const CreateComplaintIcon = () => (
 const navItems = [
   { href: "/staff/dashboard", label: "ภาพรวมงาน", icon: DashboardIcon },
   { href: "/staff/complaints/new", label: "สร้างเรื่องร้องเรียน", icon: CreateComplaintIcon },
-  { 
-    label: "จัดการร้องเรียน", 
+  {
+    label: "จัดการร้องเรียน",
     icon: ComplaintIcon,
     subItems: [
       { href: "/staff/complaints", label: "เรื่องร้องเรียนทั้งหมด" },
@@ -92,16 +92,16 @@ const navItems = [
 
 /* ===== Page Title Map ===== */
 function getPageInfo(pathname: string) {
-  if (pathname === "/staff/dashboard") return { title: "ภาพรวมงาน", subtitle: "สรุปงานที่ต้องรับผิดชอบ" };
-  if (pathname === "/staff/complaints/new") return { title: "สร้างเรื่องร้องเรียน", subtitle: "บันทึกเรื่องร้องเรียนใหม่เข้าระบบ" };
-  if (pathname.startsWith("/staff/complaints/")) return { title: "รายละเอียดการร้องเรียน", subtitle: "ข้อมูลเรื่องร้องเรียนและการอัปเดตสถานะ" };
-  if (pathname === "/staff/complaints") return { title: "จัดการร้องเรียน", subtitle: "รายการเรื่องร้องเรียนทั้งหมดจากลูกบ้าน" };
-  if (pathname === "/staff/approvals") return { title: "รอเข้าที่ประชุม", subtitle: "เลือกเรื่องร้องเรียนที่ได้รับอนุมัติเพื่อนำเรื่องเข้าวาระการประชุม" };
-  if (pathname === "/staff/meetings") return { title: "นำเรื่องเข้าที่ประชุม", subtitle: "จัดการวาระการประชุมและสรุปผลหลังการประชุม" };
-  if (pathname === "/staff/maintenance") return { title: "ติดตามการแก้ไขปัญหา", subtitle: "จัดการรายการปฏิบัติงานที่ต้องแก้ไข" };
-  if (pathname === "/staff/reports") return { title: "รายงานและสถิติ", subtitle: "ข้อมูลภาพรวมผลการดำเนินงาน" };
-  if (pathname === "/staff/profile") return { title: "โปรไฟล์เจ้าหน้าที่", subtitle: "จัดการข้อมูลส่วนตัวของนิติบุคคล" };
-  return { title: "เจ้าหน้าที่นิติบุคคล", subtitle: "" };
+  if (pathname === "/staff/dashboard") return { icon: DashboardIcon, title: "ภาพรวมงาน", subtitle: "สรุปงานที่ต้องรับผิดชอบ" };
+  if (pathname === "/staff/complaints/new") return { icon: CreateComplaintIcon, title: "สร้างเรื่องร้องเรียน", subtitle: "บันทึกเรื่องร้องเรียนใหม่เข้าระบบ" };
+  if (pathname.startsWith("/staff/complaints/")) return { icon: ComplaintIcon, title: "รายละเอียดการร้องเรียน", subtitle: "ข้อมูลเรื่องร้องเรียนและการอัปเดตสถานะ" };
+  if (pathname === "/staff/complaints") return { icon: ComplaintIcon, parent: "จัดการร้องเรียน", title: "เรื่องร้องเรียนทั้งหมด", subtitle: "จัดการและติดตามเรื่องร้องเรียนจากลูกบ้านทั้งหมด" };
+  if (pathname === "/staff/approvals") return { icon: ComplaintIcon, parent: "จัดการร้องเรียน", title: "รอเข้าที่ประชุม", subtitle: "เรื่องร้องเรียนที่รอการตรวจสอบเพื่อเข้าที่ประชุม" };
+  if (pathname === "/staff/meetings") return { icon: ComplaintIcon, parent: "จัดการร้องเรียน", title: "นำเรื่องเข้าที่ประชุม", subtitle: "จัดการเรื่องที่ต้องนำเข้าที่ประชุมหรืออยู่ระหว่างการประชุม" };
+  if (pathname === "/staff/maintenance") return { icon: ComplaintIcon, parent: "จัดการร้องเรียน", title: "ติดตามการแก้ไขปัญหา", subtitle: "จัดการปัญหาที่ต้องติดตามหรือรอการแก้ไขจากช่าง" };
+  if (pathname === "/staff/reports") return { icon: DashboardIcon, title: "รายงานและสถิติ", subtitle: "ข้อมูลภาพรวมผลการดำเนินงาน" };
+  if (pathname === "/staff/profile") return { icon: ProfileIcon, title: "โปรไฟล์เจ้าหน้าที่", subtitle: "จัดการข้อมูลส่วนตัวของนิติบุคคล" };
+  return { icon: DashboardIcon, title: "เจ้าหน้าที่นิติบุคคล", subtitle: "" };
 }
 
 export default function StaffLayout({ children }: { children: React.ReactNode }) {
@@ -111,14 +111,14 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
   const [userName, setUserName] = useState("");
   const [userInitial, setUserInitial] = useState("");
   const [loading, setLoading] = useState(true);
-  
+
   // State for accordion menu
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
-    "จัดการร้องเรียน": pathname.startsWith("/staff/complaints") || 
-                       pathname.startsWith("/staff/approvals") ||
-                       pathname.startsWith("/staff/meetings") ||
-                       pathname.startsWith("/staff/maintenance") ||
-                       pathname.startsWith("/staff/reports")
+    "จัดการร้องเรียน": pathname.startsWith("/staff/complaints") ||
+      pathname.startsWith("/staff/approvals") ||
+      pathname.startsWith("/staff/meetings") ||
+      pathname.startsWith("/staff/maintenance") ||
+      pathname.startsWith("/staff/reports")
   });
 
   const pageInfo = getPageInfo(pathname);
@@ -199,7 +199,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
             if (item.subItems) {
               const isMenuOpen = openMenus[item.label];
               const isChildActive = item.subItems.some(sub => pathname === sub.href || (sub.href === "/staff/complaints" && pathname.startsWith("/staff/complaints/")));
-              
+
               return (
                 <div key={idx} className="mb-0.5 group">
                   <button
@@ -210,14 +210,14 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
                       <item.icon />
                       <span>{item.label}</span>
                     </div>
-                    <svg 
-                      className={`w-4 h-4 transition-transform duration-200 ${isMenuOpen ? "rotate-180" : ""}`} 
+                    <svg
+                      className={`w-4 h-4 transition-transform duration-200 ${isMenuOpen ? "rotate-180" : ""}`}
                       viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                     >
                       <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
                   </button>
-                  
+
                   <div className={`pl-5 overflow-hidden transition-all duration-300 ${isMenuOpen ? "max-h-40 opacity-100 mt-1" : "max-h-0 opacity-0"}`}>
                     {item.subItems.map((sub, sIdx) => {
                       const isActive = pathname === sub.href || (sub.href === "/staff/complaints" && pathname.startsWith("/staff/complaints/"));
@@ -225,7 +225,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
                         <Link
                           key={sIdx}
                           href={sub.href}
-                          className={`flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-[13px] transition-all duration-200 mb-0.5 no-underline ${isActive ? "text-[#409cff] bg-[#007AFF]/15 font-medium" : "text-white/55 hover:text-white/85 hover:bg-white/5"}`}
+                          className={`flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-[13px] transition-all duration-200 mb-0.5 no-underline ${isActive ? "text-white bg-white/10 font-medium" : "text-white/55 hover:text-white/85 hover:bg-white/5"}`}
                           onClick={() => setSidebarOpen(false)}
                         >
                           <span className={`w-1 h-1 rounded-full shrink-0 ${isActive ? "bg-current opacity-100 shadow-[0_0_4px_currentColor]" : "bg-current opacity-50"}`}></span>
@@ -279,9 +279,22 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
               <MenuIcon />
             </button>
             <div>
-              <h1 className="text-[17px] md:text-xl font-semibold text-[#1a1a2e] m-0">{pageInfo.title}</h1>
-              {pageInfo.subtitle && (
-               <p className="text-[13px] text-[#888] mt-0.5 m-0">{pageInfo.subtitle}</p>
+              {pageInfo.parent ? (
+                <nav className="flex items-center gap-2 text-[14px] md:text-[16px] font-medium text-gray-500 m-0">
+                  <span className="flex items-center gap-1.5 hover:text-gray-800 transition-colors cursor-pointer">
+                    {pageInfo.icon && <pageInfo.icon />}
+                    {pageInfo.parent}
+                  </span>
+                  <svg className="w-4 h-4 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  <span className="text-[#007AFF] font-medium">{pageInfo.title}</span>
+                </nav>
+              ) : (
+                <nav className="flex items-center gap-2 text-[14px] md:text-[16px] font-medium text-gray-500 m-0">
+                  <span className="flex items-center gap-1.5 text-[#007AFF] font-medium">
+                    {pageInfo.icon && <pageInfo.icon />}
+                    {pageInfo.title}
+                  </span>
+                </nav>
               )}
             </div>
           </div>

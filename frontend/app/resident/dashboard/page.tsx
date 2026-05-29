@@ -126,11 +126,11 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Page Title */}
-      <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 m-0">ภาพรวมเรื่องร้องเรียน</h1>
-        <p className="text-sm text-gray-400 mt-1 m-0">สรุปรายการคำร้องเรียนทั้งหมดของคุณ</p>
-      </div>
+        {/* Page Title */}
+        <div className="mb-6">
+          <h1 className="text-[18px] md:text-2xl font-bold text-gray-900 m-0 tracking-tight">ภาพรวมเรื่องร้องเรียน</h1>
+          <p className="text-sm text-gray-500 mt-1 m-0">สรุปสถานะการร้องเรียนของคุณทั้งหมด</p>
+        </div>
 
       {/* Stats Cards - 2x2 Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -238,7 +238,7 @@ export default function DashboardPage() {
                     <th className="px-6 py-3 font-medium">บ้านเลขที่</th>
                     <th className="px-6 py-3 font-medium">วันที่ส่ง</th>
                     <th className="px-6 py-3 font-medium">สถานะ</th>
-                    <th className="px-6 py-3 font-medium">คำสั่ง</th>
+                    <th className="px-6 py-3 font-medium"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -247,7 +247,8 @@ export default function DashboardPage() {
                     return (
                       <tr
                         key={complaint.complaint_id}
-                        className="hover:bg-gray-50/50 transition-colors"
+                        className="hover:bg-gray-50/50 transition-colors cursor-pointer"
+                        onClick={() => window.location.href = `/resident/complaints/${complaint.complaint_id}`}
                       >
                         <td className="px-6 py-4 font-medium text-gray-700">
                           {complaint.ticket_no || `REQ-${complaint.complaint_id}`}
@@ -273,16 +274,13 @@ export default function DashboardPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          {complaint.status === "resolved" && (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-500 text-white">
-                              อนุมัติ
-                            </span>
-                          )}
-                          {complaint.status === "rejected" && (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-500 text-white">
-                              ไม่อนุมัติ
-                            </span>
-                          )}
+                          <Link
+                            href={`/resident/complaints/${complaint.complaint_id}`}
+                            className="text-[#d4a574] hover:text-[#b8865a] text-xs font-medium no-underline transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            ดูรายละเอียด →
+                          </Link>
                         </td>
                       </tr>
                     );

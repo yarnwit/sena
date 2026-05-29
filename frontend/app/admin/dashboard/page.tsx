@@ -293,11 +293,11 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="grid gap-5">
-      {/* ── Header Row ── */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="m-0 text-xl font-bold text-gray-900">ภาพรวมทั้งระบบ</h2>
-          <p className="mt-1 text-sm text-gray-400 m-0">
+        {/* Header Row */}
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h1 className="text-[18px] md:text-2xl font-bold text-gray-900 m-0 tracking-tight">ภาพรวมระบบ</h1>
+            <p className="text-sm text-gray-500 mt-1 m-0">
             {lastUpdated
               ? `อัปเดตล่าสุด ${lastUpdated.toLocaleTimeString("th-TH")}`
               : "กำลังโหลดข้อมูล..."}

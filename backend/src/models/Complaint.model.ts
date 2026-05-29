@@ -46,7 +46,7 @@ export const ComplaintModel = {
       .from('complaints')
       .select('complaint_id, ticket_no, subject, status, reported_date, description')
       .eq('resident_id', residentId)
-      .order('reported_date', { ascending: false });
+      .order('complaint_id', { ascending: false });
 
     if (error) return [];
     return (data || []) as ComplaintRecord[];
@@ -79,7 +79,7 @@ export const ComplaintModel = {
     const { data, error } = await supabase
       .from('complaints')
       .select('complaint_id, ticket_no, subject, status, reported_date, location_written, description, attachment_url, intake_channel, petition, resident_id')
-      .order('reported_date', { ascending: false });
+      .order('complaint_id', { ascending: false });
 
     if (error) {
       console.error('Supabase error in findAll:', error);

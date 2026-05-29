@@ -61,6 +61,15 @@ const navItems = [
   { href: "/resident/profile", label: "โปรไฟล์", icon: ProfileIcon },
 ];
 
+function getPageInfo(pathname: string) {
+  if (pathname === "/resident/dashboard") return { icon: OverviewIcon, title: "ภาพรวม" };
+  if (pathname === "/resident/complaints/new") return { icon: CreateComplaintIcon, title: "สร้างคำร้อง" };
+  if (pathname.startsWith("/resident/complaints/") && pathname !== "/resident/complaints/new") return { icon: HistoryIcon, parent: "ประวัติคำร้องของฉัน", title: "รายละเอียดคำร้อง" };
+  if (pathname === "/resident/complaints") return { icon: HistoryIcon, title: "ประวัติคำร้องของฉัน" };
+  if (pathname === "/resident/profile") return { icon: ProfileIcon, title: "โปรไฟล์" };
+  return { icon: OverviewIcon, title: "ลูกบ้าน" };
+}
+
 export default function ResidentLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -68,6 +77,8 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
   const [userName, setUserName] = useState("");
   const [houseNo, setHouseNo] = useState("");
   const [loading, setLoading] = useState(true);
+
+  const pageInfo = getPageInfo(pathname);
 
   useEffect(() => {
     const loadUser = () => {
@@ -151,10 +162,10 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
                 key={item.href}
                 href={item.href}
                 className={`
-                  group flex items-center gap-3 px-4 py-3 rounded-lg text-[14px] font-normal transition-all duration-200 mb-0.5 relative no-underline
+                  group flex items-center gap-3 px-4 py-3 rounded-lg text-[14px] font-medium transition-all duration-200 mb-2 relative no-underline
                   ${isActive
-                    ? "active bg-[#38BC0B]/20 text-white font-medium before:content-[''] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:bg-[#4ade80] before:rounded-r-[3px]"
-                    : "text-white/65 hover:bg-white/5 hover:text-white"
+                    ? "active bg-[#38BC0B]/20 text-white font-semibold before:content-[''] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:bg-[#4ade80] before:rounded-r-[3px]"
+                    : "text-white/85 hover:bg-white/5 hover:text-white"
                   }
                 `}
                 onClick={() => setSidebarOpen(false)}
@@ -181,7 +192,7 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
       {/* Main Content */}
       <div className="flex-1 lg:ml-[270px] flex flex-col min-h-screen min-w-0">
         {/* Top Header Bar */}
-        <header className="sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 bg-white border-b border-gray-200">
+        <header className="sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 sm:py-5 min-h-[72px] bg-white border-b border-gray-200">
           <div className="flex items-center gap-3">
             {/* Mobile menu button */}
             <button
@@ -196,6 +207,26 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
             <div className="flex flex-col lg:hidden">
               <span className="text-[9px] tracking-[3px] text-[#8b6f50] uppercase font-serif">SENA</span>
               <span className="text-xs font-bold tracking-[1px] text-[#5a4333] font-serif leading-tight">GRAND HOME</span>
+            </div>
+            
+            <div className="hidden lg:block ml-2">
+              {pageInfo.parent ? (
+                <nav className="flex items-center gap-2 text-[14px] md:text-[16px] font-medium text-gray-500 m-0">
+                  <span className="flex items-center gap-1.5 hover:text-gray-800 transition-colors cursor-pointer">
+                    {pageInfo.icon && <pageInfo.icon />}
+                    {pageInfo.parent}
+                  </span>
+                  <svg className="w-4 h-4 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  <span className="text-[#38BC0B] font-medium">{pageInfo.title}</span>
+                </nav>
+              ) : (
+                <nav className="flex items-center gap-2 text-[14px] md:text-[16px] font-medium text-gray-500 m-0">
+                  <span className="flex items-center gap-1.5 text-[#38BC0B] font-medium">
+                    {pageInfo.icon && <pageInfo.icon />}
+                    {pageInfo.title}
+                  </span>
+                </nav>
+              )}
             </div>
           </div>
 

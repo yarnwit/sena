@@ -215,7 +215,7 @@ export default function ProfilePage() {
                 type="text"
                 value={user.first_name}
                 onChange={(e) => setUser({ ...user, first_name: e.target.value })}
-                className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#3b5bff] focus:shadow-[0_0_0_3px_rgba(59,91,255,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed"
+                className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#38BC0B] focus:shadow-[0_0_0_3px_rgba(56,188,11,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed"
                 disabled={saving}
               />
             </div>
@@ -225,7 +225,7 @@ export default function ProfilePage() {
                 type="text"
                 value={user.last_name}
                 onChange={(e) => setUser({ ...user, last_name: e.target.value })}
-                className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#3b5bff] focus:shadow-[0_0_0_3px_rgba(59,91,255,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed"
+                className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#38BC0B] focus:shadow-[0_0_0_3px_rgba(56,188,11,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed"
                 disabled={saving}
               />
             </div>
@@ -239,7 +239,7 @@ export default function ProfilePage() {
                 value={resident.house_no}
                 onChange={(e) => setResident({ ...resident, house_no: e.target.value })}
                 placeholder="เช่น 123/45"
-                className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#3b5bff] focus:shadow-[0_0_0_3px_rgba(59,91,255,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed placeholder:text-[#aaa]"
+                className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#38BC0B] focus:shadow-[0_0_0_3px_rgba(56,188,11,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed placeholder:text-[#aaa]"
                 disabled={saving}
               />
             </div>
@@ -250,7 +250,7 @@ export default function ProfilePage() {
                 value={resident.phone_number}
                 onChange={(e) => setResident({ ...resident, phone_number: e.target.value })}
                 placeholder="เช่น 081-234-5678"
-                className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#3b5bff] focus:shadow-[0_0_0_3px_rgba(59,91,255,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed placeholder:text-[#aaa]"
+                className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#38BC0B] focus:shadow-[0_0_0_3px_rgba(56,188,11,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed placeholder:text-[#aaa]"
                 disabled={saving}
               />
             </div>
@@ -264,7 +264,7 @@ export default function ProfilePage() {
                 value={resident.phase}
                 onChange={(e) => setResident({ ...resident, phase: e.target.value })}
                 placeholder="เช่น เฟส 1"
-                className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#3b5bff] focus:shadow-[0_0_0_3px_rgba(59,91,255,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed placeholder:text-[#aaa]"
+                className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#38BC0B] focus:shadow-[0_0_0_3px_rgba(56,188,11,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed placeholder:text-[#aaa]"
                 disabled={saving}
               />
             </div>
@@ -275,7 +275,7 @@ export default function ProfilePage() {
                 value={resident.soi}
                 onChange={(e) => setResident({ ...resident, soi: e.target.value })}
                 placeholder="เช่น ซอย 1"
-                className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#3b5bff] focus:shadow-[0_0_0_3px_rgba(59,91,255,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed placeholder:text-[#aaa]"
+                className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#38BC0B] focus:shadow-[0_0_0_3px_rgba(56,188,11,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed placeholder:text-[#aaa]"
                 disabled={saving}
               />
             </div>
@@ -288,12 +288,12 @@ export default function ProfilePage() {
               value={resident.resident_type}
               onChange={(e) => setResident({ ...resident, resident_type: e.target.value })}
               placeholder="เช่น เจ้าของบ้าน, ผู้เช่า"
-              className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#3b5bff] focus:shadow-[0_0_0_3px_rgba(59,91,255,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed placeholder:text-[#aaa]"
+              className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#38BC0B] focus:shadow-[0_0_0_3px_rgba(56,188,11,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed placeholder:text-[#aaa]"
               disabled={saving}
             />
           </div>
 
-          <button type="submit" className="self-end sm:self-end w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-7 bg-[#1400ff] text-white rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 hover:not(:disabled):bg-[#1000d6] hover:not(:disabled):shadow-[0_4px_16px_rgba(20,0,255,0.25)] disabled:opacity-60 disabled:cursor-not-allowed mt-2" disabled={saving}>
+          <button type="submit" className="self-end sm:self-end w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-7 bg-[#38BC0B] text-white rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 hover:not(:disabled):bg-[#2f9e09] hover:not(:disabled):shadow-[0_4px_16px_rgba(56,188,11,0.25)] disabled:opacity-60 disabled:cursor-not-allowed mt-2" disabled={saving}>
             {saving ? (
               <>
                 <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -352,7 +352,7 @@ export default function ProfilePage() {
               value={passwords.new_password}
               onChange={(e) => setPasswords({ ...passwords, new_password: e.target.value })}
               placeholder="กรอกรหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)"
-              className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#3b5bff] focus:shadow-[0_0_0_3px_rgba(59,91,255,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed placeholder:text-[#aaa]"
+              className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#38BC0B] focus:shadow-[0_0_0_3px_rgba(56,188,11,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed placeholder:text-[#aaa]"
               required
               disabled={pwSaving}
             />
@@ -364,12 +364,12 @@ export default function ProfilePage() {
               value={passwords.confirm}
               onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
               placeholder="กรอกรหัสผ่านใหม่อีกครั้ง"
-              className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#3b5bff] focus:shadow-[0_0_0_3px_rgba(59,91,255,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed placeholder:text-[#aaa]"
+              className="w-full py-3 px-4 border border-[#e0e0e0] rounded-xl text-sm text-[#333] bg-white outline-none transition-all duration-200 focus:border-[#38BC0B] focus:shadow-[0_0_0_3px_rgba(56,188,11,0.1)] disabled:bg-[#f8f8f8] disabled:text-[#888] disabled:cursor-not-allowed placeholder:text-[#aaa]"
               required
               disabled={pwSaving}
             />
           </div>
-          <button type="submit" className="self-end sm:self-end w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-7 bg-[#1400ff] text-white rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 hover:not(:disabled):bg-[#1000d6] hover:not(:disabled):shadow-[0_4px_16px_rgba(20,0,255,0.25)] disabled:opacity-60 disabled:cursor-not-allowed mt-2" disabled={pwSaving}>
+          <button type="submit" className="self-end sm:self-end w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-7 bg-[#38BC0B] text-white rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 hover:not(:disabled):bg-[#2f9e09] hover:not(:disabled):shadow-[0_4px_16px_rgba(56,188,11,0.25)] disabled:opacity-60 disabled:cursor-not-allowed mt-2" disabled={pwSaving}>
             {pwSaving ? "กำลังเปลี่ยน..." : "เปลี่ยนรหัสผ่าน"}
           </button>
         </form>

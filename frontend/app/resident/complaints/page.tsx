@@ -43,6 +43,7 @@ export default function ComplaintsPage() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [houseNo, setHouseNo] = useState<string>("");
 
   useEffect(() => {
     const fetchComplaints = async () => {
@@ -60,6 +61,14 @@ export default function ComplaintsPage() {
         const json = await res.json();
         if (json.success && json.data) {
           setComplaints(json.data);
+        }
+
+        const userRes = await fetch(`${API_URL}/complaints/user-info`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const userJson = await userRes.json();
+        if (userJson.success && userJson.data) {
+          setHouseNo(userJson.data.house_no || "");
         }
       } catch {
         // fallback
@@ -273,6 +282,7 @@ export default function ComplaintsPage() {
                 <tr className="text-left text-xs text-gray-400 uppercase tracking-wider bg-gray-50/50">
                   <th className="px-4 md:px-6 py-3.5 font-medium">รหัสคำร้อง</th>
                   <th className="px-4 md:px-6 py-3.5 font-medium">หัวข้อ</th>
+                  <th className="px-4 md:px-6 py-3.5 font-medium">บ้านเลขที่</th>
                   <th className="px-4 md:px-6 py-3.5 font-medium">สถานะ</th>
                   <th className="px-4 md:px-6 py-3.5 font-medium">วันที่แจ้ง</th>
                   <th className="px-4 md:px-6 py-3.5 font-medium"></th>
@@ -292,6 +302,9 @@ export default function ComplaintsPage() {
                       </td>
                       <td className="px-4 md:px-6 py-4 font-medium text-gray-700 max-w-[280px] truncate">
                         {c.subject}
+                      </td>
+                      <td className="px-4 md:px-6 py-4 text-gray-500">
+                        {houseNo || "-"}
                       </td>
                       <td className="px-4 md:px-6 py-4">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${config.bgClass} ${config.textClass}`}>
@@ -338,6 +351,9 @@ export default function ComplaintsPage() {
                       </p>
                       <p className="text-sm font-medium text-gray-800 m-0 mb-1 truncate">
                         {c.subject}
+                      </p>
+                      <p className="text-xs text-gray-500 m-0 mb-1">
+                        บ้านเลขที่: {houseNo || "-"}
                       </p>
                       <p className="text-xs text-gray-400 m-0">
                         {new Date(c.reported_date).toLocaleDateString("th-TH", {

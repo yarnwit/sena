@@ -130,6 +130,11 @@ function StaffComplaintsContent() {
 
   return (
     <div className="space-y-5">
+      {/* Page Title */}
+      <div className="mb-6">
+        <h1 className="text-[18px] md:text-2xl font-bold text-gray-900 m-0 tracking-tight">รายการเรื่องร้องเรียนทั้งหมด</h1>
+        <p className="text-sm text-gray-500 mt-1 m-0">จัดการและติดตามรายการเรื่องร้องเรียนจากลูกบ้าน</p>
+      </div>
 
       {/* Top Bar: Search + Date Filters */}
       <div className="flex flex-col md:flex-row md:flex-wrap items-stretch md:items-center justify-between gap-3">
