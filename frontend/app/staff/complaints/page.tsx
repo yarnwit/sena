@@ -195,7 +195,7 @@ function StaffComplaintsContent() {
 
             {/* Dropdown Menu */}
             {isFilterOpen && (
-              <div className="absolute left-0 right-0 sm:right-auto top-full mt-2 sm:w-72 bg-white rounded-2xl shadow-xl border border-gray-100 p-5 z-50 animate-in fade-in slide-in-from-top-2">
+              <div className="absolute left-0 right-0 sm:right-auto top-full mt-2 sm:w-80 bg-white rounded-2xl shadow-xl border border-gray-100 p-5 z-50 animate-in fade-in slide-in-from-top-2">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-sm font-bold text-gray-800 m-0">กรองตามวันที่</h4>
                   {(startDate || endDate) && (
@@ -228,13 +228,13 @@ function StaffComplaintsContent() {
                     />
                   </div>
                   
-                  <div className="pt-3 mt-1 border-t border-gray-100 flex flex-wrap gap-2">
-                    <button type="button" onClick={() => setQuickDate(7, 'days')} className="px-3.5 py-1.5 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-full border border-gray-200 hover:border-amber-200 transition-all cursor-pointer">ย้อนหลัง 1 สัปดาห์</button>
-                    <button type="button" onClick={() => setQuickDate(14, 'days')} className="px-3.5 py-1.5 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-full border border-gray-200 hover:border-amber-200 transition-all cursor-pointer">ย้อนหลัง 2 สัปดาห์</button>
-                    <button type="button" onClick={() => setQuickDate(21, 'days')} className="px-3.5 py-1.5 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-full border border-gray-200 hover:border-amber-200 transition-all cursor-pointer">ย้อนหลัง 3 สัปดาห์</button>
-                    <button type="button" onClick={() => setQuickDate(1, 'months')} className="px-3.5 py-1.5 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-full border border-gray-200 hover:border-amber-200 transition-all cursor-pointer">ย้อนหลัง 1 เดือน</button>
-                    <button type="button" onClick={() => setQuickDate(3, 'months')} className="px-3.5 py-1.5 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-full border border-gray-200 hover:border-amber-200 transition-all cursor-pointer">ย้อนหลัง 3 เดือน</button>
-                    <button type="button" onClick={() => setQuickDate(6, 'months')} className="px-3.5 py-1.5 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-full border border-gray-200 hover:border-amber-200 transition-all cursor-pointer">ย้อนหลัง 6 เดือน</button>
+                  <div className="pt-3 mt-1 border-t border-gray-100 grid grid-cols-2 gap-2">
+                    <button type="button" onClick={() => setQuickDate(7, 'days')} className="w-full px-2 py-2 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-xl border border-gray-200 hover:border-amber-200 transition-all cursor-pointer text-center">ย้อนหลัง 1 สัปดาห์</button>
+                    <button type="button" onClick={() => setQuickDate(14, 'days')} className="w-full px-2 py-2 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-xl border border-gray-200 hover:border-amber-200 transition-all cursor-pointer text-center">ย้อนหลัง 2 สัปดาห์</button>
+                    <button type="button" onClick={() => setQuickDate(21, 'days')} className="w-full px-2 py-2 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-xl border border-gray-200 hover:border-amber-200 transition-all cursor-pointer text-center">ย้อนหลัง 3 สัปดาห์</button>
+                    <button type="button" onClick={() => setQuickDate(1, 'months')} className="w-full px-2 py-2 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-xl border border-gray-200 hover:border-amber-200 transition-all cursor-pointer text-center">ย้อนหลัง 1 เดือน</button>
+                    <button type="button" onClick={() => setQuickDate(3, 'months')} className="w-full px-2 py-2 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-xl border border-gray-200 hover:border-amber-200 transition-all cursor-pointer text-center">ย้อนหลัง 3 เดือน</button>
+                    <button type="button" onClick={() => setQuickDate(6, 'months')} className="w-full px-2 py-2 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-xl border border-gray-200 hover:border-amber-200 transition-all cursor-pointer text-center">ย้อนหลัง 6 เดือน</button>
                   </div>
                 </div>
               </div>

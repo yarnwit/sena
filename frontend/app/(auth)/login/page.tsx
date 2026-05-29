@@ -83,11 +83,11 @@ export default function LoginPage() {
           <div className="w-full max-w-[420px]">
             {/* Logo Section */}
             <div className="text-center mb-8">
-              <div className="flex flex-col items-center gap-0">
-                <div className="w-[160px] sm:w-[200px] h-[1.5px] bg-[#1a1a2e] mb-1.5"></div>
-                <span className="font-['Times_New_Roman',_'Georgia',_serif] text-sm sm:text-base font-normal tracking-[6px] text-[#1a1a2e] uppercase">SENA</span>
-                <h1 className="font-['Times_New_Roman',_'Georgia',_serif] text-[26px] sm:text-[32px] font-bold tracking-[4px] text-[#1a1a2e] m-0 leading-[1.2]">GRAND HOME</h1>
-                <span className="font-['Times_New_Roman',_'Georgia',_serif] text-sm font-normal tracking-[2px] text-[#1a1a2e] mt-0.5">Rangsit - Tiwanon</span>
+              <div className="flex flex-col items-center w-full max-w-[280px] sm:max-w-[320px] mx-auto">
+                <span className="font-['Times_New_Roman',_'Georgia',_serif] text-xl sm:text-2xl font-normal tracking-[2px] text-[#111] uppercase pb-1">SENA</span>
+                <div className="w-full h-[1.5px] bg-[#111] mb-1.5"></div>
+                <h1 className="font-['Times_New_Roman',_'Georgia',_serif] text-[32px] sm:text-[42px] font-normal tracking-[1px] text-[#111] m-0 leading-none">GRAND HOME</h1>
+                <span className="font-['Times_New_Roman',_'Georgia',_serif] text-[13px] sm:text-[15px] font-normal tracking-[2px] text-[#333] mt-2">Rangsit - Tiwanon</span>
               </div>
               <p className="text-[13px] text-[#555] mt-3 leading-relaxed">
                 ระบบจัดการรับเรื่องร้องเรียนและติดตามปัญหานิติบุคคล

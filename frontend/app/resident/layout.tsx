@@ -6,7 +6,7 @@ import Link from "next/link";
 
 /* ===== SVG Icons ===== */
 const OverviewIcon = () => (
-  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg className="w-[24px] h-[24px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="3" width="7" height="7" rx="1" />
     <rect x="14" y="3" width="7" height="7" rx="1" />
     <rect x="3" y="14" width="7" height="7" rx="1" />
@@ -15,7 +15,7 @@ const OverviewIcon = () => (
 );
 
 const CreateComplaintIcon = () => (
-  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg className="w-[24px] h-[24px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
     <polyline points="14 2 14 8 20 8" />
     <line x1="12" y1="18" x2="12" y2="12" />
@@ -24,21 +24,21 @@ const CreateComplaintIcon = () => (
 );
 
 const HistoryIcon = () => (
-  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg className="w-[24px] h-[24px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
     <polyline points="12 6 12 12 16 14" />
   </svg>
 );
 
 const ProfileIcon = () => (
-  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg className="w-[24px] h-[24px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
     <circle cx="12" cy="7" r="4" />
   </svg>
 );
 
 const LogoutIcon = () => (
-  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg className="w-[24px] h-[24px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
     <polyline points="16 17 21 12 16 7" />
     <line x1="21" y1="12" x2="9" y2="12" />
@@ -88,7 +88,13 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
           const user = JSON.parse(userStr);
           const fullName = user.full_name || `${user.first_name || ""} ${user.last_name || ""}`.trim();
           setUserName(fullName);
-          setHouseNo(user.house_no || user.address || "88/1 หมู่ 1 ซอย 1");
+          
+          let address = "";
+          if (user.house_no) address += user.house_no;
+          if (user.phase) address += ` เฟส ${user.phase}`;
+          if (user.soi) address += ` ซอย ${user.soi}`;
+          
+          setHouseNo(address.trim() || user.address || "---");
         }
       } catch {
         // ignore parse error
@@ -148,7 +154,7 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
 
         {/* Navigation */}
         <nav className="flex-1 px-3 py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-white/15 scrollbar-track-transparent">
-          <div className="text-[10px] font-semibold uppercase tracking-[1.5px] text-white/35 px-3 py-2">เมนูหลัก</div>
+          <div className="text-sm font-semibold uppercase tracking-[1.5px] text-white/35 px-3 py-2">เมนูหลัก</div>
           {navItems.map((item) => {
             const isActive =
               pathname === item.href ||
@@ -162,7 +168,7 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
                 key={item.href}
                 href={item.href}
                 className={`
-                  group flex items-center gap-3 px-4 py-3 rounded-lg text-[14px] font-medium transition-all duration-200 mb-2 relative no-underline
+                  group flex items-center gap-3 px-4 py-4 rounded-lg text-base font-medium transition-all duration-200 mb-2 relative no-underline
                   ${isActive
                     ? "active bg-[#38BC0B]/20 text-white font-semibold before:content-[''] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:bg-[#4ade80] before:rounded-r-[3px]"
                     : "text-white/85 hover:bg-white/5 hover:text-white"
@@ -192,7 +198,7 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
       {/* Main Content */}
       <div className="flex-1 lg:ml-[270px] flex flex-col min-h-screen min-w-0">
         {/* Top Header Bar */}
-        <header className="sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4 sm:py-5 min-h-[72px] bg-white border-b border-gray-200">
+        <header className="sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-5 md:py-6 min-h-[88px] bg-white border-b border-gray-200">
           <div className="flex items-center gap-3">
             {/* Mobile menu button */}
             <button
@@ -211,17 +217,17 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
             
             <div className="hidden lg:block ml-2">
               {pageInfo.parent ? (
-                <nav className="flex items-center gap-2 text-[14px] md:text-[16px] font-medium text-gray-500 m-0">
-                  <span className="flex items-center gap-1.5 hover:text-gray-800 transition-colors cursor-pointer">
+                <nav className="flex items-center gap-4 text-lg md:text-xl font-medium text-gray-500 m-0">
+                  <span className="flex items-center gap-3 hover:text-gray-800 transition-colors cursor-pointer">
                     {pageInfo.icon && <pageInfo.icon />}
                     {pageInfo.parent}
                   </span>
-                  <svg className="w-4 h-4 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                  <span className="text-[#38BC0B] font-medium">{pageInfo.title}</span>
+                  <svg className="w-6 h-6 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  <span className="text-[#38BC0B] font-bold">{pageInfo.title}</span>
                 </nav>
               ) : (
-                <nav className="flex items-center gap-2 text-[14px] md:text-[16px] font-medium text-gray-500 m-0">
-                  <span className="flex items-center gap-1.5 text-[#38BC0B] font-medium">
+                <nav className="flex items-center gap-4 text-lg md:text-xl font-medium text-gray-500 m-0">
+                  <span className="flex items-center gap-3 text-[#38BC0B] font-bold">
                     {pageInfo.icon && <pageInfo.icon />}
                     {pageInfo.title}
                   </span>
@@ -233,10 +239,10 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
           {/* Right - User info */}
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium text-gray-700 m-0">
+              <p className="text-lg font-bold text-gray-700 m-0">
                 สวัสดีคุณ {loading ? "..." : userName || "ผู้ใช้งาน"}
               </p>
-              <p className="text-xs text-gray-400 m-0">
+              <p className="text-base text-gray-400 m-0">
                 บ้านเลขที่ {houseNo || "---"}
               </p>
             </div>

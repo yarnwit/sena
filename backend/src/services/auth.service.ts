@@ -14,6 +14,9 @@ export interface LoginResult {
     username: string;
     role: string;
     full_name: string;
+    house_no?: string;
+    phase?: string;
+    soi?: string;
   };
   accessToken: string;
   refreshToken: string;
@@ -64,6 +67,16 @@ export const AuthService = {
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload);
 
+    let residentData = null;
+    if (role === 'resident') {
+      const { data } = await supabase
+        .from('resident')
+        .select('house_no, phase, soi')
+        .eq('user_id', user.user_id)
+        .single();
+      if (data) residentData = data;
+    }
+
     logger.info(`User logged in with username: ${username}`);
 
     return {
@@ -72,6 +85,9 @@ export const AuthService = {
         username,
         role,
         full_name: `${user.first_name || ''} ${user.last_name || ''}`.trim(),
+        house_no: residentData?.house_no,
+        phase: residentData?.phase,
+        soi: residentData?.soi,
       },
       accessToken,
       refreshToken,
