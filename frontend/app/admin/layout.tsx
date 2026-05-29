@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import Link from "next/link";
 
 /* ===== SVG Icons ===== */
@@ -109,9 +110,10 @@ function getPageInfo(pathname: string) {
   return { icon: DashboardIcon, title: "ผู้ดูแลระบบ", subtitle: "" };
 }
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userName, setUserName] = useState("");
   const [userInitial, setUserInitial] = useState("");
@@ -239,14 +241,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       // Since we use query params like ?role=resident, we must check window.location.search or just use exact string matching if possible.
                       // For now, simpler: compare pathname and query in layout? Layout doesn't have useSearchParams without suspense.
                       // We will just match sub.href exactly with pathname + search, but Next.js usePathname only gives pathname.
-                      // We can just rely on the layout client-side check using window.location.href, or just simple matching:
-                      let isActive = false;
-                      if (mounted) {
-                        const currentPath = window.location.pathname + window.location.search;
-                        isActive = currentPath === sub.href;
-                      } else {
-                        isActive = pathname === sub.href;
-                      }
+                      // Use searchParams to correctly determine active state instantly
+                      const query = searchParams.toString();
+                      const currentPath = query ? `${pathname}?${query}` : pathname;
+                      const isActive = currentPath === sub.href;
                       
                       return (
                         <Link
@@ -334,5 +332,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <main className="flex-1 p-5 md:p-7 md:px-8">{children}</main>
       </div>
     </div>
+  );
+}
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-[#f0f2f5]"><div className="w-10 h-10 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div></div>}>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
+    </Suspense>
   );
 }

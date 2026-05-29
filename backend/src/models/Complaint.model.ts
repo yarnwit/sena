@@ -12,6 +12,8 @@ export interface ComplaintRecord {
   attachment_url: string | null;
   intake_channel: string | null;
   petition: string | null;
+  soi?: string | null;
+  phase?: string | null;
 }
 
 export interface ComplaintCreateInput {
@@ -24,6 +26,8 @@ export interface ComplaintCreateInput {
   location_written?: string | null;
   intake_channel?: string | null;
   attachment_url?: string | null;
+  soi?: string | null;
+  phase?: string | null;
 }
 
 export interface ComplaintUpdateInput {

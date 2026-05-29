@@ -85,6 +85,26 @@ function StaffComplaintsContent() {
     }
   }, [searchParams]);
 
+  const setQuickDate = (value: number, type: 'days' | 'months' = 'days') => {
+    const end = new Date();
+    const start = new Date();
+    
+    if (type === 'days') {
+      start.setDate(start.getDate() - value);
+    } else if (type === 'months') {
+      start.setMonth(start.getMonth() - value);
+    }
+    
+    // Convert to timezone-safe YYYY-MM-DD
+    const formatDate = (date: Date) => {
+      const offset = date.getTimezoneOffset() * 60000;
+      return new Date(date.getTime() - offset).toISOString().split('T')[0];
+    };
+
+    setEndDate(formatDate(end));
+    setStartDate(formatDate(start));
+  };
+
   // Filter + Search + Date Range
   const filtered = complaints.filter((c) => {
     const matchFilter = filter === "all" || c.status === filter;
@@ -206,6 +226,15 @@ function StaffComplaintsContent() {
                       onChange={(e) => setEndDate(e.target.value)}
                       className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 outline-none focus:border-[#d4a574] focus:ring-1 focus:ring-[#d4a574] focus:bg-white transition-all"
                     />
+                  </div>
+                  
+                  <div className="pt-3 mt-1 border-t border-gray-100 flex flex-wrap gap-2">
+                    <button type="button" onClick={() => setQuickDate(7, 'days')} className="px-3.5 py-1.5 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-full border border-gray-200 hover:border-amber-200 transition-all cursor-pointer">ย้อนหลัง 1 สัปดาห์</button>
+                    <button type="button" onClick={() => setQuickDate(14, 'days')} className="px-3.5 py-1.5 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-full border border-gray-200 hover:border-amber-200 transition-all cursor-pointer">ย้อนหลัง 2 สัปดาห์</button>
+                    <button type="button" onClick={() => setQuickDate(21, 'days')} className="px-3.5 py-1.5 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-full border border-gray-200 hover:border-amber-200 transition-all cursor-pointer">ย้อนหลัง 3 สัปดาห์</button>
+                    <button type="button" onClick={() => setQuickDate(1, 'months')} className="px-3.5 py-1.5 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-full border border-gray-200 hover:border-amber-200 transition-all cursor-pointer">ย้อนหลัง 1 เดือน</button>
+                    <button type="button" onClick={() => setQuickDate(3, 'months')} className="px-3.5 py-1.5 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-full border border-gray-200 hover:border-amber-200 transition-all cursor-pointer">ย้อนหลัง 3 เดือน</button>
+                    <button type="button" onClick={() => setQuickDate(6, 'months')} className="px-3.5 py-1.5 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-full border border-gray-200 hover:border-amber-200 transition-all cursor-pointer">ย้อนหลัง 6 เดือน</button>
                   </div>
                 </div>
               </div>

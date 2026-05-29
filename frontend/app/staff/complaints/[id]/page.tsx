@@ -148,6 +148,8 @@ export default function StaffComplaintDetailPage() {
           setPetition(json.data.petition || "");
         }
 
+        let fetchedComments: Comment[] = [];
+        
         // ดึง comments โดยใช้ supabase client
         const supabase = createClient();
         const { data: commentData } = await supabase
@@ -155,7 +157,28 @@ export default function StaffComplaintDetailPage() {
           .select("*")
           .eq("complaint_id", complaintId)
           .order("created_at", { ascending: true });
-        if (commentData) setComments(commentData);
+          
+        if (commentData) {
+          fetchedComments = commentData;
+        }
+
+        if (json.success && json.data) {
+          // Check if there is already a creation comment to avoid duplicates
+          const hasCreationComment = fetchedComments.some(c => c.content === '[ระบบ] สร้างเรื่องร้องเรียนเข้าระบบ');
+          
+          if (!hasCreationComment) {
+            const creationComment: Comment = {
+              id: 0, // dummy id
+              content: "[ระบบ] สร้างเรื่องร้องเรียนเข้าระบบ",
+              created_at: json.data.reported_date,
+              user_name: `${json.data.first_name || ''} ${json.data.last_name || ''}`.trim() || 'ผู้ร้องเรียน',
+              user_role: "resident"
+            };
+            fetchedComments = [creationComment, ...fetchedComments];
+          }
+        }
+        
+        setComments(fetchedComments);
       } catch {
         // error
       }

@@ -121,11 +121,8 @@ export default function AdminProfilePage() {
   const initials = user.first_name ? user.first_name.charAt(0).toUpperCase() : "A";
 
   return (
-    <div className="max-w-[720px] flex flex-col gap-6">
-      <div className="mb-1">
-        <h1 className="text-[18px] md:text-2xl font-bold text-gray-900 m-0 tracking-tight">โปรไฟล์ผู้ดูแลระบบ</h1>
-        <p className="text-sm text-gray-500 mt-1 m-0">จัดการข้อมูลส่วนตัวของคุณ</p>
-      </div>
+    <div className="w-full pb-8">
+      <div className="max-w-[720px] flex flex-col gap-6 w-full mx-auto">
 
       {/* ===== Header Card ===== */}
       <div className="bg-gradient-to-br from-[#161D19] to-[#B31B1B] rounded-2xl p-8 text-white flex flex-col sm:flex-row items-center sm:items-start gap-6 relative overflow-hidden text-center sm:text-left">
@@ -186,7 +183,6 @@ export default function AdminProfilePage() {
               className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-gray-50 cursor-not-allowed"
               disabled
             />
-            <span className="text-[11px] text-gray-400 mt-px">ไม่สามารถเปลี่ยนชื่อผู้ใช้งานได้</span>
           </div>
 
           {/* First / Last name */}
@@ -224,7 +220,6 @@ export default function AdminProfilePage() {
               className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-gray-50 cursor-not-allowed"
               disabled
             />
-            <span className="text-[11px] text-gray-400 mt-px">สิทธิ์สูงสูดในระบบ ไม่สามารถเปลี่ยนได้</span>
           </div>
 
           <button type="submit" className="self-end sm:self-end w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-7 bg-red-600 text-white rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 hover:not(:disabled):bg-red-700 hover:not(:disabled):shadow-[0_4px_16px_rgba(220,38,38,0.35)] disabled:opacity-60 disabled:cursor-not-allowed mt-2" disabled={saving}>
@@ -312,6 +307,7 @@ export default function AdminProfilePage() {
             )}
           </button>
         </form>
+      </div>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { ComplaintModel } from '../models/Complaint.model';
 import { ComplaintService } from '../services/complaint.service';
 import { sendSuccess, sendError } from '../utils/response.util';
 import logger from '../config/logger';
+import { supabase } from '../config/supabase';
 
 // ===== GET /api/complaints/my =====
 export const getMyComplaints = async (req: Request, res: Response) => {
@@ -66,8 +67,8 @@ export const getComplaintById = async (req: Request, res: Response) => {
       house_no: residentInfo.house_no,
       phone_number: residentInfo.phone_number,
       resident_type: residentInfo.resident_type,
-      phase: complaint.phase || residentInfo.phase,
-      soi: complaint.soi || residentInfo.soi,
+      phase: (complaint as any).phase || residentInfo.phase,
+      soi: (complaint as any).soi || residentInfo.soi,
       reviewer_name,
     });
   } catch (error) {
@@ -100,6 +101,29 @@ export const createComplaint = async (req: Request, res: Response) => {
     if (!residentId) return sendError(res, 'ไม่พบข้อมูลลูกบ้าน กรุณาติดต่อผู้ดูแลระบบ', 400);
 
     const result = await ComplaintService.createComplaint(residentId, req.body, userId);
+    
+    // --- Add automatic system comment for creation history ---
+    try {
+      const { data: uData } = await supabase
+        .from('users')
+        .select('first_name, last_name, role')
+        .eq('user_id', userId)
+        .single();
+
+      if (uData) {
+        await supabase.from('comments').insert({
+          complaint_id: result.complaint_id,
+          user_id: userId,
+          content: '[ระบบ] สร้างเรื่องร้องเรียนเข้าระบบ',
+          user_name: `${uData.first_name || ''} ${uData.last_name || ''}`.trim() || 'ผู้ร้องเรียน',
+          user_role: uData.role || 'resident',
+        });
+      }
+    } catch (err) {
+      logger.error('Failed to insert system comment for creation:', err);
+    }
+    // ---------------------------------------------------------
+
     return sendSuccess(res, result, 'สร้างคำร้องสำเร็จ', 201);
   } catch (error: any) {
     logger.error('Create complaint error:', error);
@@ -172,6 +196,28 @@ export const updateComplaint = async (req: Request, res: Response) => {
     const result = await ComplaintModel.update(req.params.id, req.body);
     if (!result) return sendError(res, 'Failed to update complaint');
 
+    // --- Add automatic system comment for edit history ---
+    try {
+      const { data: uData } = await supabase
+        .from('users')
+        .select('first_name, last_name, role')
+        .eq('user_id', userId)
+        .single();
+
+      if (uData) {
+        await supabase.from('comments').insert({
+          complaint_id: Number(req.params.id),
+          user_id: userId,
+          content: '[ระบบ] ทำการแก้ไขรายละเอียดคำร้อง',
+          user_name: `${uData.first_name || ''} ${uData.last_name || ''}`.trim() || 'ผู้ร้องเรียน',
+          user_role: uData.role || 'resident',
+        });
+      }
+    } catch (err) {
+      logger.error('Failed to insert system comment for update:', err);
+    }
+    // -----------------------------------------------------
+
     logger.info(`Complaint updated: ${req.params.id} by user ${userId}`);
     return sendSuccess(res, result, 'อัปเดตคำร้องสำเร็จ');
   } catch (error) {
@@ -192,6 +238,28 @@ export const updateComplaintByStaff = async (req: Request, res: Response) => {
 
     const result = await ComplaintModel.update(req.params.id, req.body);
     if (!result) return sendError(res, 'Failed to update complaint');
+
+    // --- Add automatic system comment for edit history ---
+    try {
+      const { data: uData } = await supabase
+        .from('users')
+        .select('first_name, last_name, role')
+        .eq('user_id', userId)
+        .single();
+
+      if (uData) {
+        await supabase.from('comments').insert({
+          complaint_id: Number(req.params.id),
+          user_id: userId,
+          content: '[ระบบ] ทำการแก้ไขรายละเอียดคำร้อง',
+          user_name: `${uData.first_name || ''} ${uData.last_name || ''}`.trim() || 'เจ้าหน้าที่',
+          user_role: uData.role || 'staff',
+        });
+      }
+    } catch (err) {
+      logger.error('Failed to insert system comment for staff update:', err);
+    }
+    // -----------------------------------------------------
 
     logger.info(`Complaint updated by staff: ${req.params.id} by user ${userId}`);
     return sendSuccess(res, result, 'อัปเดตคำร้องสำเร็จ');
@@ -233,6 +301,29 @@ export const createComplaintForStaff = async (req: Request, res: Response) => {
     if (!userId) return sendError(res, 'Unauthorized', 401);
 
     const result = await ComplaintService.createComplaintForStaff(req.body, userId);
+    
+    // --- Add automatic system comment for creation history ---
+    try {
+      const { data: uData } = await supabase
+        .from('users')
+        .select('first_name, last_name, role')
+        .eq('user_id', userId)
+        .single();
+
+      if (uData) {
+        await supabase.from('comments').insert({
+          complaint_id: result.complaint_id,
+          user_id: userId,
+          content: '[ระบบ] สร้างเรื่องร้องเรียนเข้าระบบ',
+          user_name: `${uData.first_name || ''} ${uData.last_name || ''}`.trim() || 'เจ้าหน้าที่',
+          user_role: uData.role || 'staff',
+        });
+      }
+    } catch (err) {
+      logger.error('Failed to insert system comment for staff creation:', err);
+    }
+    // ---------------------------------------------------------
+
     return sendSuccess(res, result, 'สร้างคำร้องสำเร็จ', 201);
   } catch (error: any) {
     logger.error('Staff create complaint error:', error);
