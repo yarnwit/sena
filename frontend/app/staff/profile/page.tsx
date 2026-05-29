@@ -219,7 +219,7 @@ export default function StaffProfilePage() {
                 type="text"
                 value={user.first_name}
                 onChange={(e) => setUser({ ...user, first_name: e.target.value })}
-                className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-white outline-none transition-all duration-200 focus:border-amber-500 focus:shadow-[0_0_0_3px_rgba(245,158,11,0.1)] disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
+                className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-white outline-none transition-all duration-200 focus:border-[#007AFF] focus:shadow-[0_0_0_3px_rgba(0,122,255,0.15)] disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
                 disabled={saving}
                 required
               />
@@ -230,7 +230,7 @@ export default function StaffProfilePage() {
                 type="text"
                 value={user.last_name}
                 onChange={(e) => setUser({ ...user, last_name: e.target.value })}
-                className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-white outline-none transition-all duration-200 focus:border-amber-500 focus:shadow-[0_0_0_3px_rgba(245,158,11,0.1)] disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
+                className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-white outline-none transition-all duration-200 focus:border-[#007AFF] focus:shadow-[0_0_0_3px_rgba(0,122,255,0.15)] disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
                 disabled={saving}
                 required
               />
@@ -249,7 +249,7 @@ export default function StaffProfilePage() {
             <span className="text-[11px] text-gray-400 mt-px">สิทธิ์นี้กำหนดโดยผู้ดูแลระบบ ไม่สามารถเปลี่ยนได้</span>
           </div>
 
-          <button type="submit" className="self-end sm:self-end w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-7 bg-amber-500 text-white rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 hover:not(:disabled):bg-amber-600 hover:not(:disabled):shadow-[0_4px_16px_rgba(245,158,11,0.35)] disabled:opacity-60 disabled:cursor-not-allowed mt-2" disabled={saving}>
+          <button type="submit" className="self-end sm:self-end w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-7 bg-[#007AFF] text-white rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 hover:not(:disabled):bg-[#0062cc] hover:not(:disabled):shadow-[0_4px_16px_rgba(0,122,255,0.35)] disabled:opacity-60 disabled:cursor-not-allowed mt-2" disabled={saving}>
             {saving ? (
               <>
                 <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
@@ -306,7 +306,7 @@ export default function StaffProfilePage() {
               value={passwords.new_password}
               onChange={(e) => setPasswords({ ...passwords, new_password: e.target.value })}
               placeholder="กรอกรหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)"
-              className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-white outline-none transition-all duration-200 focus:border-amber-500 focus:shadow-[0_0_0_3px_rgba(245,158,11,0.1)] disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed placeholder:text-gray-400"
+              className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-white outline-none transition-all duration-200 focus:border-[#007AFF] focus:shadow-[0_0_0_3px_rgba(0,122,255,0.15)] disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed placeholder:text-gray-400"
               required
               disabled={pwSaving}
             />
@@ -318,12 +318,12 @@ export default function StaffProfilePage() {
               value={passwords.confirm}
               onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
               placeholder="กรอกรหัสผ่านใหม่อีกครั้ง"
-              className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-white outline-none transition-all duration-200 focus:border-amber-500 focus:shadow-[0_0_0_3px_rgba(245,158,11,0.1)] disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed placeholder:text-gray-400"
+              className="w-full py-3 px-4 border border-gray-200 rounded-xl text-sm text-gray-800 bg-white outline-none transition-all duration-200 focus:border-[#007AFF] focus:shadow-[0_0_0_3px_rgba(0,122,255,0.15)] disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed placeholder:text-gray-400"
               required
               disabled={pwSaving}
             />
           </div>
-          <button type="submit" className="self-end sm:self-end w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-7 bg-amber-500 text-white rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 hover:not(:disabled):bg-amber-600 hover:not(:disabled):shadow-[0_4px_16px_rgba(245,158,11,0.35)] disabled:opacity-60 disabled:cursor-not-allowed mt-2" disabled={pwSaving}>
+          <button type="submit" className="self-end sm:self-end w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-7 bg-[#007AFF] text-white rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 hover:not(:disabled):bg-[#0062cc] hover:not(:disabled):shadow-[0_4px_16px_rgba(0,122,255,0.35)] disabled:opacity-60 disabled:cursor-not-allowed mt-2" disabled={pwSaving}>
             {pwSaving ? (
               <>
                 <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
