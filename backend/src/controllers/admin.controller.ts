@@ -178,14 +178,45 @@ export const deleteUser = async (req: Request, res: Response) => {
 export const getReports = async (req: Request, res: Response) => {
   try {
     const complaints = await ComplaintModel.findAll();
+    const users = await UserModel.findAll();
 
-    const statusCount: Record<string, number> = {};
+    const statusCount: Record<string, number> = {
+      pending: 0,
+      in_progress: 0,
+      resolved: 0,
+      rejected: 0,
+      closed: 0,
+    };
+    
+    let todayCount = 0;
+    const todayStr = new Date().toISOString().split('T')[0];
+
     complaints.forEach((c) => {
-      statusCount[c.status] = (statusCount[c.status] || 0) + 1;
+      if (statusCount[c.status] !== undefined) {
+        statusCount[c.status]++;
+      } else {
+        statusCount[c.status] = 1;
+      }
+      
+      if (c.reported_date && c.reported_date.startsWith(todayStr)) {
+        todayCount++;
+      }
     });
+
+    const totalResidents = users.filter(u => u.role === 'resident').length;
+    const totalStaff = users.filter(u => u.role === 'staff' || u.role === 'admin').length;
 
     const report = {
       total_complaints: complaints.length,
+      total_users: users.length,
+      total_residents: totalResidents,
+      total_staff: totalStaff,
+      pending: statusCount.pending,
+      in_progress: statusCount.in_progress,
+      resolved: statusCount.resolved,
+      rejected: statusCount.rejected,
+      closed: statusCount.closed,
+      today: todayCount,
       status_summary: statusCount,
       recent_complaints: complaints.slice(0, 10),
     };
