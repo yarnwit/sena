@@ -232,9 +232,22 @@ export default function AdminReportsPage() {
     } catch { /* ignore */ }
   }
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(complaints.length / itemsPerPage);
+
+  // Paginated complaints
+  const paginatedComplaints = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return complaints.slice(start, start + itemsPerPage);
+  }, [complaints, currentPage]);
+
+  // Handle refresh to reset page
   async function fetchAll() {
     setLoading(true);
     await loadData();
+    setCurrentPage(1);
     setLoading(false);
   }
 
@@ -293,9 +306,6 @@ export default function AdminReportsPage() {
     });
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 8);
   }, [complaints]);
-
-  // Recent complaints (top 10)
-  const recentComplaints = useMemo(() => complaints.slice(0, 10), [complaints]);
 
   return (
     <div className="grid gap-5">
@@ -507,8 +517,8 @@ export default function AdminReportsPage() {
       <div className="bg-white rounded-2xl border border-black/5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] overflow-hidden">
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
           <div>
-            <p className="text-[15px] font-semibold text-gray-900 m-0">รายการร้องเรียนล่าสุด</p>
-            <p className="text-xs text-gray-400 mt-0.5 m-0">10 รายการล่าสุดในระบบ</p>
+            <p className="text-[15px] font-semibold text-gray-900 m-0">รายการร้องเรียนทั้งหมด</p>
+            <p className="text-xs text-gray-400 mt-0.5 m-0">แสดงรายการเรื่องร้องเรียนทั้งหมดในระบบ</p>
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -516,7 +526,7 @@ export default function AdminReportsPage() {
             <div className="px-6 py-5 flex flex-col gap-3">
               {[1,2,3,4,5].map(i => <Skeleton key={i} h="44px" />)}
             </div>
-          ) : recentComplaints.length === 0 ? (
+          ) : paginatedComplaints.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-10 py-10 text-sm text-gray-400 gap-2">ยังไม่มีเรื่องร้องเรียน</div>
           ) : (
             <>
@@ -534,7 +544,7 @@ export default function AdminReportsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {recentComplaints.map(c => (
+                    {paginatedComplaints.map(c => (
                       <tr key={c.complaint_id} className="hover:bg-gray-50">
                         <td className="px-4 py-3.5 border-b border-gray-50 text-gray-700 align-middle"><span className="font-mono text-xs text-violet-600 font-semibold">{c.ticket_no ?? `#${c.complaint_id}`}</span></td>
                         <td className="px-4 py-3.5 border-b border-gray-50 text-gray-700 align-middle"><span className="max-w-[180px] whitespace-nowrap overflow-hidden text-ellipsis font-medium text-gray-900">{c.subject}</span></td>
@@ -552,7 +562,7 @@ export default function AdminReportsPage() {
 
               {/* Mobile Card View */}
               <div className="sm:hidden divide-y divide-gray-100">
-                {recentComplaints.map(c => (
+                {paginatedComplaints.map(c => (
                   <div key={c.complaint_id} className="p-4 flex flex-col gap-2">
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-xs text-violet-600 font-semibold">{c.ticket_no ?? `#${c.complaint_id}`}</span>
@@ -577,9 +587,31 @@ export default function AdminReportsPage() {
             </>
           )}
         </div>
-        <div className="flex items-center justify-between px-6 py-4 bg-gray-50 border-t border-gray-100 text-[13px] text-gray-500">
-          <span>แสดง {recentComplaints.length} จาก {complaints.length} รายการ</span>
-          <strong className="text-gray-900 font-bold">ทั้งหมด {stats?.totalComplaints ?? 0} เรื่อง</strong>
+        
+        {/* Pagination Controls */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 bg-gray-50 border-t border-gray-100 text-[13px]">
+          <span className="text-gray-500 text-center sm:text-left">
+            แสดง {paginatedComplaints.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} ถึง {Math.min(currentPage * itemsPerPage, complaints.length)} จาก {complaints.length} รายการ
+          </span>
+          <div className="flex items-center gap-1.5">
+            <button 
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-700 disabled:opacity-50 hover:bg-gray-50 cursor-pointer font-medium transition-colors"
+            >
+              ก่อนหน้า
+            </button>
+            <div className="px-3 py-1.5 font-medium text-gray-900 bg-white border border-gray-200 rounded-lg">
+              {currentPage} / {totalPages || 1}
+            </div>
+            <button 
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-700 disabled:opacity-50 hover:bg-gray-50 cursor-pointer font-medium transition-colors"
+            >
+              ถัดไป
+            </button>
+          </div>
         </div>
       </div>
 
