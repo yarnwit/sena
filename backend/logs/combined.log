@@ -9069,3 +9069,152 @@
 {"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:24:40 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:24:40.646Z"}
 {"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:24:53 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:24:53.366Z"}
 {"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:25:27 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:25:27.121Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:27:20 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:27:20.985Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:30:23 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:30:23.829Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:32:17 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:32:17.813Z"}
+{"level":"info","message":"[LOGIN DEBUG] Attempting login for username: ิbosszaza","timestamp":"2026-05-30T15:34:19.727Z"}
+{"level":"warn","message":"[LOGIN DEBUG] User not found for username: ิbosszaza","timestamp":"2026-05-30T15:34:21.786Z"}
+{"level":"warn","message":"[LOGIN DEBUG] Controller caught Invalid credentials for: ิbosszaza","timestamp":"2026-05-30T15:34:21.789Z"}
+{"level":"info","message":"::1 - - [30/May/2026:15:34:21 +0000] \"POST /api/auth/login HTTP/1.1\" 401 49 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T15:34:21.825Z"}
+{"level":"info","message":"[LOGIN DEBUG] Attempting login for username: ิbosszaza","timestamp":"2026-05-30T15:34:23.112Z"}
+{"level":"warn","message":"[LOGIN DEBUG] User not found for username: ิbosszaza","timestamp":"2026-05-30T15:34:23.199Z"}
+{"level":"warn","message":"[LOGIN DEBUG] Controller caught Invalid credentials for: ิbosszaza","timestamp":"2026-05-30T15:34:23.200Z"}
+{"level":"info","message":"::1 - - [30/May/2026:15:34:23 +0000] \"POST /api/auth/login HTTP/1.1\" 401 49 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T15:34:23.205Z"}
+{"level":"info","message":"[LOGIN DEBUG] Attempting login for username: bosszaza","timestamp":"2026-05-30T15:34:33.983Z"}
+{"level":"info","message":"[LOGIN DEBUG] User found in DB: Bosszaza, password_hash: $2b$12$kCl...","timestamp":"2026-05-30T15:34:34.204Z"}
+{"level":"info","message":"User logged in with username: bosszaza","timestamp":"2026-05-30T15:34:34.531Z"}
+{"level":"info","message":"::1 - - [30/May/2026:15:34:34 +0000] \"POST /api/auth/login HTTP/1.1\" 200 444 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T15:34:34.533Z"}
+{"level":"info","message":"::1 - - [30/May/2026:15:34:35 +0000] \"GET /api/complaints/all HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T15:34:35.280Z"}
+{"level":"info","message":"::1 - - [30/May/2026:15:34:35 +0000] \"GET /api/complaints/all HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T15:34:35.561Z"}
+{"level":"info","message":"::1 - - [30/May/2026:15:34:37 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T15:34:37.224Z"}
+{"level":"info","message":"::1 - - [30/May/2026:15:34:37 +0000] \"GET /api/users/profile HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T15:34:37.446Z"}
+{"level":"info","message":"::1 - - [30/May/2026:15:34:43 +0000] \"GET /api/complaints/all HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T15:34:43.623Z"}
+{"level":"info","message":"::1 - - [30/May/2026:15:34:43 +0000] \"GET /api/complaints/all HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T15:34:43.831Z"}
+{"level":"info","message":"::1 - - [30/May/2026:15:34:45 +0000] \"GET /api/users/profile HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T15:34:45.439Z"}
+{"level":"info","message":"::1 - - [30/May/2026:15:34:45 +0000] \"GET /api/users/profile HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T15:34:45.678Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:34:55 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:34:55.414Z"}
+{"level":"info","message":"[LOGIN DEBUG] Attempting login for username: bosszaza","timestamp":"2026-05-30T15:35:18.339Z"}
+{"level":"info","message":"[LOGIN DEBUG] User found in DB: Bosszaza, password_hash: $2b$12$kCl...","timestamp":"2026-05-30T15:35:19.033Z"}
+{"level":"info","message":"User logged in with username: bosszaza","timestamp":"2026-05-30T15:35:19.390Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:35:19 +0000] \"POST /api/auth/login HTTP/1.1\" 200 444 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:35:19.393Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:35:50 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:35:50.607Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:36:11 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:36:11.035Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:36:57 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:36:57.891Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:37:04 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:37:04.799Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:38:39 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:38:39.793Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:38:40 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:38:40.631Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:41:10 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:41:10.959Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:41:15 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:41:15.049Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:41:15 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:41:15.154Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:41:17 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:41:17.923Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:43:24 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:43:24.405Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:45:13 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:45:13.466Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:45:13 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:45:13.582Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:48:40 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:48:40.500Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:48:40 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:48:40.533Z"}
+{"level":"info","message":"[LOGIN DEBUG] Attempting login for username: bosszaza","timestamp":"2026-05-30T15:50:52.788Z"}
+{"level":"info","message":"[LOGIN DEBUG] User found in DB: Bosszaza, password_hash: $2b$12$kCl...","timestamp":"2026-05-30T15:50:53.208Z"}
+{"level":"info","message":"User logged in with username: bosszaza","timestamp":"2026-05-30T15:50:53.531Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:50:53 +0000] \"POST /api/auth/login HTTP/1.1\" 200 444 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:50:53.535Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:50:54 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:50:54.666Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:50:54 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:50:54.829Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:52:29 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:52:29.073Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:52:29 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:52:29.157Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:52:58 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:52:58.208Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:52:58 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:52:58.348Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:53:19 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:53:19.186Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:53:19 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:53:19.267Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:54:11 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:54:11.976Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:54:12 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:54:12.072Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:54:30 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:54:30.816Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:54:30 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:54:30.907Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:56:32 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:56:32.086Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:15:56:32 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T15:56:32.141Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:00:47 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:00:47.339Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:00:47 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9198 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:00:47.500Z"}
+{"level":"info","message":"Complaint status updated to in_meeting for ID: 4 by staff","timestamp":"2026-05-30T16:00:58.533Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:00:58 +0000] \"PATCH /api/complaints/staff/4/status HTTP/1.1\" 200 628 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:00:58.534Z"}
+{"level":"info","message":"Complaint status updated to in_progress for ID: 4 by staff","timestamp":"2026-05-30T16:01:02.312Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:01:02 +0000] \"PATCH /api/complaints/staff/4/status HTTP/1.1\" 200 629 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:01:02.316Z"}
+{"level":"info","message":"Complaint status updated to resolved for ID: 4 by staff","timestamp":"2026-05-30T16:01:05.035Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:01:05 +0000] \"PATCH /api/complaints/staff/4/status HTTP/1.1\" 200 626 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:01:05.036Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:01:06 +0000] \"PATCH /api/complaints/staff/4/status HTTP/1.1\" 400 141 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:01:06.183Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:01:07 +0000] \"PATCH /api/complaints/staff/4/status HTTP/1.1\" 400 141 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:01:07.136Z"}
+{"level":"info","message":"Complaint status updated to approved for ID: 20 by staff","timestamp":"2026-05-30T16:01:16.536Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:01:16 +0000] \"PATCH /api/complaints/staff/20/status HTTP/1.1\" 200 443 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:01:16.537Z"}
+{"level":"info","message":"Complaint status updated to in_meeting for ID: 20 by staff","timestamp":"2026-05-30T16:01:31.956Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:01:31 +0000] \"PATCH /api/complaints/staff/20/status HTTP/1.1\" 200 445 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:01:31.957Z"}
+{"level":"info","message":"Complaint status updated to approved for ID: 12 by staff","timestamp":"2026-05-30T16:01:43.998Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:01:44 +0000] \"PATCH /api/complaints/staff/12/status HTTP/1.1\" 200 512 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:01:44.000Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:02:59 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9202 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:02:59.616Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:03:56 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:03:56.808Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:03:56 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9202 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:03:56.860Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:09:13 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:09:13.624Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:09:14 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9202 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:09:14.108Z"}
+{"level":"info","message":"Complaint status updated to in_meeting for ID: 12 by staff","timestamp":"2026-05-30T16:09:21.817Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:09:21 +0000] \"PATCH /api/complaints/staff/12/status HTTP/1.1\" 200 514 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:09:21.826Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:09:58 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9204 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:09:58.200Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:10:16 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9204 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:10:16.382Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:10:21 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9204 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:10:21.354Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T16:13:59.116Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-30T16:13:59.129Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T16:13:59.130Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-30T16:13:59.130Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-30T16:13:59.131Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-30T16:13:59.131Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T16:13:59.131Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T16:15:04.102Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-30T16:15:04.105Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T16:15:04.105Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-30T16:15:04.106Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-30T16:15:04.106Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-30T16:15:04.106Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T16:15:04.107Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:18:48 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9204 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:18:48.984Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:19:31 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:19:31.583Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:19:31 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9204 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:19:31.611Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:21:31 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9204 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:21:31.607Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:21:36 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9204 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:21:36.765Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:22:20 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:22:20.701Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:22:20 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9204 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:22:20.759Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:24:30 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9204 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:24:30.356Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:24:30 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:24:30.401Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:25:41 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9204 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:25:41.897Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:26:57 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9204 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:26:57.808Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:32:34 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9797 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:32:34.364Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:32:34 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:32:34.430Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:32:37 +0000] \"GET /api/complaints/residents-list HTTP/1.1\" 200 1154 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:32:37.766Z"}
+{"level":"info","message":"[LOGIN DEBUG] Attempting login for username: bosszaza","timestamp":"2026-05-30T16:33:37.738Z"}
+{"level":"info","message":"[LOGIN DEBUG] User found in DB: Bosszaza, password_hash: $2b$12$kCl...","timestamp":"2026-05-30T16:33:38.078Z"}
+{"level":"info","message":"User logged in with username: bosszaza","timestamp":"2026-05-30T16:33:38.886Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:33:38 +0000] \"POST /api/auth/login HTTP/1.1\" 200 444 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:33:38.893Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:33:40 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9816 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:33:40.316Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:33:40 +0000] \"GET /api/complaints/all HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:33:40.625Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:33:42 +0000] \"GET /api/complaints/residents-list HTTP/1.1\" 200 1173 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:33:42.674Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:33:42 +0000] \"GET /api/complaints/residents-list HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:33:42.829Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:34:43 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9816 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:34:43.503Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:34:43 +0000] \"GET /api/complaints/residents-list HTTP/1.1\" 200 1173 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:34:43.797Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:35:15 +0000] \"GET /api/complaints/residents-list HTTP/1.1\" 200 1173 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:35:15.632Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:35:23 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:35:23.662Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:35:23 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9816 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:35:23.879Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:35:25 +0000] \"GET /api/complaints/residents-list HTTP/1.1\" 200 1173 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:35:25.517Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:37:01 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:37:01.890Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:37:02 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 9816 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:37:02.079Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:37:03 +0000] \"GET /api/complaints/residents-list HTTP/1.1\" 200 1173 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:37:03.924Z"}
+{"level":"info","message":"Complaint created by staff: TK260530-2686","timestamp":"2026-05-30T16:37:22.098Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:37:22 +0000] \"POST /api/complaints/staff HTTP/1.1\" 201 135 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:37:22.099Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:37:22 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 10241 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:37:22.473Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:37:25 +0000] \"GET /api/complaints/residents-list HTTP/1.1\" 200 1173 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:37:25.844Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:37:36 +0000] \"GET /api/complaints/residents-list HTTP/1.1\" 200 1173 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:37:36.796Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:38:22 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 10241 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:38:22.345Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:38:22 +0000] \"GET /api/complaints/all HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:38:22.633Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:38:22 +0000] \"GET /api/complaints/all HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:38:22.870Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:38:23 +0000] \"GET /api/complaints/all HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:38:23.208Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:38:23 +0000] \"GET /api/complaints/all HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:38:23.452Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:38:23 +0000] \"GET /api/complaints/all HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:38:23.668Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:38:27 +0000] \"GET /api/complaints/staff/22 HTTP/1.1\" 200 587 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:38:27.077Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:38:27 +0000] \"GET /api/complaints/22/comments HTTP/1.1\" 200 368 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:38:27.401Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:39:39 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 10241 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:39:39.445Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:44:04 +0000] \"GET /api/users/profile HTTP/1.1\" 200 316 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:44:04.799Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:44:05 +0000] \"GET /api/complaints/all HTTP/1.1\" 200 10241 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:44:05.071Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [30/May/2026:16:44:10 +0000] \"GET /api/complaints/residents-list HTTP/1.1\" 200 1173 \"-\" \"Dart/3.10 (dart:io)\"","timestamp":"2026-05-30T16:44:10.727Z"}

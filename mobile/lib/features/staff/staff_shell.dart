@@ -39,18 +39,26 @@ class StaffShell extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _buildNavItem(
-                      icon: Icons.dashboard_outlined,
-                      activeIcon: Icons.dashboard,
-                      label: 'ภาพรวม',
+                      icon: Icons.grid_view_outlined,
+                      activeIcon: Icons.grid_view,
+                      label: 'ภาพรวมงาน',
                       index: 0,
                       selectedIndex: selectedIndex,
                       onTap: () => context.go('/staff/dashboard'),
                     ),
                     _buildNavItem(
-                      icon: Icons.list_alt_outlined,
-                      activeIcon: Icons.list_alt,
-                      label: 'รายการคำร้อง',
+                      icon: Icons.note_add_outlined,
+                      activeIcon: Icons.note_add,
+                      label: 'สร้างเรื่องร้องเรียน',
                       index: 1,
+                      selectedIndex: selectedIndex,
+                      onTap: () => context.push('/staff-new-complaint'),
+                    ),
+                    _buildNavItem(
+                      icon: Icons.receipt_long_outlined,
+                      activeIcon: Icons.receipt_long,
+                      label: 'จัดการร้องเรียน',
+                      index: 2,
                       selectedIndex: selectedIndex,
                       onTap: () => context.go('/staff/complaints'),
                     ),
@@ -58,7 +66,7 @@ class StaffShell extends StatelessWidget {
                       icon: Icons.person_outline,
                       activeIcon: Icons.person,
                       label: 'โปรไฟล์',
-                      index: 2,
+                      index: 3,
                       selectedIndex: selectedIndex,
                       onTap: () => context.go('/staff/profile'),
                     ),
@@ -110,8 +118,9 @@ class StaffShell extends StatelessWidget {
   static int _calculateSelectedIndex(BuildContext context) {
     final String location = GoRouterState.of(context).matchedLocation;
     if (location.startsWith('/staff/dashboard')) return 0;
-    if (location.startsWith('/staff/complaints')) return 1;
-    if (location.startsWith('/staff/profile')) return 2;
+    if (location.endsWith('/new')) return 1;
+    if (location.startsWith('/staff/complaints')) return 2;
+    if (location.startsWith('/staff/profile')) return 3;
     return 0;
   }
 }

@@ -36,12 +36,14 @@ class ComplaintController extends AsyncNotifier<List<Complaint>> {
     required String title,
     required String description,
     required String category,
+    String? locationWritten,
   }) async {
     try {
       final response = await _dio.post('/complaints', data: {
         'subject': title,
         'description': description,
         'intake_channel': category,
+        'location_written': ?locationWritten,
       });
       
       if (response.statusCode == 201 || response.statusCode == 200) {
