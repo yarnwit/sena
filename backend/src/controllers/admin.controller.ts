@@ -182,6 +182,8 @@ export const getReports = async (req: Request, res: Response) => {
 
     const statusCount: Record<string, number> = {
       pending: 0,
+      approved: 0,
+      in_meeting: 0,
       in_progress: 0,
       resolved: 0,
       rejected: 0,
@@ -204,14 +206,18 @@ export const getReports = async (req: Request, res: Response) => {
     });
 
     const totalResidents = users.filter(u => u.role === 'resident').length;
-    const totalStaff = users.filter(u => u.role === 'staff' || u.role === 'admin').length;
+    const totalStaff = users.filter(u => u.role === 'staff').length;
+    const totalAdmins = users.filter(u => u.role === 'admin').length;
 
     const report = {
       total_complaints: complaints.length,
       total_users: users.length,
       total_residents: totalResidents,
       total_staff: totalStaff,
+      total_admins: totalAdmins,
       pending: statusCount.pending,
+      approved: statusCount.approved,
+      in_meeting: statusCount.in_meeting,
       in_progress: statusCount.in_progress,
       resolved: statusCount.resolved,
       rejected: statusCount.rejected,

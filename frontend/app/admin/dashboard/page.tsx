@@ -9,6 +9,9 @@ interface DashboardStats {
   totalUsers: number;
   totalResidents: number;
   totalStaff: number;
+  totalAdmins: number;
+  approvedCount: number;
+  inMeetingCount: number;
   pendingCount: number;
   inProgressCount: number;
   resolvedCount: number;
@@ -51,8 +54,8 @@ const IconTicket = () => (
     <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" />
   </svg>
 );
-const IconUsers = () => (
-  <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconUsers = ({ className }: { className?: string }) => (
+  <svg className={`w-8 h-8 ${className || "text-violet-500"}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
     <circle cx="9" cy="7" r="4" />
     <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
@@ -77,6 +80,67 @@ const IconRefresh = () => (
     <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
   </svg>
 );
+
+
+const InboxIcon = () => (
+  <svg className="w-8 h-8 text-indigo-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+    <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+  </svg>
+);
+
+const ApprovedIcon = () => (
+  <svg className="w-8 h-8 text-teal-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+    <path d="m9 15 2 2 4-4" />
+  </svg>
+);
+
+const InMeetingIcon = () => (
+  <svg className="w-8 h-8 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
+
+const ActivityIcon = () => (
+  <svg className="w-8 h-8 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+  </svg>
+);
+
+const CrossIcon = () => (
+  <svg className="w-8 h-8 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="15" y1="9" x2="9" y2="15" />
+    <line x1="9" y1="9" x2="15" y2="15" />
+  </svg>
+);
+
+const UserRoleIcon = ({ className }: { className?: string }) => (
+  <svg className={`w-8 h-8 ${className || "text-gray-500"}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+);
+
+const ClockIcon = ({ className }: { className?: string }) => (
+  <svg className={`w-8 h-8 ${className || "text-gray-400"}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </svg>
+);
+
+const CheckCircleIcon = ({ className }: { className?: string }) => (
+  <svg className={`w-8 h-8 ${className || "text-green-500"}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+    <polyline points="22 4 12 14.01 9 11.01" />
+  </svg>
+);
+
 
 /* ===== Helpers ===== */
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
@@ -225,17 +289,20 @@ export default function AdminDashboardPage() {
           totalUsers: r.total_users ?? r.totalUsers ?? 0,
           totalResidents: r.total_residents ?? r.totalResidents ?? 0,
           totalStaff: r.total_staff ?? r.totalStaff ?? 0,
+          totalAdmins: r.total_admins ?? r.totalAdmins ?? 0,
+          approvedCount: r.approved ?? r.approvedCount ?? 0,
+          inMeetingCount: r.in_meeting ?? r.inMeetingCount ?? 0,
           pendingCount: r.pending ?? r.pendingCount ?? 0,
           inProgressCount: r.in_progress ?? r.inProgressCount ?? 0,
           resolvedCount: r.resolved ?? r.resolvedCount ?? 0,
           rejectedCount: r.rejected ?? r.rejectedCount ?? 0,
-          closedCount: r.closed ?? r.closedCount ?? 0,
+          closedCount: r.closed ?? r.closedCount ?? (r.status_summary?.closed) ?? 0,
           todayCount: r.today ?? r.todayCount ?? 0,
         });
       } else {
         // Fallback: mock ถ้า backend ยังไม่พร้อม
         setStats({
-          totalComplaints: 0, totalUsers: 0, totalResidents: 0, totalStaff: 0,
+          totalComplaints: 0, totalUsers: 0, totalResidents: 0, totalStaff: 0, totalAdmins: 0, approvedCount: 0, inMeetingCount: 0,
           pendingCount: 0, inProgressCount: 0, resolvedCount: 0,
           rejectedCount: 0, closedCount: 0, todayCount: 0,
         });
@@ -313,64 +380,123 @@ export default function AdminDashboardPage() {
         </button>
       </div>
 
-      {/* ── Stat Cards ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="เรื่องร้องเรียนทั้งหมด" value={stats?.totalComplaints ?? 0}
-          sub={`วันนี้ +${stats?.todayCount ?? 0} เรื่อง`} color="indigo" icon={<IconTicket />} loading={loading} />
-        <StatCard label="รอดำเนินการ" value={stats?.pendingCount ?? 0}
-          sub="ต้องรีบดำเนินการ" color="amber" icon={<IconClock />} loading={loading} />
-        <StatCard label="แก้ไขแล้ว" value={stats?.resolvedCount ?? 0}
-          sub={`${pct(stats?.resolvedCount ?? 0)}% ของทั้งหมด`} color="emerald" icon={<IconCheck />} loading={loading} />
-        <StatCard label="ผู้ใช้งานในระบบ" value={stats?.totalUsers ?? 0}
-          sub={`นิติ ${stats?.totalStaff ?? 0} | ลูกบ้าน ${stats?.totalResidents ?? 0}`}
-          color="violet" icon={<IconUsers />} loading={loading} />
-      </div>
-
-      {/* ── Row 2: Status bars + Recent Users ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-        {/* Status Distribution */}
-        <div className="bg-white rounded-2xl border border-black/5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+      
+      {/* ── Stat Cards (Staff Style + User Stats) ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        {/* รวมทั้งหมด */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50"><InboxIcon /></div>
             <div>
-              <p className="text-[15px] font-semibold text-gray-900 m-0">สถานะเรื่องร้องเรียน</p>
-              <p className="text-xs text-gray-400 mt-0.5 m-0">สัดส่วนแต่ละสถานะ</p>
+              <p className="text-3xl font-bold text-gray-800 m-0 leading-none">{stats?.totalComplaints ?? 0}</p>
+              <p className="text-sm text-gray-500 mt-1 m-0">เรื่องทั้งหมด</p>
             </div>
-            <Link href="/admin/reports" className="text-[13px] text-violet-600 font-medium no-underline hover:underline">ดูรายงาน →</Link>
-          </div>
-          <div className="p-6">
-            {loading ? (
-              <div className="flex flex-col gap-3.5">
-                {[1,2,3,4,5].map(i => <Skeleton key={i} h="14px" />)}
-              </div>
-            ) : (
-              <div className="flex flex-col gap-3.5">
-                {statusRows.map(row => (
-                  <div key={row.key} className="flex items-center gap-3">
-                    <span className="text-[13px] text-gray-700 w-[90px] shrink-0">{row.label}</span>
-                    <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-800 ease-out ${
-                          row.key === 'pending' ? 'bg-amber-500' :
-                          row.key === 'in_progress' ? 'bg-indigo-500' :
-                          row.key === 'resolved' ? 'bg-emerald-500' :
-                          row.key === 'rejected' ? 'bg-rose-500' :
-                          'bg-gray-500'
-                        }`}
-                        style={{ width: `${pct(row.count)}%` }}
-                      />
-                    </div>
-                    <span className="text-[13px] font-semibold text-gray-700 w-8 text-right shrink-0">{row.count}</span>
-                  </div>
-                ))}
-                {total === 0 && (
-                  <div className="flex flex-col items-center justify-center p-10 py-5 text-sm text-gray-400 gap-2">ยังไม่มีข้อมูลเรื่องร้องเรียน</div>
-                )}
-              </div>
-            )}
           </div>
         </div>
 
+        {/* รอดำเนินการ */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-50"><ClockIcon className="text-gray-400" /></div>
+            <div>
+              <p className="text-3xl font-bold text-gray-800 m-0 leading-none">{stats?.pendingCount ?? 0}</p>
+              <p className="text-sm text-gray-500 mt-1 m-0">รอดำเนินการ</p>
+            </div>
+          </div>
+        </div>
+
+        {/* อนุมัติรับเรื่อง */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-teal-50"><ApprovedIcon /></div>
+            <div>
+              <p className="text-3xl font-bold text-gray-800 m-0 leading-none">{stats?.approvedCount ?? 0}</p>
+              <p className="text-sm text-gray-500 mt-1 m-0">อนุมัติรับเรื่อง</p>
+            </div>
+          </div>
+        </div>
+
+        {/* เข้าที่ประชุม */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-purple-50"><InMeetingIcon /></div>
+            <div>
+              <p className="text-3xl font-bold text-gray-800 m-0 leading-none">{stats?.inMeetingCount ?? 0}</p>
+              <p className="text-sm text-gray-500 mt-1 m-0">เข้าที่ประชุม</p>
+            </div>
+          </div>
+        </div>
+
+        {/* กำลังดำเนินการ */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-50"><ActivityIcon /></div>
+            <div>
+              <p className="text-3xl font-bold text-gray-800 m-0 leading-none">{stats?.inProgressCount ?? 0}</p>
+              <p className="text-sm text-gray-500 mt-1 m-0">กำลังดำเนินการ</p>
+            </div>
+          </div>
+        </div>
+
+        {/* แก้ไขแล้ว / ปิด */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-green-50"><CheckCircleIcon /></div>
+            <div>
+              <p className="text-3xl font-bold text-gray-800 m-0 leading-none">{(stats?.resolvedCount ?? 0) + (stats?.closedCount ?? 0)}</p>
+              <p className="text-sm text-gray-500 mt-1 m-0">แก้ไขแล้ว / ปิด</p>
+            </div>
+          </div>
+        </div>
+
+        {/* ปฏิเสธ */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-50"><CrossIcon /></div>
+            <div>
+              <p className="text-3xl font-bold text-gray-800 m-0 leading-none">{stats?.rejectedCount ?? 0}</p>
+              <p className="text-sm text-gray-500 mt-1 m-0">ปฏิเสธ</p>
+            </div>
+          </div>
+        </div>
+
+        {/* ผู้ใช้งานทั้งหมด (ลูกบ้าน) */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-50"><IconUsers className="text-emerald-500" /></div>
+            <div>
+              <p className="text-3xl font-bold text-gray-800 m-0 leading-none">{stats?.totalResidents ?? 0}</p>
+              <p className="text-sm text-gray-500 mt-1 m-0">ผู้ใช้งานลูกบ้าน</p>
+            </div>
+          </div>
+        </div>
+
+        {/* ผู้ใช้งาน (นิติ) */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50"><UserRoleIcon className="text-indigo-500" /></div>
+            <div>
+              <p className="text-3xl font-bold text-gray-800 m-0 leading-none">{stats?.totalStaff ?? 0}</p>
+              <p className="text-sm text-gray-500 mt-1 m-0">เจ้าหน้าที่นิติบุคคล</p>
+            </div>
+          </div>
+        </div>
+
+        {/* ผู้ใช้งาน (แอดมิน) */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-pink-50"><UserRoleIcon className="text-pink-500" /></div>
+            <div>
+              <p className="text-3xl font-bold text-gray-800 m-0 leading-none">{stats?.totalAdmins ?? 0}</p>
+              <p className="text-sm text-gray-500 mt-1 m-0">ผู้ดูแลระบบ (Admin)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      {/* ── Row 2: Recent Users & Audit Activity ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Recent Users */}
         <div className="bg-white rounded-2xl border border-black/5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] overflow-hidden">
           <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
@@ -406,6 +532,52 @@ export default function AdminDashboardPage() {
                   </span>
                 </div>
               ))
+            )}
+          </div>
+        </div>
+
+        {/* Audit Activity */}
+        <div className="bg-white rounded-2xl border border-black/5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+            <div>
+              <p className="text-[15px] font-semibold text-gray-900 m-0">กิจกรรมล่าสุด</p>
+              <p className="text-xs text-gray-400 mt-0.5 m-0">Audit log ล่าสุด</p>
+            </div>
+            <Link href="/admin/logs" className="text-[13px] text-violet-600 font-medium no-underline hover:underline">ดู Logs →</Link>
+          </div>
+          <div className="p-6">
+            {loading ? (
+              <div className="flex flex-col gap-3">
+                {[1,2,3,4,5].map(i => <Skeleton key={i} h="40px" />)}
+              </div>
+            ) : activities.length === 0 ? (
+              <div className="flex flex-col items-center justify-center p-10 py-5 text-sm text-gray-400 gap-2">ยังไม่มีกิจกรรม</div>
+            ) : (
+              <div className="flex flex-col gap-0">
+                {activities.map((a, idx) => (
+                  <div key={a.log_id || a.id || idx} className="flex items-start gap-3 py-3 border-b border-gray-100 last:border-0 relative">
+                    <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
+                      actionType(a.action) === 'create' ? 'bg-emerald-500' :
+                      actionType(a.action) === 'update' ? 'bg-indigo-500' :
+                      actionType(a.action) === 'delete' ? 'bg-rose-500' :
+                      actionType(a.action) === 'login' ? 'bg-amber-500' :
+                      'bg-gray-500'
+                    }`} />
+                    <div>
+                      <div className="text-[13px] text-gray-700 flex-1 leading-relaxed">
+                        <strong className="text-gray-900">{a.user_name ?? "ผู้ใช้"}</strong>{" "}
+                        {actionLabel(a.action, a.entity)}
+                        {a.details?.from && a.details?.to && (
+                          <span className="text-gray-400">
+                            {" "}({String(a.details.from)} → {String(a.details.to)})
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[11px] text-gray-400 mt-0.5">{timeAgo(a.created_at)}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>
@@ -484,104 +656,7 @@ export default function AdminDashboardPage() {
             </>
           )}
         </div>
-      </div>
-
-      {/* ── Row 4: Audit Activity ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {/* Quick Stats Summary */}
-        <div className="bg-white rounded-2xl border border-black/5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-            <div>
-              <p className="text-[15px] font-semibold text-gray-900 m-0">สรุปสถิติ</p>
-              <p className="text-xs text-gray-400 mt-0.5 m-0">ภาพรวมตัวเลขสำคัญ</p>
-            </div>
-          </div>
-          <div className="p-6">
-            {loading ? (
-              <div className="flex flex-col gap-3">
-                {[1,2,3,4].map(i => <Skeleton key={i} h="40px" />)}
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2.5">
-                {[
-                  { label: "รอดำเนินการ",    val: stats?.pendingCount ?? 0,     color: "#f59e0b" },
-                  { label: "กำลังดำเนินการ", val: stats?.inProgressCount ?? 0,  color: "#6366f1" },
-                  { label: "แก้ไขแล้ว",      val: stats?.resolvedCount ?? 0,    color: "#10b981" },
-                  { label: "ปฏิเสธ",         val: stats?.rejectedCount ?? 0,    color: "#f43f5e" },
-                  { label: "ปิดแล้ว",        val: stats?.closedCount ?? 0,      color: "#6b7280" },
-                ].map(item => (
-                  <div key={item.label} className="flex items-center gap-2.5">
-                    <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: item.color }} />
-                    <span className="text-[13px] text-gray-700 flex-1">{item.label}</span>
-                    <span className="text-[13px] font-semibold text-gray-900">{item.val}</span>
-                    <span className="text-xs text-gray-400 w-9 text-right">
-                      {pct(item.val)}%
-                    </span>
-                  </div>
-                ))}
-                <div className="mt-4 pt-3.5 border-t border-gray-100">
-                  <div className="flex justify-between text-[13px]">
-                    <span className="text-gray-700 font-semibold">รวมทั้งหมด</span>
-                    <span className="text-gray-900 font-bold">{stats?.totalComplaints ?? 0} เรื่อง</span>
-                  </div>
-                  <div className="flex justify-between text-[13px] mt-1.5">
-                    <span className="text-gray-700">เพิ่มวันนี้</span>
-                    <span className="text-indigo-600 font-semibold">+{stats?.todayCount ?? 0} เรื่อง</span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Audit Activity */}
-        <div className="bg-white rounded-2xl border border-black/5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-            <div>
-              <p className="text-[15px] font-semibold text-gray-900 m-0">กิจกรรมล่าสุด</p>
-              <p className="text-xs text-gray-400 mt-0.5 m-0">Audit log ล่าสุด</p>
-            </div>
-            <Link href="/admin/logs" className="text-[13px] text-violet-600 font-medium no-underline hover:underline">ดู Logs →</Link>
-          </div>
-          <div className="p-6">
-            {loading ? (
-              <div className="flex flex-col gap-3">
-                {[1,2,3,4,5].map(i => <Skeleton key={i} h="40px" />)}
-              </div>
-            ) : activities.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-10 py-5 text-sm text-gray-400 gap-2">ยังไม่มีกิจกรรม</div>
-            ) : (
-              <div className="flex flex-col gap-0">
-                {activities.map((a, idx) => (
-                  <div key={a.log_id || a.id || idx} className="flex items-start gap-3 py-3 border-b border-gray-100 last:border-0 relative">
-                    <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
-                      actionType(a.action) === 'create' ? 'bg-emerald-500' :
-                      actionType(a.action) === 'update' ? 'bg-indigo-500' :
-                      actionType(a.action) === 'delete' ? 'bg-rose-500' :
-                      actionType(a.action) === 'login' ? 'bg-amber-500' :
-                      'bg-gray-500'
-                    }`} />
-                    <div>
-                      <div className="text-[13px] text-gray-700 flex-1 leading-relaxed">
-                        <strong className="text-gray-900">{a.user_name ?? "ผู้ใช้"}</strong>{" "}
-                        {actionLabel(a.action, a.entity)}
-                        {a.details?.from && a.details?.to && (
-                          <span className="text-gray-400">
-                            {" "}({String(a.details.from)} → {String(a.details.to)})
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-[11px] text-gray-400 mt-0.5">{timeAgo(a.created_at)}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Bottom padding ── */}
+      </div>{/* ── Bottom padding ── */}
       <div className="h-2" />
     </div>
   );
