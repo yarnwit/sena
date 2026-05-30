@@ -2,7 +2,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import '../auth/auth_controller.dart';
 import 'controllers/complaint_controller.dart';
+import 'controllers/profile_controller.dart';
 import 'models/complaint.dart';
 
 class NewComplaintScreen extends ConsumerStatefulWidget {
@@ -17,6 +20,7 @@ class _NewComplaintScreenState extends ConsumerState<NewComplaintScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
+  String _selectedLocation = 'บ้าน';
   bool _isLoading = false;
 
   @override
@@ -52,6 +56,7 @@ class _NewComplaintScreenState extends ConsumerState<NewComplaintScreen> {
           title: _titleController.text,
           description: _descriptionController.text,
           category: 'ทั่วไป',
+          locationWritten: _selectedLocation,
         );
       }
 
@@ -77,6 +82,18 @@ class _NewComplaintScreenState extends ConsumerState<NewComplaintScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authControllerProvider);
+    final profileState = ref.watch(profileControllerProvider);
+    final profile = profileState.value;
+    
+    final role = authState.value?.role ?? 'resident';
+    final isStaff = role == 'staff' || role == 'admin';
+
+    final primaryColor = isStaff ? const Color(0xFF007AFF) : const Color(0xFF28ED0A);
+    final gradientColors = isStaff
+        ? const [Color(0xFF161D19), Color(0xFF004080), Color(0xFF007AFF)]
+        : const [Color(0xFF161D19), Color(0xFF225114), Color(0xFF38BC0B)];
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: const Color(0xFF161D19),
@@ -92,12 +109,12 @@ class _NewComplaintScreenState extends ConsumerState<NewComplaintScreen> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF161D19), Color(0xFF225114), Color(0xFF38BC0B)],
-            stops: [0.0, 0.5, 1.0],
+            colors: gradientColors,
+            stops: const [0.0, 0.5, 1.0],
           ),
         ),
         child: SafeArea(
@@ -166,17 +183,19 @@ class _NewComplaintScreenState extends ConsumerState<NewComplaintScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                _buildReadOnlyField('ชื่อจริง', 'นพดล'),
-                _buildReadOnlyField('นามสกุล', 'ศิริวัฒน์'),
-                _buildReadOnlyField('เบอร์โทรศัพท์', '039532532'),
-                _buildReadOnlyField('บ้านเลขที่', '88/1'),
-                Row(
-                  children: [
-                    Expanded(child: _buildReadOnlyField('เฟส', '1')),
-                    const SizedBox(width: 16),
-                    Expanded(child: _buildReadOnlyField('ซอย', '2')),
-                  ],
-                ),
+                _buildReadOnlyField('ชื่อจริง', profile?.firstName ?? '-'),
+                _buildReadOnlyField('นามสกุล', profile?.lastName ?? '-'),
+                _buildReadOnlyField('เบอร์โทรศัพท์', profile?.phoneNumber ?? '-'),
+                if (!isStaff) ...[
+                  _buildReadOnlyField('บ้านเลขที่', profile?.houseNo ?? '-'),
+                  Row(
+                    children: [
+                      Expanded(child: _buildReadOnlyField('เฟส', profile?.phase ?? '-')),
+                      const SizedBox(width: 16),
+                      Expanded(child: _buildReadOnlyField('ซอย', profile?.soi ?? '-')),
+                    ],
+                  ),
+                ],
 
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 24.0),
@@ -206,7 +225,7 @@ class _NewComplaintScreenState extends ConsumerState<NewComplaintScreen> {
                       TextFormField(
                         controller: _titleController,
                         style: const TextStyle(color: Colors.white),
-                        decoration: _inputDecoration('เช่น น้ำรั่ว, แอร์ไม่เย็น', Icons.title),
+                        decoration: _inputDecoration('เช่น น้ำรั่ว, แอร์ไม่เย็น', null, primaryColor),
                         validator: (value) => value == null || value.isEmpty ? 'กรุณาระบุหัวข้อ' : null,
                       ),
                       const SizedBox(height: 20),
@@ -217,7 +236,7 @@ class _NewComplaintScreenState extends ConsumerState<NewComplaintScreen> {
                         controller: _descriptionController,
                         style: const TextStyle(color: Colors.white),
                         maxLines: 4,
-                        decoration: _inputDecoration('อธิบายรายละเอียดเพิ่มเติม...', Icons.description).copyWith(
+                        decoration: _inputDecoration('อธิบายรายละเอียดเพิ่มเติม...', null, primaryColor).copyWith(
                           alignLabelWithHint: true,
                         ),
                       ),
@@ -243,8 +262,9 @@ class _NewComplaintScreenState extends ConsumerState<NewComplaintScreen> {
                             ),
                           ),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
+                              const SizedBox(width: 16),
                               Icon(Icons.attach_file, color: Colors.white.withValues(alpha: 0.6)),
                               const SizedBox(width: 8),
                               Text('แนบไฟล์เอกสาร/ รูปภาพ', style: TextStyle(color: Colors.white.withValues(alpha: 0.6))),
@@ -282,18 +302,25 @@ class _NewComplaintScreenState extends ConsumerState<NewComplaintScreen> {
                         children: [
                           Text('สถานที่รับคำร้อง', style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 14, fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
-                          TextFormField(
-                            initialValue: '',
-                            style: const TextStyle(color: Colors.white),
-                            decoration: _inputDecoration('').copyWith(
+                          DropdownButtonFormField<String>(
+                            initialValue: _selectedLocation,
+                            dropdownColor: const Color(0xFF161D19),
+                            style: const TextStyle(color: Colors.white, fontSize: 16),
+                            decoration: _inputDecoration('', null, primaryColor).copyWith(
                               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                             ),
+                            items: ['นิติบุคคล', 'บ้าน', 'พื้นที่ส่วนกลาง', 'อื่นๆ']
+                                .map((loc) => DropdownMenuItem(value: loc, child: Text(loc)))
+                                .toList(),
+                            onChanged: (val) {
+                              if (val != null) setState(() => _selectedLocation = val);
+                            },
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(width: 16),
-                    Expanded(child: _buildReadOnlyField('วันที่', '30/05/2026')),
+                    Expanded(child: _buildReadOnlyField('วันที่', DateFormat('dd/MM/yyyy').format(DateTime.now()))),
                   ],
                 ),
                 _buildReadOnlyField('ช่องทางการรับเรื่อง', 'แอปพลิเคชัน (Mobile)'),
@@ -351,11 +378,11 @@ class _NewComplaintScreenState extends ConsumerState<NewComplaintScreen> {
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _submit,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF28ED0A),
+                            backgroundColor: primaryColor,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             elevation: 10,
-                            shadowColor: const Color(0xFF28ED0A).withValues(alpha: 0.5),
+                            shadowColor: primaryColor.withValues(alpha: 0.5),
                           ),
                           child: _isLoading
                               ? const CircularProgressIndicator(color: Colors.white)
@@ -413,7 +440,7 @@ class _NewComplaintScreenState extends ConsumerState<NewComplaintScreen> {
     );
   }
 
-  InputDecoration _inputDecoration(String hint, [IconData? icon]) {
+  InputDecoration _inputDecoration(String hint, IconData? icon, Color primaryColor) {
     return InputDecoration(
       hintText: hint,
       hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4)),
@@ -430,7 +457,7 @@ class _NewComplaintScreenState extends ConsumerState<NewComplaintScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Color(0xFF28ED0A)),
+        borderSide: BorderSide(color: primaryColor),
       ),
       errorStyle: const TextStyle(color: Colors.redAccent),
     );

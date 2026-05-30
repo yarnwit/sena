@@ -6,14 +6,23 @@ import 'controllers/staff_complaint_controller.dart';
 import '../resident/models/complaint.dart';
 
 class ComplaintsScreen extends ConsumerStatefulWidget {
-  const ComplaintsScreen({super.key});
+  final String? filterStatus;
+  final String? customTitle;
+
+  const ComplaintsScreen({super.key, this.filterStatus, this.customTitle});
 
   @override
   ConsumerState<ComplaintsScreen> createState() => _ComplaintsScreenState();
 }
 
 class _ComplaintsScreenState extends ConsumerState<ComplaintsScreen> {
-  String _selectedStatus = 'All';
+  late String _selectedStatus;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedStatus = widget.filterStatus ?? 'all';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +32,16 @@ class _ComplaintsScreenState extends ConsumerState<ComplaintsScreen> {
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: const Text('รายการคำร้องทั้งหมด', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text(
+          widget.customTitle ?? 'รายการคำร้องทั้งหมด',
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () => context.pop(),
+        ),
       ),
       body: Container(
         width: double.infinity,
@@ -37,7 +52,7 @@ class _ComplaintsScreenState extends ConsumerState<ComplaintsScreen> {
             end: Alignment.bottomCenter,
             colors: [
               const Color(0xFF161D19).withValues(alpha: 0.9),
-              const Color(0xFF007AFF), 
+              const Color(0xFF007AFF),
             ],
             stops: const [0.0, 1.0],
           ),
@@ -45,62 +60,85 @@ class _ComplaintsScreenState extends ConsumerState<ComplaintsScreen> {
         child: SafeArea(
           bottom: false,
           child: Column(
-        children: [
-          // Filter Chips
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                _buildFilterChip('All', 'ทั้งหมด'),
-                const SizedBox(width: 8),
-                _buildFilterChip('Pending', 'รอดำเนินการ'),
-                const SizedBox(width: 8),
-                _buildFilterChip('In Progress', 'กำลังแก้ไข'),
-                const SizedBox(width: 8),
-                _buildFilterChip('Resolved', 'แก้ไขแล้ว'),
-                const SizedBox(width: 8),
-                _buildFilterChip('Closed', 'ปิดงาน'),
-              ],
-            ),
-          ),
-          
-          Expanded(
-            child: complaintState.when(
-              data: (complaints) {
-                final filtered = _selectedStatus == 'All' 
-                    ? complaints 
-                    : complaints.where((c) => c.status == _selectedStatus).toList();
-
-                if (filtered.isEmpty) {
-                  return Center(
-                    child: Text('ไม่มีข้อมูล', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 16)),
-                  );
-                }
-
-                return RefreshIndicator(
-                  onRefresh: () => ref.read(staffComplaintControllerProvider.notifier).refresh(),
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: filtered.length,
-                    itemBuilder: (context, index) {
-                      final complaint = filtered[index];
-                      return _buildComplaintCard(complaint);
-                    },
+            children: [
+              // Filter Chips (Hide if filterStatus is provided)
+              if (widget.filterStatus == null)
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
                   ),
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator(color: Color(0xFF28ED0A))),
-              error: (error, _) => Center(
-                child: Text('เกิดข้อผิดพลาด: $error', style: const TextStyle(color: Colors.redAccent)),
+                  child: Row(
+                    children: [
+                      _buildFilterChip('all', 'ทั้งหมด'),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('pending', 'รอดำเนินการ'),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('approved', 'รอเข้าที่ประชุม'),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('in_meeting', 'เข้าที่ประชุม'),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('in_progress', 'กำลังดำเนินการ'),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('resolved', 'แก้ไขแล้ว'),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('closed', 'ปิดงาน'),
+                    ],
+                  ),
+                ),
+
+              Expanded(
+                child: complaintState.when(
+                  data: (complaints) {
+                    final filtered = _selectedStatus == 'all'
+                        ? complaints
+                        : complaints
+                              .where((c) => c.status == _selectedStatus)
+                              .toList();
+
+                    if (filtered.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'ไม่มีข้อมูล',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.5),
+                            fontSize: 16,
+                          ),
+                        ),
+                      );
+                    }
+
+                    return RefreshIndicator(
+                      onRefresh: () => ref
+                          .read(staffComplaintControllerProvider.notifier)
+                          .refresh(),
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: filtered.length,
+                        itemBuilder: (context, index) {
+                          final complaint = filtered[index];
+                          return _buildComplaintCard(complaint);
+                        },
+                      ),
+                    );
+                  },
+                  loading: () => const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF28ED0A)),
+                  ),
+                  error: (error, _) => Center(
+                    child: Text(
+                      'เกิดข้อผิดพลาด: $error',
+                      style: const TextStyle(color: Colors.redAccent),
+                    ),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
-    ),
-  ),
-);
+    );
   }
 
   Widget _buildFilterChip(String value, String label) {
@@ -125,17 +163,32 @@ class _ComplaintsScreenState extends ConsumerState<ComplaintsScreen> {
 
   Widget _buildComplaintCard(Complaint complaint) {
     final statusColors = {
-      'Pending': Colors.orange,
-      'In Progress': Colors.purple,
-      'Resolved': const Color(0xFF28ED0A),
-      'Closed': Colors.grey,
-      'Rejected': Colors.red,
+      'pending': Colors.orange,
+      'approved': Colors.teal,
+      'in_meeting': Colors.purple,
+      'in_progress': Colors.blue,
+      'resolved': const Color(0xFF28ED0A),
+      'rejected': Colors.red,
+      'closed': Colors.grey,
+    };
+    final statusLabels = {
+      'pending': 'รอดำเนินการ',
+      'approved': 'อนุมัติรับเรื่อง',
+      'in_meeting': 'เข้าที่ประชุม',
+      'in_progress': 'กำลังดำเนินการ',
+      'resolved': 'แก้ไขแล้ว',
+      'rejected': 'ไม่อนุมัติ',
+      'closed': 'ปิดเรื่อง',
     };
     final color = statusColors[complaint.status] ?? Colors.white;
+    final label = statusLabels[complaint.status] ?? complaint.status;
 
     return GestureDetector(
       onTap: () {
-        context.push('/staff/complaints/detail', extra: complaint);
+        context.push('/staff/complaints/detail', extra: {
+          'complaint': complaint,
+          'filterStatus': widget.filterStatus,
+        });
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
@@ -145,58 +198,91 @@ class _ComplaintsScreenState extends ConsumerState<ComplaintsScreen> {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
         ),
-        child: Column(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    complaint.ticketNo ?? '#${complaint.id}',
+                    style: const TextStyle(
+                      color: Color(0xFF007AFF),
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
                     complaint.title,
-                    style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: color.withValues(alpha: 0.5)),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(Icons.home, size: 14, color: Colors.orangeAccent),
+                      const SizedBox(width: 4),
+                      Text(
+                        complaint.houseNo ?? '-',
+                        style: const TextStyle(
+                          color: Colors.orangeAccent,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          (complaint.firstName != null && complaint.lastName != null)
+                              ? '${complaint.firstName} ${complaint.lastName}'
+                              : (complaint.firstName ?? ''),
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.5),
+                            fontSize: 12,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
-                  child: Text(
-                    complaint.status,
-                    style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.bold),
+                  const SizedBox(height: 4),
+                  Text(
+                    DateFormat('dd MMM yyyy, HH:mm').format(complaint.createdAt),
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.5),
+                      fontSize: 12,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              complaint.description,
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 14),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Icon(Icons.calendar_today, size: 14, color: Colors.white.withValues(alpha: 0.5)),
-                const SizedBox(width: 4),
-                Text(
-                  DateFormat('dd MMM yyyy, HH:mm').format(complaint.createdAt),
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
+            const SizedBox(width: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 4,
+              ),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: color.withValues(alpha: 0.5)),
+              ),
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
                 ),
-                const Spacer(),
-                Icon(Icons.person, size: 14, color: Colors.white.withValues(alpha: 0.5)),
-                const SizedBox(width: 4),
-                Text(
-                  'ลูกบ้าน', // Could show resident name if available
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
-                ),
-              ],
+              ),
             ),
           ],
         ),

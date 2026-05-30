@@ -133,7 +133,7 @@ test('test', async ({ page }) => {
     dialog.dismiss().catch(() => {});
   });
   await page.getByRole('button', { name: 'นำเรื่องเข้าที่ประชุม' }).click();
-  await page.getByRole('cell', { name: 'อนุมัติรับเรื่อง' }).click();
+  await page.getByRole('cell', { name: 'อนุมัติรับเรื่อง' }).first().click();
   page.once('dialog', dialog => {
     console.log(`Dialog message: ${dialog.message()}`);
     dialog.dismiss().catch(() => {});
@@ -145,7 +145,7 @@ test('test', async ({ page }) => {
   });
   await page.getByRole('button', { name: 'นำเรื่องเข้าที่ประชุม' }).click();
   await page.getByRole('main').getByRole('button').filter({ hasText: /^$/ }).click();
-  await page.getByText('อนุมัติรับเรื่อง').click();
+  await page.getByText('อนุมัติรับเรื่อง').first().click();
   page.once('dialog', dialog => {
     console.log(`Dialog message: ${dialog.message()}`);
     dialog.dismiss().catch(() => {});
@@ -159,7 +159,7 @@ test('test', async ({ page }) => {
   await page.getByRole('button', { name: 'พิมพ์วาระการประชุม' }).click();
   await page.getByRole('cell', { name: '/134' }).first().click();
   await page.getByRole('main').getByRole('button').filter({ hasText: /^$/ }).click();
-  await page.getByRole('cell', { name: 'ผมจะสร้างเซ็นทรันสาขาดาวอังคาร' }).click();
+  await page.getByRole('cell', { name: 'ผมจะสร้างเซ็นทรันสาขาดาวอังคาร' }).first().click();
   page.once('dialog', dialog => {
     console.log(`Dialog message: ${dialog.message()}`);
     dialog.dismiss().catch(() => {});
@@ -170,7 +170,7 @@ test('test', async ({ page }) => {
     dialog.dismiss().catch(() => {});
   });
   await page.getByRole('button', { name: 'มติ: อนุมัติให้ดำเนินการ' }).click();
-  await page.getByRole('cell', { name: '/134' }).click();
+  await page.getByRole('cell', { name: '/134' }).first().click();
   page.once('dialog', dialog => {
     console.log(`Dialog message: ${dialog.message()}`);
     dialog.dismiss().catch(() => {});

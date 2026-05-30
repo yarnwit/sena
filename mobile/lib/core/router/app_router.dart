@@ -13,6 +13,8 @@ import '../../features/resident/complaint_detail_screen.dart';
 import '../../features/resident/models/complaint.dart';
 import '../../features/resident/models/user_profile.dart';
 import '../../features/resident/edit_profile_screen.dart';
+import '../../features/settings/settings_screen.dart';
+import '../../features/notifications/notifications_screen.dart';
 
 // Staff imports with prefixes to avoid name conflicts
 import '../../features/staff/staff_shell.dart' as staff;
@@ -20,6 +22,9 @@ import '../../features/staff/home_screen.dart' as staff_home;
 import '../../features/staff/complaints_screen.dart' as staff_complaints;
 import '../../features/staff/complaint_detail_screen.dart' as staff_detail;
 import '../../features/staff/profile_screen.dart' as staff_profile;
+import '../../features/staff/staff_new_complaint_screen.dart';
+import '../../features/staff/edit_profile_screen.dart' as staff_edit_profile;
+import '../../features/staff/manage_complaints_screen.dart' as staff_manage_complaints;
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
@@ -80,6 +85,44 @@ final routerProvider = Provider<GoRouter>((ref) {
           return EditProfileScreen(profile: profile);
         },
       ),
+      GoRoute(
+        path: '/staff/profile/edit',
+        builder: (context, state) {
+          final profile = state.extra as UserProfile;
+          return staff_edit_profile.EditProfileScreen(profile: profile);
+        },
+      ),
+      GoRoute(
+        path: '/staff/complaints/all',
+        builder: (context, state) {
+          final args = state.extra as Map<String, String>?;
+          return staff_complaints.ComplaintsScreen(
+            filterStatus: args?['filterStatus'],
+            customTitle: args?['customTitle'],
+          );
+        },
+      ),
+      GoRoute(
+        path: '/staff/complaints/detail',
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>?;
+          final complaint = args?['complaint'] as Complaint;
+          final filterStatus = args?['filterStatus'] as String?;
+          return staff_detail.ComplaintDetailScreen(complaint: complaint, filterStatus: filterStatus);
+        },
+      ),
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: '/staff-new-complaint',
+        builder: (context, state) => const StaffNewComplaintScreen(),
+      ),
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
         builder: (context, state, child) {
@@ -112,14 +155,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/staff/complaints',
-            builder: (context, state) => const staff_complaints.ComplaintsScreen(),
-          ),
-          GoRoute(
-            path: '/staff/complaints/detail',
-            builder: (context, state) {
-              final complaint = state.extra as Complaint;
-              return staff_detail.ComplaintDetailScreen(complaint: complaint);
-            },
+            builder: (context, state) => const staff_manage_complaints.ManageComplaintsScreen(),
           ),
           GoRoute(
             path: '/staff/profile',

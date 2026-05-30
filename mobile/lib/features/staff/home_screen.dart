@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'controllers/staff_complaint_controller.dart';
+import '../resident/controllers/profile_controller.dart';
 import '../resident/models/complaint.dart';
+import '../notifications/notification_controller.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -17,6 +19,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final complaintState = ref.watch(staffComplaintControllerProvider);
     final complaintNotifier = ref.read(staffComplaintControllerProvider.notifier);
+    final profileState = ref.watch(profileControllerProvider);
+    final profile = profileState.value;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -59,9 +63,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                       Row(
                         children: [
-                          _buildHeaderIcon(Icons.notifications_none),
+                          _buildNotificationIcon(context, ref),
                           const SizedBox(width: 12),
-                          _buildHeaderIcon(Icons.settings_outlined),
+                          _buildHeaderIcon(Icons.settings_outlined, onTap: () => context.push('/settings')),
                         ],
                       ),
                     ],
@@ -80,9 +84,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'นิติบุคคล',
-                            style: TextStyle(
+                          Text(
+                            profile != null 
+                              ? '${profile.firstName} ${profile.lastName}'.trim()
+                              : 'นิติบุคคล',
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -90,7 +96,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'ผู้ดูแลระบบ',
+                            'เจ้าหน้าที่นิติบุคคล',
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.7),
                               fontSize: 14,
@@ -220,7 +226,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 ),
                               ),
                               TextButton(
-                                onPressed: () => context.go('/staff/complaints'),
+                                onPressed: () => context.push('/staff/complaints/all'),
                                 child: Text(
                                   'ดูทั้งหมด >',
                                   style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
@@ -272,16 +278,55 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildHeaderIcon(IconData icon) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withValues(alpha: 0.1),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+  Widget _buildHeaderIcon(IconData icon, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white.withValues(alpha: 0.1),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+        ),
+        child: Icon(icon, color: Colors.white.withValues(alpha: 0.8), size: 20),
       ),
-      child: Icon(icon, color: Colors.white.withValues(alpha: 0.8), size: 20),
+    );
+  }
+
+  Widget _buildNotificationIcon(BuildContext context, WidgetRef ref) {
+    final notifications = ref.watch(notificationControllerProvider);
+    final hasUnread = notifications.any((n) => !n.isRead);
+
+    return GestureDetector(
+      onTap: () => context.push('/notifications'),
+      child: Stack(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withValues(alpha: 0.1),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+            ),
+            child: const Icon(Icons.notifications_none, color: Colors.white, size: 20),
+          ),
+          if (hasUnread)
+            Positioned(
+              right: 8,
+              top: 8,
+              child: Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: Colors.redAccent,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -388,7 +433,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     String mockId = 'TK260528-${(complaint.id.hashCode % 10000).toString().padLeft(4, '0')}';
 
     return GestureDetector(
-      onTap: () => context.push('/staff/complaints/detail', extra: complaint),
+      onTap: () => context.push('/staff/complaints/detail', extra: {
+        'complaint': complaint,
+        'filterStatus': null,
+      }),
       behavior: HitTestBehavior.opaque,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),

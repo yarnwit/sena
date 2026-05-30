@@ -7,8 +7,9 @@ import 'controllers/staff_complaint_controller.dart';
 
 class ComplaintDetailScreen extends ConsumerStatefulWidget {
   final Complaint complaint;
+  final String? filterStatus;
 
-  const ComplaintDetailScreen({super.key, required this.complaint});
+  const ComplaintDetailScreen({super.key, required this.complaint, this.filterStatus});
 
   @override
   ConsumerState<ComplaintDetailScreen> createState() => _ComplaintDetailScreenState();
@@ -17,8 +18,6 @@ class ComplaintDetailScreen extends ConsumerStatefulWidget {
 class _ComplaintDetailScreenState extends ConsumerState<ComplaintDetailScreen> {
   late String _currentStatus;
   bool _isUpdating = false;
-
-  final List<String> _statuses = ['Pending', 'In Progress', 'Resolved', 'Closed', 'Rejected'];
 
   @override
   void initState() {
@@ -82,8 +81,9 @@ class _ComplaintDetailScreenState extends ConsumerState<ComplaintDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-            // Status Update Section
+            // Status Display and Action Section
             Container(
+              width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.05),
@@ -93,46 +93,11 @@ class _ComplaintDetailScreenState extends ConsumerState<ComplaintDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('สถานะปัจจุบัน', style: TextStyle(color: Colors.white70, fontSize: 14)),
-                  const SizedBox(height: 12),
-                  InputDecorator(
-                    decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF007AFF)),
-                      ),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: _currentStatus,
-                        dropdownColor: const Color(0xFF1a2620),
-                        style: const TextStyle(color: Colors.white, fontSize: 16),
-                        isExpanded: true,
-                        items: _statuses.map((status) {
-                          return DropdownMenuItem(
-                            value: status,
-                            child: Text(status),
-                          );
-                        }).toList(),
-                        onChanged: _isUpdating ? null : (val) {
-                          if (val != null && val != _currentStatus) {
-                            _updateStatus(val);
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                  if (_isUpdating)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 16),
-                      child: Center(child: CircularProgressIndicator(color: Color(0xFF007AFF))),
-                    ),
+                  const Text('จัดการสถานะ', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                  const SizedBox(height: 16),
+                  _buildStatusBadge(),
+                  const SizedBox(height: 24),
+                  _buildActionButtons(),
                 ],
               ),
             ),
@@ -165,6 +130,105 @@ class _ComplaintDetailScreenState extends ConsumerState<ComplaintDetailScreen> {
           const SizedBox(height: 4),
           Text(value, style: const TextStyle(color: Colors.white, fontSize: 16)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge() {
+    final statusLabels = {
+      'pending': 'รอดำเนินการ',
+      'approved': 'อนุมัติรับเรื่อง / รอเข้าที่ประชุม',
+      'in_meeting': 'เข้าที่ประชุม',
+      'in_progress': 'กำลังดำเนินการ',
+      'resolved': 'แก้ไขแล้ว',
+      'rejected': 'ไม่อนุมัติ',
+      'closed': 'ปิดเรื่อง',
+    };
+    final statusColors = {
+      'pending': Colors.orange,
+      'approved': Colors.teal,
+      'in_meeting': Colors.purple,
+      'in_progress': Colors.blue,
+      'resolved': const Color(0xFF28ED0A),
+      'rejected': Colors.red,
+      'closed': Colors.grey,
+    };
+    
+    final label = statusLabels[_currentStatus] ?? _currentStatus;
+    final color = statusColors[_currentStatus] ?? Colors.white;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    if (_isUpdating) {
+      return const Center(child: CircularProgressIndicator(color: Color(0xFF007AFF)));
+    }
+
+    if (widget.filterStatus != null && widget.filterStatus != 'all' && _currentStatus != widget.filterStatus) {
+      return const Center(
+        child: Text(
+          'อัปเดตสถานะเรียบร้อยแล้ว',
+          style: TextStyle(color: Color(0xFF28ED0A), fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+      );
+    }
+
+    switch (_currentStatus) {
+      case 'pending':
+        return Column(
+          children: [
+            _buildActionButton('อนุมัติรับเรื่อง', 'approved', Colors.teal),
+            const SizedBox(height: 8),
+            _buildActionButton('ไม่อนุมัติ', 'rejected', Colors.red),
+          ],
+        );
+      case 'approved':
+        return _buildActionButton('นำเรื่องเข้าที่ประชุม', 'in_meeting', Colors.purple);
+      case 'in_meeting':
+        return Column(
+          children: [
+            _buildActionButton('มติ: อนุมัติให้ดำเนินการ', 'in_progress', Colors.blue),
+            const SizedBox(height: 8),
+            _buildActionButton('มติ: ไม่อนุมัติ', 'rejected', Colors.red),
+          ],
+        );
+      case 'in_progress':
+        return _buildActionButton('บันทึกการแก้ไขเสร็จสิ้น', 'resolved', const Color(0xFF28ED0A));
+      case 'resolved':
+        return _buildActionButton('ปิดเรื่อง', 'closed', Colors.grey);
+      default:
+        return const SizedBox();
+    }
+  }
+
+  Widget _buildActionButton(String label, String status, Color color) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () => _updateStatus(status),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        child: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
       ),
     );
   }

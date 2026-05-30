@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'controllers/complaint_controller.dart';
 import 'models/complaint.dart';
+import '../notifications/notification_controller.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -55,9 +56,9 @@ class HomeScreen extends ConsumerWidget {
                       ),
                       Row(
                         children: [
-                          _buildHeaderIcon(Icons.notifications_none),
+                          _buildNotificationIcon(context, ref),
                           const SizedBox(width: 12),
-                          _buildHeaderIcon(Icons.settings_outlined),
+                          _buildHeaderIcon(Icons.settings_outlined, onTap: () => context.push('/settings')),
                         ],
                       ),
                     ],
@@ -198,16 +199,55 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeaderIcon(IconData icon) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withValues(alpha: 0.1),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+  Widget _buildHeaderIcon(IconData icon, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white.withValues(alpha: 0.1),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+        ),
+        child: Icon(icon, color: Colors.white.withValues(alpha: 0.8), size: 20),
       ),
-      child: Icon(icon, color: Colors.white.withValues(alpha: 0.8), size: 20),
+    );
+  }
+
+  Widget _buildNotificationIcon(BuildContext context, WidgetRef ref) {
+    final notifications = ref.watch(notificationControllerProvider);
+    final hasUnread = notifications.any((n) => !n.isRead);
+
+    return GestureDetector(
+      onTap: () => context.push('/notifications'),
+      child: Stack(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withValues(alpha: 0.1),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+            ),
+            child: const Icon(Icons.notifications_none, color: Colors.white, size: 20),
+          ),
+          if (hasUnread)
+            Positioned(
+              right: 8,
+              top: 8,
+              child: Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: Colors.redAccent,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
