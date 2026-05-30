@@ -3,18 +3,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../core/network/api_client.dart';
 
-class AuthController extends AsyncNotifier<bool> {
+class AuthState {
+  final bool isAuthenticated;
+  final String? role;
+
+  const AuthState({required this.isAuthenticated, this.role});
+}
+
+class AuthController extends AsyncNotifier<AuthState> {
   late Dio _dio;
   late FlutterSecureStorage _storage;
 
   @override
-  Future<bool> build() async {
+  Future<AuthState> build() async {
     _dio = ref.watch(dioProvider);
     _storage = ref.watch(secureStorageProvider);
     
     // Check if user is already logged in on startup
     final token = await _storage.read(key: 'accessToken');
-    return token != null;
+    final role = await _storage.read(key: 'userRole');
+    return AuthState(isAuthenticated: token != null, role: role);
   }
 
   Future<void> login(String username, String password) async {
@@ -28,9 +36,15 @@ class AuthController extends AsyncNotifier<bool> {
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         final token = response.data['data']['accessToken'];
+        final user = response.data['data']['user'];
+        final role = user != null ? user['role'] as String? : null;
+
         if (token != null) {
           await _storage.write(key: 'accessToken', value: token);
-          state = const AsyncValue.data(true);
+          if (role != null) {
+            await _storage.write(key: 'userRole', value: role);
+          }
+          state = AsyncValue.data(AuthState(isAuthenticated: true, role: role));
         } else {
           state = AsyncValue.error('Login failed. Token is missing.', StackTrace.current);
         }
@@ -50,10 +64,12 @@ class AuthController extends AsyncNotifier<bool> {
 
   Future<void> logout() async {
     await _storage.delete(key: 'accessToken');
-    state = const AsyncValue.data(false);
+    await _storage.delete(key: 'userRole');
+    state = const AsyncValue.data(AuthState(isAuthenticated: false));
   }
 }
 
-final authControllerProvider = AsyncNotifierProvider<AuthController, bool>(() {
+final authControllerProvider = AsyncNotifierProvider<AuthController, AuthState>(() {
   return AuthController();
 });
+

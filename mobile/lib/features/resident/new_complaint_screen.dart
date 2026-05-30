@@ -283,7 +283,7 @@ class _NewComplaintScreenState extends ConsumerState<NewComplaintScreen> {
                           Text('สถานที่รับคำร้อง', style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 14, fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
                           TextFormField(
-                            initialValue: 'สำนักงาน',
+                            initialValue: '',
                             style: const TextStyle(color: Colors.white),
                             decoration: _inputDecoration('').copyWith(
                               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
