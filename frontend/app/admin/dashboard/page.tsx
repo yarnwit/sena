@@ -146,11 +146,11 @@ const CheckCircleIcon = ({ className }: { className?: string }) => (
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
 
 function getToken() {
-  try { return localStorage.getItem("accessToken") ?? ""; } catch { return ""; }
+  return "http-only-cookie";
 }
 
 function authHeaders() {
-  return { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" };
+  return { "Content-Type": "application/json" };
 }
 
 function timeAgo(dateStr: string) {
@@ -274,10 +274,10 @@ export default function AdminDashboardPage() {
 
       // Reports endpoint (สถิติรวม)
       const [reportRes, usersRes, logsRes, complaintsRes] = await Promise.allSettled([
-        fetch(`${API}/admin/reports`, { headers }),
-        fetch(`${API}/admin/users`, { headers }),
-        fetch(`${API}/admin/logs?limit=10`, { headers }),
-        fetch(`${API}/complaints/all?limit=8&sort=desc`, { headers }),
+        fetch(`${API}/admin/reports`, { credentials: "include", headers }),
+        fetch(`${API}/admin/users`, { credentials: "include", headers }),
+        fetch(`${API}/admin/logs?limit=10`, { credentials: "include", headers }),
+        fetch(`${API}/complaints/all?limit=8&sort=desc`, { credentials: "include", headers }),
       ]);
 
       // ── Reports ──

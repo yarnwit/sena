@@ -57,7 +57,7 @@ function AdminComplaintsContent() {
   useEffect(() => {
     const fetchComplaints = async () => {
       try {
-        const token = localStorage.getItem("accessToken");
+        const token = "http-only-cookie";
         if (!token) {
           setLoading(false);
           return;

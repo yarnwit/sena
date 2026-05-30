@@ -135,7 +135,7 @@ export default function AdminComplaintDetail() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("accessToken");
+        const token = "http-only-cookie";
         if (!token) { setLoading(false); return; }
 
         const userStr = localStorage.getItem("user");
@@ -182,7 +182,7 @@ export default function AdminComplaintDetail() {
 
     setUpdatingStatus(true);
     try {
-      const token = localStorage.getItem("accessToken");
+      const token = "http-only-cookie";
       if (!token) { alert("กรุณาเข้าสู่ระบบใหม่"); setUpdatingStatus(false); return; }
 
       let hasError = false;
@@ -248,9 +248,9 @@ export default function AdminComplaintDetail() {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      const token = localStorage.getItem("accessToken");
+      const token = "http-only-cookie";
       const res = await api.delete(`/complaints/${complaintId}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { }
       });
       if (res.data.success) {
         alert("ลบเรื่องร้องเรียนสำเร็จ");

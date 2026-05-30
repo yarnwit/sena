@@ -77,14 +77,14 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("accessToken");
+        const token = "http-only-cookie";
         if (!token) {
           setLoading(false);
           return;
         }
 
-        const res = await fetch(`${API_URL}/complaints/my`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const res = await fetch(`${API_URL}/complaints/my`, { credentials: "include",
+          headers: { },
         });
 
         const json = await res.json();
@@ -100,8 +100,8 @@ export default function DashboardPage() {
         }
 
         // Fetch user-info to get house_no
-        const userRes = await fetch(`${API_URL}/complaints/user-info`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const userRes = await fetch(`${API_URL}/complaints/user-info`, { credentials: "include",
+          headers: { },
         });
         const userJson = await userRes.json();
         if (userJson.success && userJson.data) {

@@ -173,7 +173,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
   const handleLogout = () => {
     // ลบข้อมูลจาก localStorage
-    localStorage.removeItem("accessToken");
+    
     localStorage.removeItem("user");
     // ลบ cookie
     document.cookie = "accessToken=; path=/; max-age=0";

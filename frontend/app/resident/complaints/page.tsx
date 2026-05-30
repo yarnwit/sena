@@ -48,14 +48,14 @@ export default function ComplaintsPage() {
   useEffect(() => {
     const fetchComplaints = async () => {
       try {
-        const token = localStorage.getItem("accessToken");
+        const token = "http-only-cookie";
         if (!token) {
           setLoading(false);
           return;
         }
 
-        const res = await fetch(`${API_URL}/complaints/my`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const res = await fetch(`${API_URL}/complaints/my`, { credentials: "include",
+          headers: { },
         });
 
         const json = await res.json();
@@ -63,8 +63,8 @@ export default function ComplaintsPage() {
           setComplaints(json.data);
         }
 
-        const userRes = await fetch(`${API_URL}/complaints/user-info`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const userRes = await fetch(`${API_URL}/complaints/user-info`, { credentials: "include",
+          headers: { },
         });
         const userJson = await userRes.json();
         if (userJson.success && userJson.data) {

@@ -137,7 +137,7 @@ export default function StaffDashboardPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("accessToken");
+        const token = "http-only-cookie";
         if (!token) {
           setLoading(false);
           return;

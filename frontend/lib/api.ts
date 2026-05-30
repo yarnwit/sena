@@ -12,20 +12,6 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Request interceptor — attach access token
-api.interceptors.request.use(
-  (config) => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('accessToken');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
 // Response interceptor — auto refresh on 401
 api.interceptors.response.use(
   (response) => response,
@@ -42,15 +28,13 @@ api.interceptors.response.use(
           { withCredentials: true }
         );
 
-        if (data.success && data.data?.accessToken) {
-          localStorage.setItem('accessToken', data.data.accessToken);
-          originalRequest.headers.Authorization = `Bearer ${data.data.accessToken}`;
+        if (data.success) {
+          // Token is now set securely via HttpOnly cookie by backend
           return api(originalRequest);
         }
       } catch (refreshError) {
-        // Refresh failed — clear tokens and redirect to login
+        // Refresh failed — clear local state and redirect to login
         if (typeof window !== 'undefined') {
-          localStorage.removeItem('accessToken');
           localStorage.removeItem('user');
           window.location.href = '/login';
         }

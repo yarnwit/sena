@@ -45,14 +45,14 @@ function StaffMeetingsContent() {
 
   const fetchComplaints = async () => {
     try {
-      const token = localStorage.getItem("accessToken");
+      const token = "http-only-cookie";
       if (!token) {
         setLoading(false);
         return;
       }
 
-      const res = await fetch(`${API_URL}/complaints/all`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await fetch(`${API_URL}/complaints/all`, { credentials: "include",
+        headers: { },
       });
 
       const json = await res.json();

@@ -52,11 +52,11 @@ const IconChevronRight = () => (
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
 
 function getToken() {
-  try { return localStorage.getItem("accessToken") ?? ""; } catch { return ""; }
+  return "http-only-cookie";
 }
 
 function authHeaders() {
-  return { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" };
+  return { "Content-Type": "application/json" };
 }
 
 function getActionStyle(action: string) {
@@ -106,24 +106,24 @@ export default function AdminLogsPage() {
   /* ── Fetch Logs ── */
   const fetchLogs = useCallback(async () => {
     try {
-      let res = await fetch(`${API}/admin/logs`, { headers: authHeaders() });
+      let res = await fetch(`${API}/admin/logs`, { credentials: "include", headers: authHeaders() });
 
       // If token expired, try to refresh and retry
       if (res.status === 401) {
         const refreshToken = localStorage.getItem("refreshToken");
         if (refreshToken) {
-          const refreshRes = await fetch(`${API}/auth/refresh`, {
+          const refreshRes = await fetch(`${API}/auth/refresh`, { credentials: "include",
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ refreshToken }),
           });
           const refreshData = await refreshRes.json();
           if (refreshRes.ok && refreshData.data?.accessToken) {
-            localStorage.setItem("accessToken", refreshData.data.accessToken);
+            
             if (refreshData.data.refreshToken) {
               localStorage.setItem("refreshToken", refreshData.data.refreshToken);
             }
-            res = await fetch(`${API}/admin/logs`, { headers: authHeaders() });
+            res = await fetch(`${API}/admin/logs`, { credentials: "include", headers: authHeaders() });
           }
         }
       }

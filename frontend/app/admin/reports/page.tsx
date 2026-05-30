@@ -74,10 +74,10 @@ const IconDownload = () => (
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
 
 function getToken() {
-  try { return localStorage.getItem("accessToken") ?? ""; } catch { return ""; }
+  return "http-only-cookie";
 }
 function authHeaders() {
-  return { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" };
+  return { "Content-Type": "application/json" };
 }
 function statusLabel(s: string) {
   return { pending: "รอดำเนินการ", in_progress: "กำลังดำเนินการ", resolved: "แก้ไขแล้ว", rejected: "ปฏิเสธ", closed: "ปิดแล้ว" }[s] ?? s;
@@ -155,8 +155,8 @@ export default function AdminReportsPage() {
       if (dateFilter !== "all") query += `&filter=${dateFilter}`;
       
       const [reportRes, complaintsRes] = await Promise.allSettled([
-        fetch(`${API}/admin/reports${query}`, { headers }),
-        fetch(`${API}/complaints/all${query}`, { headers }),
+        fetch(`${API}/admin/reports${query}`, { credentials: "include", headers }),
+        fetch(`${API}/complaints/all${query}`, { credentials: "include", headers }),
       ]);
 
       if (reportRes.status === "fulfilled" && reportRes.value.ok) {

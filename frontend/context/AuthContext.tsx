@@ -23,9 +23,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Load user from localStorage on mount
   useEffect(() => {
     try {
+      // Clean up legacy accessToken from localStorage to prevent confusion
+      localStorage.removeItem('accessToken');
+      
       const savedUser = localStorage.getItem('user');
-      const token = localStorage.getItem('accessToken');
-      if (savedUser && token) {
+      // Token is now an HttpOnly cookie, we only rely on user data from localStorage
+      // However, to ensure they are actually authenticated, the API calls will fail if token is missing
+      if (savedUser) {
         setUser(JSON.parse(savedUser));
       }
     } catch {
@@ -37,13 +41,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(async (data: LoginRequest) => {
     const response = await api.post<{ success: boolean; data: AuthResponse }>('/auth/login', data);
-    const { user: userData, accessToken } = response.data.data;
+    const { user: userData } = response.data.data;
 
-    localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('user', JSON.stringify(userData));
 
-    // Set cookies for middleware
-    document.cookie = `accessToken=${accessToken}; path=/; max-age=${15 * 60}`;
+    // Set user cookie for middleware
     document.cookie = `user=${encodeURIComponent(JSON.stringify(userData))}; path=/; max-age=${15 * 60}`;
 
     setUser(userData);
@@ -60,9 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Even if API fails, clear local state
     }
 
-    localStorage.removeItem('accessToken');
     localStorage.removeItem('user');
-    document.cookie = 'accessToken=; path=/; max-age=0';
     document.cookie = 'user=; path=/; max-age=0';
     setUser(null);
   }, []);

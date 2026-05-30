@@ -90,14 +90,14 @@ export default function NewComplaintPage() {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const token = localStorage.getItem("accessToken");
+        const token = "http-only-cookie";
         if (!token) {
           setPageLoading(false);
           return;
         }
 
-        const res = await fetch(`${API_URL}/complaints/user-info`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const res = await fetch(`${API_URL}/complaints/user-info`, { credentials: "include",
+          headers: { },
         });
 
         const json = await res.json();
@@ -146,7 +146,7 @@ export default function NewComplaintPage() {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("accessToken");
+      const token = "http-only-cookie";
       if (!token) {
         setError("กรุณาเข้าสู่ระบบก่อน");
         setLoading(false);
@@ -154,12 +154,11 @@ export default function NewComplaintPage() {
       }
 
       // ส่งคำร้องผ่าน Backend API (bypass RLS)
-      const res = await fetch(`${API_URL}/complaints`, {
+      const res = await fetch(`${API_URL}/complaints`, { credentials: "include",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+          },
         body: JSON.stringify({
           subject: form.subject,
           description: form.description,

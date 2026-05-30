@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import { corsOptions } from './config/cors';
 import apiRoutes from './routes';
 import { errorHandler } from './middlewares/errorHandler.middleware';
@@ -11,6 +12,7 @@ const app: Application = express();
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(cors(corsOptions));
 
 // HTTP Request Logging

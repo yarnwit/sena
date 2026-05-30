@@ -8,10 +8,10 @@ import Link from "next/link";
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
 
 function getToken() {
-  try { return localStorage.getItem("accessToken") ?? ""; } catch { return ""; }
+  return "http-only-cookie";
 }
 function authHeaders() {
-  return { Authorization: `Bearer ${getToken()}`, "Content-Type": "application/json" };
+  return { "Content-Type": "application/json" };
 }
 
 /* ===== SVG Icons ===== */
@@ -65,7 +65,7 @@ export default function CreateUserPage() {
     setLoading(true);
 
     const doCreate = async () => {
-      const res = await fetch(`${API}/admin/users`, {
+      const res = await fetch(`${API}/admin/users`, { credentials: "include",
         method: "POST",
         headers: authHeaders(),
         body: JSON.stringify(formData),
@@ -80,14 +80,14 @@ export default function CreateUserPage() {
       if (res.status === 401) {
         const refreshToken = localStorage.getItem("refreshToken");
         if (refreshToken) {
-          const refreshRes = await fetch(`${API}/auth/refresh`, {
+          const refreshRes = await fetch(`${API}/auth/refresh`, { credentials: "include",
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ refreshToken }),
           });
           const refreshData = await refreshRes.json();
           if (refreshRes.ok && refreshData.data?.accessToken) {
-            localStorage.setItem("accessToken", refreshData.data.accessToken);
+            
             if (refreshData.data.refreshToken) {
               localStorage.setItem("refreshToken", refreshData.data.refreshToken);
             }

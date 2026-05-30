@@ -133,7 +133,7 @@ export default function StaffComplaintDetailPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("accessToken");
+        const token = "http-only-cookie";
         if (!token) { setLoading(false); return; }
 
         const userStr = localStorage.getItem("user");
@@ -180,7 +180,7 @@ export default function StaffComplaintDetailPage() {
 
     setUpdatingStatus(true);
     try {
-      const token = localStorage.getItem("accessToken");
+      const token = "http-only-cookie";
       if (!token) { alert("กรุณาเข้าสู่ระบบใหม่"); setUpdatingStatus(false); return; }
 
       let hasError = false;

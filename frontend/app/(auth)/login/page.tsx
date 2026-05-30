@@ -21,7 +21,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/auth/login`, {
+      const res = await fetch(`${API_URL}/auth/login`, { credentials: "include",
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // ส่ง/รับ cookie (refreshToken)
@@ -38,7 +38,7 @@ export default function LoginPage() {
       const { accessToken, user } = json.data;
 
       // เก็บ accessToken และข้อมูลผู้ใช้ไว้ใน localStorage
-      localStorage.setItem("accessToken", accessToken);
+      
       localStorage.setItem("user", JSON.stringify(user));
 
       // เก็บ accessToken และ user ไว้ใน cookie เพื่อให้ middleware อ่านได้

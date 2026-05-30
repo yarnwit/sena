@@ -16,6 +16,13 @@ export const login = async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    res.cookie('accessToken', result.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000, // 15 minutes
+    });
+
     return sendSuccess(res, {
       user: result.user,
       accessToken: result.accessToken,
@@ -51,6 +58,14 @@ export const refresh = async (req: Request, res: Response) => {
     }
 
     const accessToken = await AuthService.refreshToken(refreshToken);
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000,
+    });
+
     return sendSuccess(res, { accessToken });
   } catch (error) {
     return sendError(res, 'Invalid or expired refresh token', 401);
@@ -61,6 +76,7 @@ export const logout = async (req: Request, res: Response) => {
   try {
     await AuthService.logout();
     res.clearCookie('refreshToken');
+    res.clearCookie('accessToken');
     return sendSuccess(res, null, 'Logout successful');
   } catch (error) {
     return sendError(res, 'Internal server error');

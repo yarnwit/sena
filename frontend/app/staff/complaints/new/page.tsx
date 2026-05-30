@@ -89,10 +89,10 @@ export default function StaffNewComplaintPage() {
   useEffect(() => {
     const fetchResidents = async () => {
       try {
-        const token = localStorage.getItem("accessToken");
+        const token = "http-only-cookie";
         if (!token) { setPageLoading(false); return; }
-        const res = await fetch(`${API_URL}/complaints/residents-list`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const res = await fetch(`${API_URL}/complaints/residents-list`, { credentials: "include",
+          headers: { },
         });
         const json = await res.json();
         if (json.success && json.data) setResidents(json.data);
@@ -125,7 +125,7 @@ export default function StaffNewComplaintPage() {
     setShowConfirmModal(false);
     setError(""); setLoading(true);
     try {
-      const token = localStorage.getItem("accessToken");
+      const token = "http-only-cookie";
       if (!token) { setError("กรุณาเข้าสู่ระบบก่อน"); setLoading(false); return; }
 
       const body: Record<string, unknown> = {
@@ -145,9 +145,9 @@ export default function StaffNewComplaintPage() {
         body.soi = manualSoi || null;
       }
 
-      const res = await fetch(`${API_URL}/complaints/staff`, {
+      const res = await fetch(`${API_URL}/complaints/staff`, { credentials: "include",
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: { "Content-Type": "application/json", },
         body: JSON.stringify(body),
       });
       const json = await res.json();

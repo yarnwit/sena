@@ -95,14 +95,14 @@ export default function EditComplaintPage() {
   useEffect(() => {
     const fetchComplaint = async () => {
       try {
-        const token = localStorage.getItem("accessToken");
+        const token = "http-only-cookie";
         if (!token) {
           setPageLoading(false);
           return;
         }
 
-        const res = await fetch(`${API_URL}/complaints/${complaintId}`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const res = await fetch(`${API_URL}/complaints/${complaintId}`, { credentials: "include",
+          headers: { },
         });
 
         const json = await res.json();
@@ -168,7 +168,7 @@ export default function EditComplaintPage() {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("accessToken");
+      const token = "http-only-cookie";
       if (!token) {
         setError("กรุณาเข้าสู่ระบบก่อน");
         setLoading(false);
@@ -184,12 +184,11 @@ export default function EditComplaintPage() {
       }
 
       // ส่งแก้ไขคำร้องผ่าน Backend API (PATCH)
-      const res = await fetch(`${API_URL}/complaints/${complaintId}`, {
+      const res = await fetch(`${API_URL}/complaints/${complaintId}`, { credentials: "include",
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+          },
         body: JSON.stringify({
           subject: form.subject,
           description: form.description,

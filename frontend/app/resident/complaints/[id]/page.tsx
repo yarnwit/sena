@@ -123,10 +123,10 @@ export default function ComplaintDetailPage() {
 
     const fetchDetail = async () => {
       try {
-        const token = localStorage.getItem("accessToken");
+        const token = "http-only-cookie";
         if (token) {
-          const res = await fetch(`${API_URL}/complaints/${complaintId}`, {
-            headers: { Authorization: `Bearer ${token}` },
+          const res = await fetch(`${API_URL}/complaints/${complaintId}`, { credentials: "include",
+            headers: { },
           });
           if (res.ok) {
             const json = await res.json();
