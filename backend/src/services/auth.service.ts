@@ -141,6 +141,9 @@ export const AuthService = {
       
       if (insertResidentError && insertResidentError.code !== '23505') {
         logger.error('Error inserting resident manually:', insertResidentError);
+        // Rollback user creation
+        await supabase.from('users').delete().eq('user_id', userId);
+        throw new Error('เกิดข้อผิดพลาดในการบันทึกข้อมูลส่วนตัว (Database Error) กรุณาลองใหม่อีกครั้ง');
       }
     }
 

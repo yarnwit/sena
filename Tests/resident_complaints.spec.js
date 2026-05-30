@@ -1,0 +1,36 @@
+import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.goto('http://localhost:3000/login');
+  await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).click();
+  await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).fill('Te_Trax');
+  await page.getByRole('textbox', { name: 'รหัสผ่าน' }).click();
+  await page.getByRole('textbox', { name: 'รหัสผ่าน' }).fill('123456');
+  await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).click();
+  await page.getByRole('link', { name: 'ประวัติคำร้องของฉัน' }).click();
+  await page.getByRole('button', { name: 'รอดำเนินการ' }).click();
+  await page.getByRole('button', { name: 'อนุมัติรับเรื่อง' }).click();
+  await page.getByRole('button', { name: 'เข้าที่ประชุม' }).click();
+  await page.getByRole('button', { name: 'เข้าที่ประชุม' }).click();
+  await page.getByRole('button', { name: 'แก้ไขแล้ว' }).click();
+  await page.getByRole('button', { name: 'กำลังดำเนินการ' }).click();
+  await page.getByRole('button', { name: 'ไม่อนุมัติ' }).click();
+  await page.getByRole('button', { name: 'ปิดเรื่อง' }).click();
+  await page.getByRole('button', { name: 'ทั้งหมด' }).click();
+  await page.getByRole('button', { name: 'ตัวกรองเพิ่มเติม' }).click();
+  await page.getByRole('textbox').nth(1).fill('2026-05-30');
+  await page.getByRole('textbox').nth(2).fill('2026-05-24');
+  await page.getByRole('button', { name: 'ล้างตัวกรอง' }).click();
+  await page.getByRole('textbox', { name: 'ค้นหาเรื่องร้องเรียน' }).click();
+  await page.getByRole('textbox', { name: 'ค้นหาเรื่องร้องเรียน' }).fill('');
+  await page.getByRole('row', { name: 'TK260531-5299' }).getByRole('link').click();
+  await page.getByRole('link', { name: 'แก้ไขข้อมูล' }).click();
+  await page.getByRole('textbox', { name: 'อธิบายรายละเอียดปัญหาที่พบ' }).click();
+  await page.getByRole('textbox', { name: 'อธิบายรายละเอียดปัญหาที่พบ' }).fill('พี่เต้จะพาฝันผมเป็นจริงไหมผมอยากไปจูลาสิคปาร์ค');
+  await page.getByRole('button', { name: 'บันทึกการแก้ไข' }).click();
+  await page.getByRole('button', { name: 'ยกเลิก' }).click();
+  await page.getByRole('button', { name: 'บันทึกการแก้ไข' }).click();
+  await page.getByRole('button', { name: 'ยืนยัน' }).click();
+  await page.getByRole('link', { name: 'แก้ไขข้อมูล' }).click();
+  await page.getByRole('link', { name: 'ยกเลิก' }).click();
+});

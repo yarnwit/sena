@@ -115,8 +115,44 @@ export const createComplaint = async (req: Request, res: Response) => {
     const userId = req.user?.id;
     if (!userId) return sendError(res, 'Unauthorized', 401);
 
-    const residentId = await ComplaintService.getResidentId(userId);
-    if (!residentId) return sendError(res, 'ไม่พบข้อมูลลูกบ้าน กรุณาติดต่อผู้ดูแลระบบ', 400);
+    let residentId = await ComplaintService.getResidentId(userId);
+    
+    // ถ้ายังไม่มี resident record ให้สร้างอัตโนมัติจากข้อมูล user
+    if (!residentId) {
+      try {
+        const { data: userData } = await supabase
+          .from('users')
+          .select('first_name, last_name')
+          .eq('user_id', userId)
+          .single();
+
+        if (!userData) {
+          return sendError(res, 'ไม่พบข้อมูลผู้ใช้งาน', 400);
+        }
+
+        const { data: newResident, error: insertError } = await supabase
+          .from('resident')
+          .insert({
+            user_id: userId,
+            house_no: '',
+            phone_number: '',
+            resident_type: 'owner',
+          })
+          .select('resident_id')
+          .single();
+
+        if (insertError) {
+          logger.error('Auto-create resident error:', insertError);
+          return sendError(res, 'ไม่พบข้อมูลลูกบ้าน กรุณาติดต่อผู้ดูแลระบบ', 400);
+        }
+
+        residentId = newResident.resident_id;
+        logger.info(`Auto-created resident record for user ${userId}, resident_id: ${residentId}`);
+      } catch (autoCreateError) {
+        logger.error('Auto-create resident error:', autoCreateError);
+        return sendError(res, 'ไม่พบข้อมูลลูกบ้าน กรุณาติดต่อผู้ดูแลระบบ', 400);
+      }
+    }
 
     const result = await ComplaintService.createComplaint(residentId, req.body, userId);
     

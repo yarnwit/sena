@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import api from "@/lib/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -89,15 +90,15 @@ export default function StaffNewComplaintPage() {
   useEffect(() => {
     const fetchResidents = async () => {
       try {
-        const token = "http-only-cookie";
-        if (!token) { setPageLoading(false); return; }
-        const res = await fetch(`${API_URL}/complaints/residents-list`, { credentials: "include",
-          headers: { },
-        });
-        const json = await res.json();
-        if (json.success && json.data) setResidents(json.data);
-      } catch { /* fallback */ }
-      setPageLoading(false);
+        const res = await api.get('/complaints/residents-list');
+        if (res.data.success && res.data.data) {
+          setResidents(res.data.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch residents:", err);
+      } finally {
+        setPageLoading(false);
+      }
     };
     fetchResidents();
   }, []);
@@ -125,9 +126,6 @@ export default function StaffNewComplaintPage() {
     setShowConfirmModal(false);
     setError(""); setLoading(true);
     try {
-      const token = "http-only-cookie";
-      if (!token) { setError("กรุณาเข้าสู่ระบบก่อน"); setLoading(false); return; }
-
       const body: Record<string, unknown> = {
         subject: form.subject, description: form.description,
         location_written: form.location_written || null, soi: form.soi || null,
@@ -145,13 +143,8 @@ export default function StaffNewComplaintPage() {
         body.soi = manualSoi || null;
       }
 
-      const res = await fetch(`${API_URL}/complaints/staff`, { credentials: "include",
-        method: "POST",
-        headers: { "Content-Type": "application/json", },
-        body: JSON.stringify(body),
-      });
-      const json = await res.json();
-      if (!res.ok || !json.success) { setError(json.message || "เกิดข้อผิดพลาด"); setLoading(false); return; }
+      const res = await api.post('/complaints/staff', body);
+      if (!res.data.success) { setError(res.data.message || "เกิดข้อผิดพลาด"); setLoading(false); return; }
       setSuccess(true);
       setTimeout(() => router.push("/staff/complaints"), 2000);
     } catch { setError("เกิดข้อผิดพลาด"); } finally { setLoading(false); }

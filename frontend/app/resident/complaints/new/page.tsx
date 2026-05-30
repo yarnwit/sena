@@ -3,8 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import api from "@/lib/api";
 
 const intakeChannelOptions = [
   { value: "", label: "-- เลือกช่องทาง --" },
@@ -90,31 +89,22 @@ export default function NewComplaintPage() {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const token = "http-only-cookie";
-        if (!token) {
-          setPageLoading(false);
-          return;
-        }
-
-        const res = await fetch(`${API_URL}/complaints/user-info`, { credentials: "include",
-          headers: { },
-        });
-
-        const json = await res.json();
-        if (json.success && json.data) {
+        const res = await api.get('/complaints/user-info');
+        if (res.data.success && res.data.data) {
           setUserInfo({
-            first_name: json.data.first_name || "",
-            last_name: json.data.last_name || "",
-            phone_number: json.data.phone_number || "",
-            house_no: json.data.house_no || "",
-            phase: json.data.phase || "",
-            soi: json.data.soi || "",
+            first_name: res.data.data.first_name || "",
+            last_name: res.data.data.last_name || "",
+            phone_number: res.data.data.phone_number || "",
+            house_no: res.data.data.house_no || "",
+            phase: res.data.data.phase || "",
+            soi: res.data.data.soi || "",
           });
         }
-      } catch {
-        // fallback
+      } catch (err) {
+        console.error("Failed to fetch user info:", err);
+      } finally {
+        setPageLoading(false);
       }
-      setPageLoading(false);
     };
 
     fetchUserInfo();
@@ -146,32 +136,17 @@ export default function NewComplaintPage() {
     setLoading(true);
 
     try {
-      const token = "http-only-cookie";
-      if (!token) {
-        setError("กรุณาเข้าสู่ระบบก่อน");
-        setLoading(false);
-        return;
-      }
-
       // ส่งคำร้องผ่าน Backend API (bypass RLS)
-      const res = await fetch(`${API_URL}/complaints`, { credentials: "include",
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          },
-        body: JSON.stringify({
-          subject: form.subject,
-          description: form.description,
-          location_written: form.location_written || null,
-          intake_channel: form.intake_channel || null,
-          reported_date: form.reported_date || new Date().toISOString(),
-        }),
+      const res = await api.post('/complaints', {
+        subject: form.subject,
+        description: form.description,
+        location_written: form.location_written || null,
+        intake_channel: form.intake_channel || null,
+        reported_date: form.reported_date || new Date().toISOString(),
       });
 
-      const json = await res.json();
-
-      if (!res.ok || !json.success) {
-        setError(json.message || "เกิดข้อผิดพลาดในการบันทึก");
+      if (!res.data.success) {
+        setError(res.data.message || "เกิดข้อผิดพลาดในการบันทึก");
         setLoading(false);
         return;
       }
@@ -180,8 +155,9 @@ export default function NewComplaintPage() {
       setTimeout(() => {
         router.push("/resident/complaints");
       }, 2000);
-    } catch (err) {
-      setError("เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่");
+    } catch (err: any) {
+      const message = err?.response?.data?.message || "เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่";
+      setError(message);
     } finally {
       setLoading(false);
     }
