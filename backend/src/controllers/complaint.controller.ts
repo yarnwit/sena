@@ -27,7 +27,24 @@ export const getMyComplaints = async (req: Request, res: Response) => {
 export const getAllComplaints = async (req: Request, res: Response) => {
   try {
     const complaints = await ComplaintModel.findAll();
-    const enriched = await ComplaintModel.enrichMany(complaints);
+    
+    const filter = req.query.filter as string;
+    let filteredComplaints = complaints;
+    const now = new Date();
+    
+    if (filter === 'today') {
+      const todayStr = now.toISOString().split('T')[0];
+      filteredComplaints = complaints.filter(c => c.reported_date && c.reported_date.startsWith(todayStr));
+    } else if (filter === 'week') {
+      const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      filteredComplaints = complaints.filter(c => c.reported_date && new Date(c.reported_date) >= lastWeek);
+    } else if (filter === 'month') {
+      const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      filteredComplaints = complaints.filter(c => c.reported_date && new Date(c.reported_date) >= lastMonth);
+    }
+
+    const enriched = await ComplaintModel.enrichMany(filteredComplaints);
+
     return sendSuccess(res, enriched);
   } catch (error) {
     logger.error('Get all complaints error:', error);

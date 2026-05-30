@@ -107,6 +107,7 @@ const navItems = [
     ]
   },
   { href: "/admin/reports", label: "รายงานสรุป", icon: ReportsIcon },
+  { href: "/admin/logs", label: "Audit Logs", icon: LogsIcon },
   { href: "/admin/profile", label: "โปรไฟล์", icon: ProfileIcon }
 ];
 

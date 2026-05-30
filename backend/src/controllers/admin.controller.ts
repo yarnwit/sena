@@ -180,7 +180,24 @@ export const getReports = async (req: Request, res: Response) => {
     const complaints = await ComplaintModel.findAll();
     const users = await UserModel.findAll();
 
+    
+    const filter = req.query.filter as string;
+    let filteredComplaints = complaints;
+    const now = new Date();
+    
+    if (filter === 'today') {
+      const todayStr = now.toISOString().split('T')[0];
+      filteredComplaints = complaints.filter(c => c.reported_date && c.reported_date.startsWith(todayStr));
+    } else if (filter === 'week') {
+      const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      filteredComplaints = complaints.filter(c => c.reported_date && new Date(c.reported_date) >= lastWeek);
+    } else if (filter === 'month') {
+      const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      filteredComplaints = complaints.filter(c => c.reported_date && new Date(c.reported_date) >= lastMonth);
+    }
+
     const statusCount: Record<string, number> = {
+
       pending: 0,
       approved: 0,
       in_meeting: 0,
@@ -193,7 +210,7 @@ export const getReports = async (req: Request, res: Response) => {
     let todayCount = 0;
     const todayStr = new Date().toISOString().split('T')[0];
 
-    complaints.forEach((c) => {
+    filteredComplaints.forEach((c) => {
       if (statusCount[c.status] !== undefined) {
         statusCount[c.status]++;
       } else {
@@ -210,7 +227,7 @@ export const getReports = async (req: Request, res: Response) => {
     const totalAdmins = users.filter(u => u.role === 'admin').length;
 
     const report = {
-      total_complaints: complaints.length,
+      total_complaints: filteredComplaints.length,
       total_users: users.length,
       total_residents: totalResidents,
       total_staff: totalStaff,

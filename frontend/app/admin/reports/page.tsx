@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, Label } from 'recharts';
 
 /* ===== Types ===== */
 interface ReportStats {
@@ -9,6 +10,8 @@ interface ReportStats {
   totalResidents: number;
   totalStaff: number;
   pendingCount: number;
+  approvedCount: number;
+  inMeetingCount: number;
   inProgressCount: number;
   resolvedCount: number;
   rejectedCount: number;
@@ -29,23 +32,23 @@ interface Complaint {
 
 /* ===== SVG Icons ===== */
 const IconTicket = () => (
-  <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" />
   </svg>
 );
 const IconUsers = () => (
-  <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
     <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
   </svg>
 );
 const IconClock = () => (
-  <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
   </svg>
 );
 const IconCheck = () => (
-  <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="20 6 9 17 4 12" />
   </svg>
 );
@@ -101,6 +104,8 @@ function StatusBadge({ status }: { status: string }) {
     closed: "bg-gray-500"
   };
 
+
+
   return (
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${bgColors[status] || bgColors.pending}`}>
       <span className={`w-1.5 h-1.5 rounded-full ${dotColors[status] || dotColors.pending}`} />
@@ -115,83 +120,21 @@ function StatCard({ label, value, sub, color, icon, loading, trend }: {
   trend?: number[];
 }) {
   const iconColors: Record<string, string> = {
-    indigo: "bg-gradient-to-br from-indigo-500 to-indigo-400",
-    violet: "bg-gradient-to-br from-violet-600 to-violet-400",
-    amber: "bg-gradient-to-br from-amber-500 to-amber-400",
-    emerald: "bg-gradient-to-br from-emerald-500 to-emerald-400",
-    rose: "bg-gradient-to-br from-rose-500 to-rose-400",
-    sky: "bg-gradient-to-br from-sky-500 to-sky-400",
+    indigo: "bg-white text-indigo-600 border border-indigo-100",
+    violet: "bg-white text-violet-600 border border-violet-100",
+    amber: "bg-white text-amber-600 border border-amber-100",
+    emerald: "bg-white text-emerald-600 border border-emerald-100",
+    rose: "bg-white text-rose-600 border border-rose-100",
+    sky: "bg-white text-sky-600 border border-sky-100",
   };
-  const strokeColors: Record<string, string> = {
-    indigo: "#6366f1", violet: "#7c3aed", amber: "#f59e0b", emerald: "#10b981", rose: "#f43f5e", sky: "#0ea5e9"
-  };
-
-  const sparkline = trend && trend.length > 0 ? (
-    <svg className="absolute bottom-0 left-0 w-full h-12 opacity-20 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 100 100">
-      <path d={`M0,100 L0,${100 - (trend[0]/Math.max(...trend))*80} ` + trend.map((v, i) => `L${(i/(trend.length-1))*100},${100 - (v/Math.max(...trend))*80}`).join(" ") + " L100,100 Z"} fill={strokeColors[color]} />
-      <polyline points={trend.map((v, i) => `${(i/(trend.length-1))*100},${100 - (v/Math.max(...trend))*80}`).join(" ")} fill="none" stroke={strokeColors[color]} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ) : null;
 
   return (
     <div className="relative bg-white rounded-2xl p-5.5 px-6 flex items-center gap-4 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)] overflow-hidden group">
-      <div className={`relative z-10 w-[52px] h-[52px] rounded-xl flex items-center justify-center shrink-0 ${iconColors[color]} shadow-inner`}>{icon}</div>
+      <div className={`relative z-10 w-[52px] h-[52px] rounded-xl flex items-center justify-center shrink-0 ${iconColors[color]} shadow-sm`}>{icon}</div>
       <div className="relative z-10 flex-1 min-w-0">
         <div className="text-xs text-gray-400 font-semibold uppercase tracking-wider whitespace-nowrap mb-1">{label}</div>
         {loading ? <Skeleton w="60px" h="28px" /> : <div className="text-3xl font-black text-gray-900 leading-[1.1] tracking-tight">{value}</div>}
         {sub && !loading && <div className="text-xs font-medium text-gray-500 mt-1 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-current opacity-50"></span>{sub}</div>}
-      </div>
-      {sparkline}
-    </div>
-  );
-}
-
-/* ===== Donut Chart (SVG) ===== */
-function DonutChart({ segments, total }: {
-  segments: { label: string; value: number; color: string }[];
-  total: number;
-}) {
-  const radius = 70;
-  const circumference = 2 * Math.PI * radius;
-  let offset = 0;
-
-  return (
-    <div className="flex flex-col md:flex-row items-center gap-8 flex-wrap">
-      <div className="relative w-[180px] h-[180px] shrink-0">
-        <svg className="w-[180px] h-[180px] -rotate-90" viewBox="0 0 180 180">
-          {total === 0 ? (
-            <circle cx="90" cy="90" r={radius} fill="none" stroke="#f3f4f6" strokeWidth="18" />
-          ) : (
-            segments.map((seg, i) => {
-              const pct = seg.value / total;
-              const dashLen = pct * circumference;
-              const el = (
-                <circle key={i} cx="90" cy="90" r={radius} fill="none" stroke={seg.color}
-                  strokeWidth="18" strokeDasharray={`${dashLen} ${circumference - dashLen}`}
-                  strokeDashoffset={-offset} strokeLinecap="butt"
-                  style={{ transition: "stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease" }} />
-              );
-              offset += dashLen;
-              return el;
-            })
-          )}
-        </svg>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-          <div className="text-[32px] font-bold text-gray-900 leading-none">{total}</div>
-          <div className="text-xs text-gray-400 mt-1">เรื่องทั้งหมด</div>
-        </div>
-      </div>
-      <div className="flex-1 flex flex-col gap-2.5 min-w-[160px]">
-        {segments.map(seg => (
-          <div key={seg.label} className="flex items-center gap-2.5">
-            <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: seg.color }} />
-            <span className="text-[13px] text-gray-700 flex-1">{seg.label}</span>
-            <span className="text-[13px] font-semibold text-gray-900">{seg.value}</span>
-            <span className="text-xs text-gray-400 w-9 text-right">
-              {total > 0 ? Math.round((seg.value / total) * 100) : 0}%
-            </span>
-          </div>
-        ))}
       </div>
     </div>
   );
@@ -225,6 +168,8 @@ export default function AdminReportsPage() {
           totalResidents: r.total_residents ?? r.totalResidents ?? 0,
           totalStaff: r.total_staff ?? r.totalStaff ?? 0,
           pendingCount: r.pending ?? r.pendingCount ?? 0,
+          approvedCount: r.approved ?? r.approvedCount ?? 0,
+          inMeetingCount: r.in_meeting ?? r.inMeetingCount ?? 0,
           inProgressCount: r.in_progress ?? r.inProgressCount ?? 0,
           resolvedCount: r.resolved ?? r.resolvedCount ?? 0,
           rejectedCount: r.rejected ?? r.rejectedCount ?? 0,
@@ -234,7 +179,7 @@ export default function AdminReportsPage() {
       } else {
         setStats({
           totalComplaints: 0, totalUsers: 0, totalResidents: 0, totalStaff: 0,
-          pendingCount: 0, inProgressCount: 0, resolvedCount: 0,
+          pendingCount: 0, approvedCount: 0, inMeetingCount: 0, inProgressCount: 0, resolvedCount: 0,
           rejectedCount: 0, closedCount: 0, todayCount: 0,
         });
       }
@@ -273,7 +218,7 @@ export default function AdminReportsPage() {
   }, [dateFilter]);
 
   const total = stats
-    ? stats.pendingCount + stats.inProgressCount + stats.resolvedCount + stats.rejectedCount + stats.closedCount
+    ? stats.pendingCount + stats.approvedCount + stats.inMeetingCount + stats.inProgressCount + stats.resolvedCount + stats.rejectedCount + stats.closedCount
     : 0;
 
   const pct = (n: number) => (total > 0 ? Math.round((n / total) * 100) : 0);
@@ -284,6 +229,8 @@ export default function AdminReportsPage() {
 
   const statusRows = useMemo(() => stats ? [
     { key: "pending",     label: "รอดำเนินการ",    count: stats.pendingCount },
+    { key: "approved",    label: "รอพิจารณา",      count: stats.approvedCount },
+    { key: "in_meeting",  label: "เข้าที่ประชุม",   count: stats.inMeetingCount },
     { key: "in_progress", label: "กำลังดำเนินการ", count: stats.inProgressCount },
     { key: "resolved",    label: "แก้ไขแล้ว",      count: stats.resolvedCount },
     { key: "rejected",    label: "ปฏิเสธ",         count: stats.rejectedCount },
@@ -292,6 +239,8 @@ export default function AdminReportsPage() {
 
   const donutSegments = useMemo(() => stats ? [
     { label: "รอดำเนินการ",    value: stats.pendingCount,    color: "#f59e0b" },
+    { label: "รอพิจารณา",      value: stats.approvedCount,   color: "#3b82f6" },
+    { label: "เข้าที่ประชุม",   value: stats.inMeetingCount,  color: "#8b5cf6" },
     { label: "กำลังดำเนินการ", value: stats.inProgressCount, color: "#6366f1" },
     { label: "แก้ไขแล้ว",      value: stats.resolvedCount,   color: "#10b981" },
     { label: "ปฏิเสธ",         value: stats.rejectedCount,   color: "#f43f5e" },
@@ -321,6 +270,22 @@ export default function AdminReportsPage() {
       map[s] = (map[s] || 0) + 1;
     });
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  }, [complaints]);
+
+  // Daily trend analysis
+  const dailyTrendData = useMemo(() => {
+    const data = [];
+    const today = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const thDate = d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+      
+      const count = complaints.filter(c => c.reported_date && c.reported_date.startsWith(dateStr)).length;
+      data.push({ name: thDate, count });
+    }
+    return data;
   }, [complaints]);
 
   return (
@@ -354,10 +319,8 @@ export default function AdminReportsPage() {
       </div>
 
       {/* ── Key Insights (AI Simulation) ── */}
-      <div className="bg-gradient-to-r from-violet-50 via-indigo-50 to-white rounded-2xl border border-violet-100 p-5 shadow-sm relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-8 opacity-5">
-          <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-        </div>
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm relative overflow-hidden">
+
         <div className="relative z-10">
           <h3 className="text-[15px] font-bold text-indigo-900 flex items-center gap-2 m-0 mb-3">
             <span className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-600">✨</span>
@@ -366,16 +329,16 @@ export default function AdminReportsPage() {
           {loading ? (
             <div className="flex flex-col gap-2"><Skeleton h="14px" w="80%" /><Skeleton h="14px" w="60%" /></div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white/60 rounded-xl p-3 border border-white/80">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+              <div className="px-2">
                 <p className="text-xs text-gray-500 m-0 mb-1">ประสิทธิภาพการแก้ไข</p>
                 <p className="text-[13px] text-gray-800 m-0 font-medium">ปัจจุบันมีอัตราสำเร็จ <strong className="text-emerald-600">{resolutionRate}%</strong> ถือว่า<span className={resolutionRate > 50 ? "text-emerald-600" : "text-amber-600"}>{resolutionRate > 50 ? "อยู่ในเกณฑ์ดีมาก" : "ต้องเร่งดำเนินการ"}</span></p>
               </div>
-              <div className="bg-white/60 rounded-xl p-3 border border-white/80">
+              <div className="px-2 md:border-l md:border-gray-100">
                 <p className="text-xs text-gray-500 m-0 mb-1">เรื่องค้างสะสม</p>
                 <p className="text-[13px] text-gray-800 m-0 font-medium">มีรอดำเนินการ <strong className="text-amber-600">{stats?.pendingCount ?? 0} เรื่อง</strong> {(stats?.pendingCount ?? 0) > 0 ? "ฝ่ายช่างควรเข้าตรวจสอบทันที" : "จัดการได้ครบถ้วน"}</p>
               </div>
-              <div className="bg-white/60 rounded-xl p-3 border border-white/80">
+              <div className="px-2 md:border-l md:border-gray-100">
                 <p className="text-xs text-gray-500 m-0 mb-1">ช่องทางยอดฮิต</p>
                 <p className="text-[13px] text-gray-800 m-0 font-medium">ลูกบ้านนิยมแจ้งผ่าน <strong className="text-indigo-600">{channelData.length > 0 ? channelData[0].name : "แอปพลิเคชัน"}</strong> มากที่สุด</p>
               </div>
@@ -399,7 +362,7 @@ export default function AdminReportsPage() {
 
       {/* ── Key Metrics ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gray-50 rounded-xl p-5 px-5 text-center border border-gray-100 transition-transform duration-200 hover:-translate-y-[1px]">
+        <div className="bg-white rounded-xl p-5 px-5 text-center border border-gray-100 shadow-sm transition-transform duration-200 hover:-translate-y-[1px]">
           {loading ? <Skeleton w="50px" h="24px" /> : (
             <div className={`text-2xl font-bold leading-[1.2] ${resolutionRate >= 70 ? "text-emerald-600" : resolutionRate >= 40 ? "text-amber-600" : "text-rose-600"}`}>
               {resolutionRate}%
@@ -407,7 +370,7 @@ export default function AdminReportsPage() {
           )}
           <div className="text-xs text-gray-500 mt-1">อัตราการแก้ไขสำเร็จ</div>
         </div>
-        <div className="bg-gray-50 rounded-xl p-5 px-5 text-center border border-gray-100 transition-transform duration-200 hover:-translate-y-[1px]">
+        <div className="bg-white rounded-xl p-5 px-5 text-center border border-gray-100 shadow-sm transition-transform duration-200 hover:-translate-y-[1px]">
           {loading ? <Skeleton w="50px" h="24px" /> : (
             <div className={`text-2xl font-bold leading-[1.2] ${(stats?.pendingCount ?? 0) > 5 ? "text-rose-600" : "text-emerald-600"}`}>
               {stats?.pendingCount ?? 0}
@@ -415,11 +378,46 @@ export default function AdminReportsPage() {
           )}
           <div className="text-xs text-gray-500 mt-1">เรื่องค้างรอดำเนินการ</div>
         </div>
-        <div className="bg-gray-50 rounded-xl p-5 px-5 text-center border border-gray-100 transition-transform duration-200 hover:-translate-y-[1px]">
+        <div className="bg-white rounded-xl p-5 px-5 text-center border border-gray-100 shadow-sm transition-transform duration-200 hover:-translate-y-[1px]">
           {loading ? <Skeleton w="50px" h="24px" /> : (
             <div className="text-2xl font-bold leading-[1.2] text-indigo-600">{stats?.todayCount ?? 0}</div>
           )}
           <div className="text-xs text-gray-500 mt-1">เรื่องร้องเรียนวันนี้</div>
+        </div>
+      </div>
+
+      
+      {/* ── Daily Trend Chart ── */}
+      <div className="bg-white rounded-2xl border border-black/5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] overflow-hidden p-6 mb-5">
+        <div className="mb-6">
+          <h3 className="text-[15px] font-semibold text-violet-700 m-0">แนวโน้มการร้องเรียนรายวัน (เพิ่มใหม่)</h3>
+          <p className="text-xs text-gray-400 mt-1 m-0">แสดงปริมาณการรับเรื่องในแต่ละวันย้อนหลัง 7 วัน</p>
+        </div>
+        <div className="h-[250px] w-full">
+          {loading ? (
+            <div className="flex items-end gap-2 h-full justify-between pb-6 pt-4">
+               {[1,2,3,4,5,6,7].map(i => <div key={i} className="w-full bg-gray-100 rounded-t-sm animate-pulse" style={{ height: `${20 + ((i * 17) % 80)}%` }} />)}
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={dailyTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                  labelStyle={{ color: '#4b5563', fontWeight: 'bold', marginBottom: '4px' }}
+                />
+                <Area type="monotone" dataKey="count" name="จำนวน (เรื่อง)" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorCount)" activeDot={{ r: 6, fill: '#8b5cf6', stroke: '#fff', strokeWidth: 2 }} />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 
@@ -434,15 +432,41 @@ export default function AdminReportsPage() {
             </div>
           </div>
           <div className="p-6">
-            {loading ? (
+{loading ? (
               <div className="flex gap-6 items-center">
-                <Skeleton w="180px" h="180px" />
+                <div className="w-[180px] h-[180px] rounded-full bg-gray-100 animate-pulse" />
                 <div className="flex-1 flex flex-col gap-2.5">
-                  {[1,2,3,4,5].map(i => <Skeleton key={i} h="16px" />)}
+                  {[1,2,3,4,5].map(i => <div key={i} className="h-4 bg-gray-100 rounded w-full animate-pulse" />)}
                 </div>
               </div>
+            ) : total === 0 ? (
+              <div className="flex flex-col items-center justify-center p-10 py-5 text-sm text-gray-400 gap-2">ยังไม่มีข้อมูลเรื่องร้องเรียน</div>
             ) : (
-              <DonutChart segments={donutSegments} total={total} />
+              <div className="h-[220px] w-full relative">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={donutSegments.filter(s => s.value > 0)}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      dataKey="value"
+                      nameKey="label"
+                    >
+                      {donutSegments.filter(s => s.value > 0).map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                      <Label value={total} position="center" fill="#111827" style={{ fontSize: '28px', fontWeight: 'bold' }} />
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                    />
+                    <Legend layout="vertical" verticalAlign="middle" align="right" />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             )}
           </div>
         </div>
@@ -468,6 +492,8 @@ export default function AdminReportsPage() {
                     <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
                       <div className={`h-full rounded-full transition-all duration-800 ease-out ${
                         row.key === 'pending' ? 'bg-gradient-to-r from-amber-500 to-amber-400' :
+                        row.key === 'approved' ? 'bg-gradient-to-r from-blue-500 to-blue-400' :
+                        row.key === 'in_meeting' ? 'bg-gradient-to-r from-purple-500 to-purple-400' :
                         row.key === 'in_progress' ? 'bg-gradient-to-r from-indigo-500 to-indigo-400' :
                         row.key === 'resolved' ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' :
                         row.key === 'rejected' ? 'bg-gradient-to-r from-rose-500 to-rose-400' :
@@ -500,29 +526,46 @@ export default function AdminReportsPage() {
             </div>
           </div>
           <div className="p-6">
-            {loading ? (
+{loading ? (
               <div className="flex flex-col gap-3.5">
-                {[1,2,3].map(i => <Skeleton key={i} h="36px" />)}
+                {[1,2,3].map(i => <div key={i} className="h-9 bg-gray-100 rounded animate-pulse" />)}
               </div>
             ) : channelData.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-10 py-5 text-sm text-gray-400 gap-2">ยังไม่มีข้อมูลช่องทาง</div>
             ) : (
-              <div className="flex flex-col gap-3">
-                {channelData.map(ch => (
-                  <div key={ch.name} className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 text-base" style={{ background: `${ch.color}18`, color: ch.color }}>
-                      <IconTrendUp />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-[13px] font-medium text-gray-900">{ch.name}</div>
-                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mt-1">
-                        <div className="h-full rounded-full transition-all duration-800 ease-out"
-                          style={{ width: `${ch.pct}%`, background: ch.color }} />
-                      </div>
-                    </div>
-                    <span className="text-[13px] font-semibold text-gray-700 shrink-0">{ch.count}</span>
-                  </div>
-                ))}
+              <div className="h-[220px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={channelData}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      dataKey="count"
+                      nameKey="name"
+                      labelLine={false}
+                      label={({ cx, cy, midAngle = 0, innerRadius, outerRadius, percent = 0 }: any) => {
+                        const RADIAN = Math.PI / 180;
+                        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                        const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                        return percent > 0.05 ? (
+                          <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight="bold">
+                            {`${(percent * 100).toFixed(0)}%`}
+                          </text>
+                        ) : null;
+                      }}
+                    >
+                      {channelData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                    />
+                    <Legend layout="vertical" verticalAlign="middle" align="right" />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
             )}
           </div>
