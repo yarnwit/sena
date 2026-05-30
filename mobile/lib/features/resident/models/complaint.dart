@@ -6,6 +6,7 @@ class Complaint {
   final String? category;
   final String? committeeComment;
   final DateTime createdAt;
+  final DateTime updatedAt;
 
   Complaint({
     required this.id,
@@ -15,7 +16,30 @@ class Complaint {
     this.category,
     this.committeeComment,
     required this.createdAt,
+    required this.updatedAt,
   });
+
+  Complaint copyWith({
+    int? id,
+    String? title,
+    String? description,
+    String? status,
+    String? category,
+    String? committeeComment,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return Complaint(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      status: status ?? this.status,
+      category: category ?? this.category,
+      committeeComment: committeeComment ?? this.committeeComment,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 
   factory Complaint.fromJson(Map<String, dynamic> json) {
     return Complaint(
@@ -27,6 +51,9 @@ class Complaint {
       committeeComment: json['petition']?.toString(),
       createdAt: json['reported_date'] != null 
           ? DateTime.parse(json['reported_date']) 
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null 
+          ? DateTime.parse(json['updated_at']) 
           : DateTime.now(),
     );
   }

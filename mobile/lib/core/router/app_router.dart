@@ -14,6 +14,13 @@ import '../../features/resident/models/complaint.dart';
 import '../../features/resident/models/user_profile.dart';
 import '../../features/resident/edit_profile_screen.dart';
 
+// Staff imports with prefixes to avoid name conflicts
+import '../../features/staff/staff_shell.dart' as staff;
+import '../../features/staff/home_screen.dart' as staff_home;
+import '../../features/staff/complaints_screen.dart' as staff_complaints;
+import '../../features/staff/complaint_detail_screen.dart' as staff_detail;
+import '../../features/staff/profile_screen.dart' as staff_profile;
+
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
 
@@ -26,14 +33,20 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       if (authState.isLoading) return null;
 
-      final isAuthenticated = authState.value ?? false;
+      final authData = authState.value;
+      final isAuthenticated = authData?.isAuthenticated ?? false;
+      final role = authData?.role;
       final isLoggingIn = state.matchedLocation == '/login';
 
       if (!isAuthenticated && !isLoggingIn) {
         return '/login'; 
       }
       if (isAuthenticated && isLoggingIn) {
-        return '/resident/dashboard'; 
+        if (role == 'staff' || role == 'admin') {
+          return '/staff/dashboard';
+        } else {
+          return '/resident/dashboard';
+        }
       }
       return null;
     },
@@ -84,6 +97,33 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/resident/profile',
             builder: (context, state) => const ProfileScreen(),
+          ),
+        ],
+      ),
+      ShellRoute(
+        navigatorKey: GlobalKey<NavigatorState>(debugLabel: 'staff_shell'),
+        builder: (context, state, child) {
+          return staff.StaffShell(child: child);
+        },
+        routes: [
+          GoRoute(
+            path: '/staff/dashboard',
+            builder: (context, state) => const staff_home.HomeScreen(),
+          ),
+          GoRoute(
+            path: '/staff/complaints',
+            builder: (context, state) => const staff_complaints.ComplaintsScreen(),
+          ),
+          GoRoute(
+            path: '/staff/complaints/detail',
+            builder: (context, state) {
+              final complaint = state.extra as Complaint;
+              return staff_detail.ComplaintDetailScreen(complaint: complaint);
+            },
+          ),
+          GoRoute(
+            path: '/staff/profile',
+            builder: (context, state) => const staff_profile.ProfileScreen(),
           ),
         ],
       ),

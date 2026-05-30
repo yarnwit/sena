@@ -225,68 +225,42 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: _firstNameController,
-                                style: const TextStyle(color: Colors.white),
-                                decoration: _inputDecoration('ชื่อจริง'),
-                                validator: (v) =>
-                                    v!.isEmpty ? 'กรุณากรอกชื่อ' : null,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: TextFormField(
-                                controller: _lastNameController,
-                                style: const TextStyle(color: Colors.white),
-                                decoration: _inputDecoration('นามสกุล'),
-                                validator: (v) =>
-                                    v!.isEmpty ? 'กรุณากรอกนามสกุล' : null,
-                              ),
-                            ),
-                          ],
+                        TextFormField(
+                          controller: _firstNameController,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: _inputDecoration('ชื่อจริง'),
+                          validator: (v) => v!.isEmpty ? 'กรุณากรอกชื่อ' : null,
                         ),
                         const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: _houseNoController,
-                                style: const TextStyle(color: Colors.white),
-                                decoration: _inputDecoration('บ้านเลขที่'),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: TextFormField(
-                                controller: _phoneController,
-                                style: const TextStyle(color: Colors.white),
-                                decoration: _inputDecoration('เบอร์โทรศัพท์'),
-                              ),
-                            ),
-                          ],
+                        TextFormField(
+                          controller: _lastNameController,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: _inputDecoration('นามสกุล'),
+                          validator: (v) => v!.isEmpty ? 'กรุณากรอกนามสกุล' : null,
                         ),
                         const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: _phaseController,
-                                style: const TextStyle(color: Colors.white),
-                                decoration: _inputDecoration('เฟส'),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: TextFormField(
-                                controller: _soiController,
-                                style: const TextStyle(color: Colors.white),
-                                decoration: _inputDecoration('ซอย'),
-                              ),
-                            ),
-                          ],
+                        TextFormField(
+                          controller: _houseNoController,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: _inputDecoration('บ้านเลขที่'),
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _phoneController,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: _inputDecoration('เบอร์โทรศัพท์'),
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _phaseController,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: _inputDecoration('เฟส'),
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _soiController,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: _inputDecoration('ซอย'),
                         ),
                         const SizedBox(height: 16),
                         TextFormField(

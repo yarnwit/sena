@@ -41,7 +41,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AsyncValue<bool>>(authControllerProvider, (previous, next) {
+    ref.listen<AsyncValue<AuthState>>(authControllerProvider, (previous, next) {
       next.whenOrNull(
         error: (error, stackTrace) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -87,7 +87,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const Text(
                     'SENA',
                     style: TextStyle(
-                      fontSize: 24, // Increased
+                      fontSize: 20, // Decreased
                       fontFamily: 'serif',
                       letterSpacing: 1.5,
                       fontWeight: FontWeight.w400,
@@ -96,7 +96,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: 6),
                   Container(
-                    width: 300, // Increased
+                    width: 240, // Decreased
                     height: 1,
                     color: Colors.white,
                   ),
@@ -104,7 +104,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const Text(
                     'GRAND HOME',
                     style: TextStyle(
-                      fontSize: 48, // Increased
+                      fontSize: 36, // Decreased
                       fontFamily: 'serif',
                       fontWeight: FontWeight.w400,
                       color: Colors.white,
@@ -114,23 +114,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const Text(
                     'Rangsit - Tiwanon',
                     style: TextStyle(
-                      fontSize: 18, // Increased
+                      fontSize: 14, // Decreased
                       fontFamily: 'serif',
                       color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 36),
+                  const SizedBox(height: 24),
                   
                   // Description
                   const Text(
                     'ระบบจัดการรับเรื่องร้องเรียนและติดตามปัญหานิติบุคคล',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 16, // Increased
+                      fontSize: 14, // Decreased
                       color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 64),
+                  const SizedBox(height: 48),
 
                   // --- Radio Role Selection ---
                   Row(
@@ -161,7 +161,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 18,
+                                fontSize: 16, // Decreased
                               ),
                             ),
                           ],
@@ -193,7 +193,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 18,
+                                fontSize: 16, // Decreased
                               ),
                             ),
                           ],
@@ -201,7 +201,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
 
                   // --- Glassmorphism Input Fields ---
                   _buildGlassTextField(
@@ -249,7 +249,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               'จดจำไว้ในระบบ',
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.8), 
-                                fontSize: 15,
+                                fontSize: 14, // Decreased
                               ),
                             ),
                           ],
@@ -266,19 +266,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           'ลืมรหัสผ่าน?',
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.9),
-                            fontSize: 15,
+                            fontSize: 14, // Decreased
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 32),
 
                   // --- Premium Login Button ---
                   Container(
                     width: double.infinity,
-                    height: 60,
+                    height: 52, // Decreased
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
@@ -309,14 +309,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           : const Text(
                               'เข้าสู่ระบบ',
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 18, // Decreased
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1,
                               ),
                             ),
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
 
                   // Register Link
                   Row(
@@ -324,7 +324,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     children: [
                       Text(
                         'ยังไม่มีบัญชีผู้ใช้? ',
-                        style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 16),
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 14), // Decreased
                       ),
                       TextButton(
                         onPressed: () {},
@@ -337,7 +337,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           'ลงทะเบียน',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 16,
+                            fontSize: 14, // Decreased
                             fontWeight: FontWeight.bold,
                             decoration: TextDecoration.underline,
                             decorationColor: Colors.white,
@@ -346,7 +346,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),
@@ -380,23 +380,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           child: TextField(
             controller: controller,
             obscureText: obscure,
-            style: const TextStyle(color: Colors.white, fontSize: 18),
+            style: const TextStyle(color: Colors.white, fontSize: 16), // Decreased
             decoration: InputDecoration(
               hintText: hintText,
-              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 18),
-              prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.7), size: 28),
+              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 16), // Decreased
+              prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.7), size: 24), // Decreased
               suffixIcon: isPassword
                   ? IconButton(
                       icon: Icon(
                         obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                         color: Colors.white.withValues(alpha: 0.5),
-                        size: 28,
+                        size: 24, // Decreased
                       ),
                       onPressed: onToggleObscure,
                     )
                   : null,
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 18),
+              contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16), // Decreased
             ),
           ),
         ),
