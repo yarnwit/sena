@@ -63,7 +63,7 @@ export const getComments = async (req: Request, res: Response) => {
     );
 
     // 3. Merge and sort chronologically (oldest first)
-    const timeline = [...formattedComments, ...formattedAuditLogs];
+    const timeline: any[] = [...formattedComments, ...formattedAuditLogs];
     timeline.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 
     // 4. Check if missing create event
