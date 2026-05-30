@@ -96,6 +96,16 @@ const navItems = [
       { href: "/admin/users?mode=delete", label: "ลบบัญชีผู้ใช้งาน" }
     ]
   },
+  { 
+    label: "จัดการร้องเรียน", 
+    icon: LogsIcon,
+    subItems: [
+      { href: "/admin/complaints", label: "รายการร้องเรียนทั้งหมด" },
+      { href: "/admin/approvals", label: "รอเข้าที่ประชุม" },
+      { href: "/admin/meetings", label: "นำเรื่องเข้าที่ประชุม" },
+      { href: "/admin/maintenance", label: "ติดตามการแก้ไขปัญหา" }
+    ]
+  },
   { href: "/admin/reports", label: "รายงานสรุป", icon: ReportsIcon },
   { href: "/admin/profile", label: "โปรไฟล์", icon: ProfileIcon }
 ];
@@ -104,6 +114,11 @@ const navItems = [
 function getPageInfo(pathname: string) {
   if (pathname === "/admin/dashboard") return { icon: DashboardIcon, title: "ภาพรวมระบบ", subtitle: "สรุปข้อมูลทั้งระบบสำหรับผู้ดูแล" };
   if (pathname === "/admin/users") return { icon: UsersIcon, parent: "จัดการบัญชีผู้ใช้งาน", title: "บัญชีผู้ใช้ทั้งหมด", subtitle: "เพิ่ม ลบ แก้ไขสิทธิ์ผู้ใช้ทุก Role" };
+  if (pathname === "/admin/complaints") return { icon: LogsIcon, parent: "จัดการร้องเรียน", title: "รายการร้องเรียนทั้งหมด", subtitle: "ดูและจัดการเรื่องร้องเรียนในระบบทั้งหมด" };
+  if (pathname === "/admin/approvals") return { icon: LogsIcon, parent: "จัดการร้องเรียน", title: "รอเข้าที่ประชุม", subtitle: "เรื่องร้องเรียนที่รอการตรวจสอบเพื่อเข้าที่ประชุม" };
+  if (pathname === "/admin/meetings") return { icon: LogsIcon, parent: "จัดการร้องเรียน", title: "นำเรื่องเข้าที่ประชุม", subtitle: "จัดการเรื่องที่ต้องนำเข้าที่ประชุมหรืออยู่ระหว่างการประชุม" };
+  if (pathname === "/admin/maintenance") return { icon: LogsIcon, parent: "จัดการร้องเรียน", title: "ติดตามการแก้ไขปัญหา", subtitle: "จัดการปัญหาที่ต้องติดตามหรือรอการแก้ไขจากช่าง" };
+  if (pathname.startsWith("/admin/complaints/")) return { icon: LogsIcon, title: "รายละเอียดการร้องเรียน", subtitle: "ข้อมูลเรื่องร้องเรียนและการจัดการของแอดมิน" };
   if (pathname === "/admin/reports") return { icon: ReportsIcon, title: "รายงานสรุป", subtitle: "สถิติและรายงานภาพรวมเรื่องร้องเรียน" };
   if (pathname === "/admin/logs") return { icon: ReportsIcon, title: "Audit Logs", subtitle: "บันทึกการเปลี่ยนแปลงและกิจกรรมในระบบ" };
   if (pathname === "/admin/profile") return { icon: ProfileIcon, title: "โปรไฟล์ผู้ดูแลระบบ", subtitle: "จัดการข้อมูลส่วนตัวของผู้ดูแลระบบ" };
@@ -123,6 +138,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   // State for accordion menu
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
     "ผู้ใช้งานและสถิติ": pathname.startsWith("/admin/users") || pathname.startsWith("/admin/reports"),
+    "จัดการร้องเรียน": pathname.startsWith("/admin/complaints"),
     "ระบบ": pathname.startsWith("/admin/logs")
   });
 

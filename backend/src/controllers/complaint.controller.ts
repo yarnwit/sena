@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { ComplaintModel } from '../models/Complaint.model';
 import { ComplaintService } from '../services/complaint.service';
+import { AuditLogModel } from '../models/AuditLog.model';
 import { sendSuccess, sendError } from '../utils/response.util';
 import logger from '../config/logger';
 import { supabase } from '../config/supabase';
@@ -102,27 +103,7 @@ export const createComplaint = async (req: Request, res: Response) => {
 
     const result = await ComplaintService.createComplaint(residentId, req.body, userId);
     
-    // --- Add automatic system comment for creation history ---
-    try {
-      const { data: uData } = await supabase
-        .from('users')
-        .select('first_name, last_name, role')
-        .eq('user_id', userId)
-        .single();
 
-      if (uData) {
-        await supabase.from('comments').insert({
-          complaint_id: result.complaint_id,
-          user_id: userId,
-          content: '[ระบบ] สร้างเรื่องร้องเรียนเข้าระบบ',
-          user_name: `${uData.first_name || ''} ${uData.last_name || ''}`.trim() || 'ผู้ร้องเรียน',
-          user_role: uData.role || 'resident',
-        });
-      }
-    } catch (err) {
-      logger.error('Failed to insert system comment for creation:', err);
-    }
-    // ---------------------------------------------------------
 
     return sendSuccess(res, result, 'สร้างคำร้องสำเร็จ', 201);
   } catch (error: any) {
@@ -196,27 +177,30 @@ export const updateComplaint = async (req: Request, res: Response) => {
     const result = await ComplaintModel.update(req.params.id, req.body);
     if (!result) return sendError(res, 'Failed to update complaint');
 
-    // --- Add automatic system comment for edit history ---
+    // --- Audit Log for Complaint Update ---
     try {
-      const { data: uData } = await supabase
-        .from('users')
-        .select('first_name, last_name, role')
-        .eq('user_id', userId)
-        .single();
+      const updatedFields = Object.keys(req.body);
+      const oldData: any = {};
+      const newData: any = {};
+      
+      updatedFields.forEach(key => {
+        oldData[key] = (complaint as any)[key];
+        newData[key] = req.body[key];
+      });
 
-      if (uData) {
-        await supabase.from('comments').insert({
-          complaint_id: Number(req.params.id),
-          user_id: userId,
-          content: '[ระบบ] ทำการแก้ไขรายละเอียดคำร้อง',
-          user_name: `${uData.first_name || ''} ${uData.last_name || ''}`.trim() || 'ผู้ร้องเรียน',
-          user_role: uData.role || 'resident',
-        });
-      }
+      await AuditLogModel.create({
+        user_id: userId,
+        action: 'UPDATE_COMPLAINT',
+        entity: 'complaint',
+        entity_id: req.params.id,
+        details: { from: oldData, to: newData },
+        ip_address: req.ip
+      });
     } catch (err) {
-      logger.error('Failed to insert system comment for update:', err);
+      logger.error('Failed to insert audit log for update:', err);
     }
-    // -----------------------------------------------------
+
+
 
     logger.info(`Complaint updated: ${req.params.id} by user ${userId}`);
     return sendSuccess(res, result, 'อัปเดตคำร้องสำเร็จ');
@@ -239,27 +223,30 @@ export const updateComplaintByStaff = async (req: Request, res: Response) => {
     const result = await ComplaintModel.update(req.params.id, req.body);
     if (!result) return sendError(res, 'Failed to update complaint');
 
-    // --- Add automatic system comment for edit history ---
+    // --- Audit Log for Complaint Update ---
     try {
-      const { data: uData } = await supabase
-        .from('users')
-        .select('first_name, last_name, role')
-        .eq('user_id', userId)
-        .single();
+      const updatedFields = Object.keys(req.body);
+      const oldData: any = {};
+      const newData: any = {};
+      
+      updatedFields.forEach(key => {
+        oldData[key] = (complaint as any)[key];
+        newData[key] = req.body[key];
+      });
 
-      if (uData) {
-        await supabase.from('comments').insert({
-          complaint_id: Number(req.params.id),
-          user_id: userId,
-          content: '[ระบบ] ทำการแก้ไขรายละเอียดคำร้อง',
-          user_name: `${uData.first_name || ''} ${uData.last_name || ''}`.trim() || 'เจ้าหน้าที่',
-          user_role: uData.role || 'staff',
-        });
-      }
+      await AuditLogModel.create({
+        user_id: userId,
+        action: 'UPDATE_COMPLAINT_BY_STAFF',
+        entity: 'complaint',
+        entity_id: req.params.id,
+        details: { from: oldData, to: newData },
+        ip_address: req.ip
+      });
     } catch (err) {
-      logger.error('Failed to insert system comment for staff update:', err);
+      logger.error('Failed to insert audit log for staff update:', err);
     }
-    // -----------------------------------------------------
+
+
 
     logger.info(`Complaint updated by staff: ${req.params.id} by user ${userId}`);
     return sendSuccess(res, result, 'อัปเดตคำร้องสำเร็จ');
@@ -302,27 +289,7 @@ export const createComplaintForStaff = async (req: Request, res: Response) => {
 
     const result = await ComplaintService.createComplaintForStaff(req.body, userId);
     
-    // --- Add automatic system comment for creation history ---
-    try {
-      const { data: uData } = await supabase
-        .from('users')
-        .select('first_name, last_name, role')
-        .eq('user_id', userId)
-        .single();
 
-      if (uData) {
-        await supabase.from('comments').insert({
-          complaint_id: result.complaint_id,
-          user_id: userId,
-          content: '[ระบบ] สร้างเรื่องร้องเรียนเข้าระบบ',
-          user_name: `${uData.first_name || ''} ${uData.last_name || ''}`.trim() || 'เจ้าหน้าที่',
-          user_role: uData.role || 'staff',
-        });
-      }
-    } catch (err) {
-      logger.error('Failed to insert system comment for staff creation:', err);
-    }
-    // ---------------------------------------------------------
 
     return sendSuccess(res, result, 'สร้างคำร้องสำเร็จ', 201);
   } catch (error: any) {

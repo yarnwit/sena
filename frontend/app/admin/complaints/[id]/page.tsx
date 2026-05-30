@@ -112,7 +112,7 @@ const availableStatuses = [
   { value: "rejected", label: "ไม่อนุมัติ" },
 ];
 
-export default function StaffComplaintDetailPage() {
+export default function AdminComplaintDetail() {
   const params = useParams();
   const router = useRouter();
   const complaintId = params.id as string;
@@ -123,6 +123,8 @@ export default function StaffComplaintDetailPage() {
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Status Update State
   const [selectedStatus, setSelectedStatus] = useState<string>("");
@@ -225,7 +227,7 @@ export default function StaffComplaintDetailPage() {
               created_at: insertedComment.created_at,
               user_id: user.id,
               user_name: userData ? `${userData.first_name} ${userData.last_name}` : "ผู้ใช้",
-              user_role: userData?.role || "staff",
+              user_role: userData?.role || "admin",
             }]);
             setNewComment("");
           }
@@ -243,10 +245,32 @@ export default function StaffComplaintDetailPage() {
     }
   };
 
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      const token = localStorage.getItem("accessToken");
+      const res = await api.delete(`/complaints/${complaintId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.data.success) {
+        alert("ลบเรื่องร้องเรียนสำเร็จ");
+        router.push("/admin/complaints");
+      } else {
+        alert("เกิดข้อผิดพลาดในการลบ: " + res.data.message);
+        setDeleting(false);
+        setShowDeleteModal(false);
+      }
+    } catch (err: any) {
+      alert("เกิดข้อผิดพลาดในการลบ: " + (err.response?.data?.message || err.message));
+      setDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-10 h-10 border-4 border-gray-200 border-t-[#d4a574] rounded-full animate-spin"></div>
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-[#B31B1B] rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -256,7 +280,7 @@ export default function StaffComplaintDetailPage() {
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm text-center py-16 px-6 max-w-2xl mx-auto mt-10">
         <h3 className="text-lg font-bold text-gray-800 mb-2">ไม่พบเรื่องร้องเรียน</h3>
         <p className="text-sm text-gray-500 mb-6">เรื่องร้องเรียนนี้อาจถูกลบหรือไม่มีอยู่ในระบบ</p>
-        <Link href="/staff/complaints" className="inline-flex items-center px-6 py-2 bg-[#d4a574] text-white rounded-lg text-sm font-medium no-underline">
+        <Link href="/admin/complaints" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors no-underline group">
           กลับไปรายการร้องเรียน
         </Link>
       </div>
@@ -287,7 +311,6 @@ export default function StaffComplaintDetailPage() {
       };
       
       if (event.details?.to && event.details?.from) {
-        // Compare to find actual changes
         const changedKeys = Object.keys(event.details.to).filter(k => {
           return JSON.stringify(event.details.to[k]) !== JSON.stringify(event.details.from[k]);
         });
@@ -299,7 +322,6 @@ export default function StaffComplaintDetailPage() {
           return 'อัปเดตข้อมูลคำร้อง (ไม่มีการเปลี่ยนแปลงรายละเอียด)';
         }
       } else if (event.details?.to) {
-        // Fallback if 'from' doesn't exist
         const keys = Object.keys(event.details.to).map(k => fieldLabels[k] || k);
         return `แก้ไขรายละเอียดคำร้อง (${keys.join(', ')})`;
       }
@@ -315,38 +337,50 @@ export default function StaffComplaintDetailPage() {
 
   return (
     <div className="max-w-4xl mx-auto mb-10 space-y-6">
-      {/* Main Detail Card */}
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <Link href="/staff/complaints" className="p-1.5 -ml-1.5 hover:bg-gray-100 rounded-full transition-colors cursor-pointer" title="กลับไปหน้ารายการ">
+            <Link href="/admin/complaints" className="p-1.5 -ml-1.5 hover:bg-gray-100 rounded-full transition-colors cursor-pointer" title="กลับไปหน้ารายการ">
               <BackArrowIcon />
             </Link>
             <DocumentIcon />
             <span className="text-sm font-bold text-gray-800">รายละเอียดเรื่องร้องเรียน</span>
           </div>
-          <Link
-            href={complaint.status !== 'closed' ? `/staff/complaints/${complaint.complaint_id}/edit` : '#'}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold no-underline transition-all ${
-              complaint.status === 'closed'
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed pointer-events-none'
-                : 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 hover:border-amber-300'
-            }`}
-            title={complaint.status === 'closed' ? 'ไม่สามารถแก้ไขเรื่องที่ปิดแล้ว' : 'แก้ไขข้อมูลเรื่องร้องเรียน'}
-            aria-disabled={complaint.status === 'closed'}
-          >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-            </svg>
-            แก้ไข
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowDeleteModal(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all bg-gray-50 text-gray-600 border border-gray-200 hover:bg-red-50 hover:text-red-700 hover:border-red-200 cursor-pointer"
+              title="ลบเรื่องร้องเรียน"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+              ลบ
+            </button>
+            <Link
+              href={complaint.status !== 'closed' ? `/admin/complaints/${complaint.complaint_id}/edit` : '#'}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold no-underline transition-all ${
+                complaint.status === 'closed'
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed pointer-events-none'
+                  : 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 hover:border-red-300'
+              }`}
+              title={complaint.status === 'closed' ? 'ไม่สามารถแก้ไขเรื่องที่ปิดแล้ว' : 'แก้ไขข้อมูลเรื่องร้องเรียน'}
+              aria-disabled={complaint.status === 'closed'}
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+              แก้ไข
+            </Link>
+          </div>
         </div>
 
-        {/* Content */}
         <div className="p-6 md:p-8">
-          {/* Title & Status */}
           <div className="mb-8">
             <h1 className="text-xl font-bold text-gray-900 mb-3">{complaint.subject}</h1>
             <span className={`inline-flex px-4 py-1 rounded-full text-[11px] font-medium tracking-wide ${cfg.bgClass} ${cfg.textClass}`}>
@@ -354,7 +388,6 @@ export default function StaffComplaintDetailPage() {
             </span>
           </div>
 
-          {/* Info Grid */}
           <div className="bg-[#f8f9fa] rounded-2xl p-6 md:p-8 mb-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-y-6 sm:gap-y-8 gap-x-4">
               <div className="col-span-1">
@@ -395,13 +428,11 @@ export default function StaffComplaintDetailPage() {
             </div>
           </div>
 
-          {/* Description */}
           <div className="mb-8">
             <h3 className="text-sm font-bold text-gray-900 mb-3">รายละเอียดปัญหา</h3>
             <p className="text-xs leading-relaxed text-gray-600 whitespace-pre-wrap">{complaint.description || "-"}</p>
           </div>
 
-          {/* Attachment */}
           <div className="mb-10">
             <h3 className="text-sm font-bold text-gray-900 mb-1">ไฟล์แนบ</h3>
             <p className="text-xs text-gray-500 mb-4">ภาพประกอบปัญหา</p>
@@ -420,7 +451,6 @@ export default function StaffComplaintDetailPage() {
             )}
           </div>
 
-          {/* Review Section */}
           <div className="bg-[#f8f9fa] rounded-2xl p-6 md:p-8 mb-8">
             <h3 className="text-sm font-bold text-gray-900 mb-2">ส่วนพิจารณาคำร้อง</h3>
             <p className="text-xs text-gray-500 mb-6">การพิจารณาผลดำเนินการ หรือ การอนุมัติตามระเบียบนิติบุคคล</p>
@@ -463,7 +493,7 @@ export default function StaffComplaintDetailPage() {
 
             <div>
               <p className="text-xs text-gray-500 mb-3">ความเห็นคณะกรรมการ (เหตุผลประกอบการพิจารณา)</p>
-              <div className="bg-white border border-gray-200 rounded-2xl p-4 min-h-[140px] relative focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-100 transition-all">
+              <div className="bg-white border border-gray-200 rounded-2xl p-4 min-h-[140px] relative focus-within:border-red-400 focus-within:ring-2 focus-within:ring-red-100 transition-all">
                 <div className="absolute top-4 left-4"><ChatBubbleIcon /></div>
                 <textarea
                   value={petition}
@@ -478,14 +508,21 @@ export default function StaffComplaintDetailPage() {
         </div>
       </div>
 
-      {/* Staff Action Card - Unified Status & Progress Update */}
-      <div className="bg-white rounded-2xl border border-amber-200 shadow-sm p-6 md:p-8 mt-8">
-        <h3 className="text-sm font-bold text-gray-800 mb-6 flex items-center gap-2">
-          <svg className="w-5 h-5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-          </svg>
-          อัปเดตสถานะและความคืบหน้า
-        </h3>
+      <div className="bg-white rounded-2xl border border-red-200 shadow-sm p-6 md:p-8 mt-8">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+            <svg className="w-5 h-5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+            อัปเดตสถานะและความคืบหน้า
+          </h3>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 text-red-700 font-semibold text-xs border border-red-100">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            Admin View
+          </span>
+        </div>
         <div className="pl-2 mb-8">
           <StatusTimeline 
             currentStatus={selectedStatus}
@@ -501,7 +538,7 @@ export default function StaffComplaintDetailPage() {
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="พิมพ์อัปเดตความคืบหน้าให้ลูกบ้านทราบ..."
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 placeholder-gray-400 outline-none transition-all focus:border-[#d4a574] focus:ring-2 focus:ring-amber-100 min-h-[100px] resize-y"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 placeholder-gray-400 outline-none transition-all focus:border-[#B31B1B] focus:ring-2 focus:ring-red-100 min-h-[100px] resize-y"
             disabled={complaint.status === "closed" && userRole !== "admin"}
           />
         </div>
@@ -510,17 +547,16 @@ export default function StaffComplaintDetailPage() {
           <button
             onClick={handleUpdateStatusAndComment}
             disabled={updatingStatus || (selectedStatus === complaint.status && petition === (complaint.petition || "") && newComment.trim() === "") || (complaint.status === "closed" && userRole !== "admin")}
-            className="px-8 py-3.5 rounded-xl bg-[#d4a574] hover:bg-[#b8865a] text-white text-sm font-bold border-none cursor-pointer transition-colors shadow-lg shadow-amber-500/20 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto text-center"
+            className="px-8 py-3.5 rounded-xl bg-[#B31B1B] hover:bg-red-800 text-white text-sm font-bold border-none cursor-pointer transition-colors shadow-lg shadow-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto text-center"
           >
             {updatingStatus ? "กำลังบันทึก..." : "อัปเดตข้อมูล"}
           </button>
         </div>
       </div>
 
-      {/* Comments History Section */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mt-8">
         <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <svg className="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-4 h-4 text-[#B31B1B] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
           ประวัติการดำเนินการ
@@ -579,6 +615,53 @@ export default function StaffComplaintDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center animate-in zoom-in-95 duration-200">
+            <div className="w-20 h-20 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-red-500/20">
+              <svg className="w-10 h-10 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">ยืนยันการลบเรื่องร้องเรียน</h3>
+            <p className="text-sm text-gray-500 mb-8">
+              คุณต้องการลบเรื่องร้องเรียนนี้ใช่หรือไม่? การกระทำนี้ไม่สามารถเรียกคืนได้
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleting}
+                className="px-6 py-3.5 border border-gray-200 rounded-2xl text-gray-700 font-bold hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="px-6 py-3.5 bg-red-500 text-white rounded-2xl font-bold hover:bg-red-600 shadow-lg shadow-red-500/30 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {deleting ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                    </svg>
+                    กำลังลบ...
+                  </>
+                ) : (
+                  "ยืนยันการลบ"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

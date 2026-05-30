@@ -13,12 +13,94 @@ export const getComments = async (req: Request, res: Response) => {
     const complaint = await ComplaintModel.findById(id);
     if (!complaint) return sendError(res, 'ไม่พบคำร้องนี้', 404);
 
+    // 1. Fetch and format regular comments
     const comments = await CommentModel.findByComplaintId(id);
-    const enriched = await CommentModel.enrichMany(comments);
+    const enrichedComments = await CommentModel.enrichMany(comments);
+    const formattedComments = enrichedComments.map(c => ({
+      id: `comment_${c.comment_id}`,
+      type: 'comment',
+      content: c.content,
+      created_at: c.created_at,
+      user_id: c.user_id,
+      user_name: `${c.first_name || ''} ${c.last_name || ''}`.trim() || 'ผู้ใช้',
+      user_role: c.role || 'resident',
+    }));
 
-    return sendSuccess(res, enriched);
+    // 2. Fetch and format audit logs
+    const { AuditLogModel } = await import('../models/AuditLog.model');
+    const { supabase } = await import('../config/supabase');
+    
+    const auditLogs = await AuditLogModel.findByEntity('complaint', id);
+    const formattedAuditLogs = await Promise.all(
+      auditLogs.map(async (log) => {
+        let first_name = '';
+        let last_name = '';
+        let role = '';
+
+        const { data: uData } = await supabase
+          .from('users')
+          .select('first_name, last_name, role')
+          .eq('user_id', log.user_id)
+          .single();
+
+        if (uData) {
+          first_name = uData.first_name || '';
+          last_name = uData.last_name || '';
+          role = uData.role || '';
+        }
+
+        return {
+          id: `log_${log.log_id}`,
+          type: 'system_log',
+          action: log.action,
+          details: log.details,
+          created_at: log.created_at,
+          user_id: log.user_id,
+          user_name: `${first_name} ${last_name}`.trim() || 'ระบบ',
+          user_role: role || 'system',
+        };
+      })
+    );
+
+    // 3. Merge and sort chronologically (oldest first)
+    const timeline = [...formattedComments, ...formattedAuditLogs];
+    timeline.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+    // 4. Check if missing create event
+    const hasCreationEvent = timeline.some(e => 
+      e.action === 'CREATE_COMPLAINT' || 
+      e.action === 'CREATE_COMPLAINT_BY_STAFF' || 
+      e.content === '[ระบบ] สร้างเรื่องร้องเรียนเข้าระบบ'
+    );
+    
+    if (!hasCreationEvent) {
+      let first_name = '';
+      let last_name = '';
+      if (complaint.resident_id) {
+        const { data: resData } = await supabase.from('resident').select('user_id').eq('resident_id', complaint.resident_id).single();
+        if (resData?.user_id) {
+          const { data: uData } = await supabase.from('users').select('first_name, last_name').eq('user_id', resData.user_id).single();
+          if (uData) {
+            first_name = uData.first_name || '';
+            last_name = uData.last_name || '';
+          }
+        }
+      }
+
+      timeline.unshift({
+        id: 'legacy_create',
+        type: 'system_log',
+        action: 'CREATE_COMPLAINT',
+        created_at: (complaint as any).reported_date || (complaint as any).created_at || new Date().toISOString(),
+        user_id: '',
+        user_name: `${first_name} ${last_name}`.trim() || 'ผู้ร้องเรียน',
+        user_role: 'resident'
+      });
+    }
+
+    return sendSuccess(res, timeline);
   } catch (error) {
-    logger.error('Get comments error:', error);
+    logger.error('Get comments/timeline error:', error);
     return sendError(res, 'Internal server error');
   }
 };

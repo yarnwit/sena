@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import StatusTimeline from "@/components/complaints/StatusTimeline";
+import api from "@/lib/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -27,6 +28,18 @@ interface ComplaintDetail {
   phone_number?: string;
   resident_type?: string;
   reviewer_name?: string | null;
+}
+
+interface TimelineEvent {
+  id: string | number;
+  type: 'comment' | 'system_log';
+  content?: string;
+  action?: string;
+  details?: any;
+  created_at: string;
+  user_name: string;
+  user_role: string;
+  user_id: string;
 }
 
 /* ===== Config Maps ===== */
@@ -101,6 +114,7 @@ export default function ComplaintDetailPage() {
   const complaintId = params.id as string;
 
   const [complaint, setComplaint] = useState<ComplaintDetail | null>(null);
+  const [comments, setComments] = useState<TimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
 
@@ -145,6 +159,16 @@ export default function ComplaintDetailPage() {
         }
       }
 
+      // Fetch Timeline
+      try {
+        const timelineRes = await api.get(`/complaints/${complaintId}/comments`);
+        if (timelineRes.data?.success) {
+          setComments(timelineRes.data.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch timeline:", err);
+      }
+
       setLoading(false);
     };
 
@@ -182,6 +206,50 @@ export default function ComplaintDetailPage() {
   const fmtDate = `${d.getDate()} ${thaiMonths[d.getMonth()]} ${((d.getFullYear() + 543) % 100).toString()}`;
 
   const isImage = complaint.attachment_url && /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(complaint.attachment_url);
+
+  const formatSystemLog = (event: TimelineEvent) => {
+    if (event.action === 'CREATE_COMPLAINT' || event.action === 'CREATE_COMPLAINT_BY_STAFF' || event.content === '[ระบบ] สร้างเรื่องร้องเรียนเข้าระบบ') {
+      return 'สร้างเรื่องร้องเรียนเข้าระบบ';
+    }
+    if (event.action === 'UPDATE_STATUS') {
+      return `เปลี่ยนสถานะเป็น "${statusConfig[event.details?.to]?.label || event.details?.to}"`;
+    }
+    if (event.action === 'UPDATE_COMPLAINT' || event.action === 'UPDATE_COMPLAINT_BY_STAFF') {
+      const fieldLabels: Record<string, string> = {
+        subject: 'หัวข้อเรื่อง',
+        description: 'รายละเอียด',
+        location_written: 'สถานที่',
+        intake_channel: 'ช่องทาง',
+        attachment_url: 'ไฟล์แนบ',
+        petition: 'ความเห็นคณะกรรมการ'
+      };
+      
+      if (event.details?.to && event.details?.from) {
+        // Compare to find actual changes
+        const changedKeys = Object.keys(event.details.to).filter(k => {
+          return JSON.stringify(event.details.to[k]) !== JSON.stringify(event.details.from[k]);
+        });
+        
+        if (changedKeys.length > 0) {
+          const keys = changedKeys.map(k => fieldLabels[k] || k);
+          return `แก้ไขรายละเอียดคำร้อง (${keys.join(', ')})`;
+        } else {
+          return 'อัปเดตข้อมูลคำร้อง (ไม่มีการเปลี่ยนแปลงรายละเอียด)';
+        }
+      } else if (event.details?.to) {
+        // Fallback if 'from' doesn't exist
+        const keys = Object.keys(event.details.to).map(k => fieldLabels[k] || k);
+        return `แก้ไขรายละเอียดคำร้อง (${keys.join(', ')})`;
+      }
+      return 'แก้ไขรายละเอียดคำร้อง';
+    }
+    
+    if (event.content && event.content.startsWith('[ระบบ]')) {
+      return event.content.replace('[ระบบ] ', '');
+    }
+    
+    return event.action || 'อัปเดตข้อมูล';
+  };
 
   return (
     <div className="max-w-4xl mx-auto mb-10 bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
@@ -356,6 +424,69 @@ export default function ComplaintDetailPage() {
               isInteractive={false}
             />
           </div>
+        </div>
+
+        {/* Comments History Section */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 md:p-8 mt-8">
+          <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <svg className="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            ประวัติการดำเนินการ
+          </h3>
+
+          {comments.length === 0 ? (
+            <div className="text-center py-8 text-sm text-gray-400">ยังไม่มีประวัติความคืบหน้า</div>
+          ) : (
+            <div className="space-y-4 mb-6">
+              {comments.map((event) => {
+                if (event.type === 'system_log') {
+                  return (
+                    <div key={event.id} className="flex flex-col items-center justify-center my-6 relative">
+                      <div className="absolute w-full h-px bg-gray-100 top-1/2 -translate-y-1/2 -z-10"></div>
+                      <div className="bg-white px-4 py-1.5 rounded-full border border-gray-100 shadow-sm flex items-center gap-2">
+                        <svg className="w-3.5 h-3.5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <span className="text-xs text-gray-500 font-medium">
+                          {event.user_name} <span className="font-normal text-gray-400">({event.user_role === 'staff' ? 'เจ้าหน้าที่' : event.user_role === 'admin' ? 'แอดมิน' : 'ลูกบ้าน'})</span>
+                          <span className="font-normal text-gray-500"> ได้ทำการ{formatSystemLog(event)}</span>
+                        </span>
+                        <span className="text-[10px] text-gray-400 ml-1">
+                          {new Date(event.created_at).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div key={event.id} className="flex gap-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0 ${
+                      event.user_role === 'resident' ? 'bg-gradient-to-br from-blue-500 to-blue-400' :
+                      event.user_role === 'admin' ? 'bg-gradient-to-br from-red-500 to-red-400' :
+                      'bg-gradient-to-br from-amber-500 to-amber-400'
+                    }`}>
+                      {event.user_name?.charAt(0)?.toUpperCase() || "?"}
+                    </div>
+                    <div className="flex-1 bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
+                      <div className="text-xs font-semibold text-gray-800 mb-1">
+                        {event.user_name}
+                        <span className="font-normal text-gray-400 ml-2">
+                          {event.user_role === "staff" ? "เจ้าหน้าที่" : event.user_role === "admin" ? "แอดมิน" : "ลูกบ้าน"}
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">{event.content}</div>
+                      <div className="text-[11px] text-gray-400 mt-1">
+                        {new Date(event.created_at).toLocaleDateString("th-TH", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
       </div>

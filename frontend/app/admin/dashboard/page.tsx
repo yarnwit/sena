@@ -35,7 +35,8 @@ interface RecentUser {
 }
 
 interface ActivityItem {
-  id: number;
+  id?: number;
+  log_id?: number;
   action: string;
   entity: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -551,8 +552,8 @@ export default function AdminDashboardPage() {
               <div className="flex flex-col items-center justify-center p-10 py-5 text-sm text-gray-400 gap-2">ยังไม่มีกิจกรรม</div>
             ) : (
               <div className="flex flex-col gap-0">
-                {activities.map(a => (
-                  <div key={a.id} className="flex items-start gap-3 py-3 border-b border-gray-100 last:border-0 relative">
+                {activities.map((a, idx) => (
+                  <div key={a.log_id || a.id || idx} className="flex items-start gap-3 py-3 border-b border-gray-100 last:border-0 relative">
                     <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
                       actionType(a.action) === 'create' ? 'bg-emerald-500' :
                       actionType(a.action) === 'update' ? 'bg-indigo-500' :

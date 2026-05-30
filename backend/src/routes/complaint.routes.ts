@@ -63,5 +63,4 @@ router.patch('/:id', authenticate, updateComplaint);
 
 // ลบคำร้อง — Admin only
 router.delete('/:id', authenticate, authorize('admin'), deleteComplaint);
-
 export default router;
