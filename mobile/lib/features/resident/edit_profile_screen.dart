@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -34,13 +33,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _firstNameController = TextEditingController(text: widget.profile.firstName);
+    _firstNameController = TextEditingController(
+      text: widget.profile.firstName,
+    );
     _lastNameController = TextEditingController(text: widget.profile.lastName);
     _houseNoController = TextEditingController(text: widget.profile.houseNo);
     _phoneController = TextEditingController(text: widget.profile.phoneNumber);
     _phaseController = TextEditingController(text: widget.profile.phase);
     _soiController = TextEditingController(text: widget.profile.soi);
-    _residentTypeController = TextEditingController(text: widget.profile.residentType);
+    _residentTypeController = TextEditingController(
+      text: widget.profile.residentType,
+    );
   }
 
   @override
@@ -60,27 +63,35 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Future<void> _submitProfile() async {
     if (_profileFormKey.currentState!.validate()) {
       setState(() => _isLoadingProfile = true);
-      final success = await ref.read(profileControllerProvider.notifier).updateProfile(
-        firstName: _firstNameController.text,
-        lastName: _lastNameController.text,
-        houseNo: _houseNoController.text,
-        phoneNumber: _phoneController.text,
-        phase: _phaseController.text,
-        soi: _soiController.text,
-        residentType: _residentTypeController.text,
-      );
+      final success = await ref
+          .read(profileControllerProvider.notifier)
+          .updateProfile(
+            firstName: _firstNameController.text,
+            lastName: _lastNameController.text,
+            houseNo: _houseNoController.text,
+            phoneNumber: _phoneController.text,
+            phase: _phaseController.text,
+            soi: _soiController.text,
+            residentType: _residentTypeController.text,
+          );
       setState(() => _isLoadingProfile = false);
 
       if (success) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('อัปเดตโปรไฟล์สำเร็จ!'), backgroundColor: Color(0xFF28ED0A)),
+          const SnackBar(
+            content: Text('อัปเดตโปรไฟล์สำเร็จ!'),
+            backgroundColor: Color(0xFF28ED0A),
+          ),
         );
         context.pop();
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('เกิดข้อผิดพลาดในการอัปเดตโปรไฟล์'), backgroundColor: Colors.redAccent),
+          const SnackBar(
+            content: Text('เกิดข้อผิดพลาดในการอัปเดตโปรไฟล์'),
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
     }
@@ -89,22 +100,28 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Future<void> _submitPassword() async {
     if (_passwordFormKey.currentState!.validate()) {
       setState(() => _isLoadingPassword = true);
-      final success = await ref.read(profileControllerProvider.notifier).changePassword(
-        newPassword: _newPasswordController.text,
-      );
+      final success = await ref
+          .read(profileControllerProvider.notifier)
+          .changePassword(newPassword: _newPasswordController.text);
       setState(() => _isLoadingPassword = false);
 
       if (success) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('เปลี่ยนรหัสผ่านสำเร็จ!'), backgroundColor: Color(0xFF28ED0A)),
+          const SnackBar(
+            content: Text('เปลี่ยนรหัสผ่านสำเร็จ!'),
+            backgroundColor: Color(0xFF28ED0A),
+          ),
         );
         _newPasswordController.clear();
         _confirmPasswordController.clear();
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน'), backgroundColor: Colors.redAccent),
+          const SnackBar(
+            content: Text('เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน'),
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
     }
@@ -137,7 +154,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       extendBodyBehindAppBar: true,
       backgroundColor: const Color(0xFF161D19),
       appBar: AppBar(
-        title: const Text('แก้ไขข้อมูลส่วนตัว', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'แก้ไขข้อมูลส่วนตัว',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
@@ -170,18 +190,28 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.person, color: Colors.white.withValues(alpha: 0.8), size: 20),
+                            Icon(
+                              Icons.person,
+                              color: Colors.white.withValues(alpha: 0.8),
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             const Text(
                               'ข้อมูลส่วนตัว',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
                             ),
                           ],
                         ),
@@ -190,7 +220,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           initialValue: widget.profile.username,
                           readOnly: true,
                           style: const TextStyle(color: Colors.white54),
-                          decoration: _inputDecoration('ชื่อผู้ใช้งาน (อ่านได้อย่างเดียว)'),
+                          decoration: _inputDecoration(
+                            'ชื่อผู้ใช้งาน (อ่านได้อย่างเดียว)',
+                          ),
                         ),
                         const SizedBox(height: 16),
                         Row(
@@ -200,7 +232,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 controller: _firstNameController,
                                 style: const TextStyle(color: Colors.white),
                                 decoration: _inputDecoration('ชื่อจริง'),
-                                validator: (v) => v!.isEmpty ? 'กรุณากรอกชื่อ' : null,
+                                validator: (v) =>
+                                    v!.isEmpty ? 'กรุณากรอกชื่อ' : null,
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -209,7 +242,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 controller: _lastNameController,
                                 style: const TextStyle(color: Colors.white),
                                 decoration: _inputDecoration('นามสกุล'),
-                                validator: (v) => v!.isEmpty ? 'กรุณากรอกนามสกุล' : null,
+                                validator: (v) =>
+                                    v!.isEmpty ? 'กรุณากรอกนามสกุล' : null,
                               ),
                             ),
                           ],
@@ -258,28 +292,43 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         TextFormField(
                           controller: _residentTypeController,
                           style: const TextStyle(color: Colors.white),
-                          decoration: _inputDecoration('ประเภทผู้อยู่อาศัย (เช่น tenant, owner)'),
+                          decoration: _inputDecoration(
+                            'ประเภทผู้อยู่อาศัย (เช่น tenant, owner)',
+                          ),
                         ),
                         const SizedBox(height: 24),
                         SizedBox(
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed: _isLoadingProfile ? null : _submitProfile,
+                            onPressed: _isLoadingProfile
+                                ? null
+                                : _submitProfile,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF28ED0A),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                             child: _isLoadingProfile
-                                ? const CircularProgressIndicator(color: Colors.white)
-                                : const Text('บันทึกข้อมูล', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                : const Text(
+                                    'บันทึกข้อมูล',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
 
                 // --- Change Password Form ---
@@ -290,18 +339,28 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.lock, color: Colors.white.withValues(alpha: 0.8), size: 20),
+                            Icon(
+                              Icons.lock,
+                              color: Colors.white.withValues(alpha: 0.8),
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             const Text(
                               'เปลี่ยนรหัสผ่าน',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
                             ),
                           ],
                         ),
@@ -310,8 +369,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           controller: _newPasswordController,
                           obscureText: true,
                           style: const TextStyle(color: Colors.white),
-                          decoration: _inputDecoration('รหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)'),
-                          validator: (v) => v!.length < 6 ? 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร' : null,
+                          decoration: _inputDecoration(
+                            'รหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)',
+                          ),
+                          validator: (v) => v!.length < 6
+                              ? 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร'
+                              : null,
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
@@ -331,14 +394,27 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed: _isLoadingPassword ? null : _submitPassword,
+                            onPressed: _isLoadingPassword
+                                ? null
+                                : _submitPassword,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF28ED0A),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                             child: _isLoadingPassword
-                                ? const CircularProgressIndicator(color: Colors.white)
-                                : const Text('เปลี่ยนรหัสผ่าน', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                : const Text(
+                                    'เปลี่ยนรหัสผ่าน',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                           ),
                         ),
                       ],
