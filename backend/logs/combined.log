@@ -8928,3 +8928,44 @@
 {"level":"info","message":"::1 - - [30/May/2026:14:36:19 +0000] \"GET /api/complaints/user-info HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T14:36:19.364Z"}
 {"level":"info","message":"::1 - - [30/May/2026:14:36:19 +0000] \"GET /api/users/profile HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T14:36:19.396Z"}
 {"level":"info","message":"::1 - - [30/May/2026:14:36:19 +0000] \"GET /api/users/profile HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T14:36:19.599Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T15:24:11.065Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-30T15:24:11.066Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T15:24:11.066Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-30T15:24:11.066Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-30T15:24:11.067Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-30T15:24:11.067Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T15:24:11.067Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T15:32:44.564Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-30T15:32:44.565Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T15:32:44.565Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-30T15:32:44.565Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-30T15:32:44.566Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-30T15:32:44.566Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T15:32:44.566Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T15:42:00.353Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-30T15:42:00.355Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T15:42:00.355Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-30T15:42:00.355Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-30T15:42:00.355Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-30T15:42:00.356Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T15:42:00.356Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T15:54:56.565Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-30T15:54:56.566Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T15:54:56.566Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-30T15:54:56.566Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-30T15:54:56.567Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-30T15:54:56.567Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T15:54:56.567Z"}
+{"level":"info","message":"[LOGIN DEBUG] Attempting login for username: Boss1","timestamp":"2026-05-30T16:09:34.532Z"}
+{"level":"info","message":"[LOGIN DEBUG] User found in DB: Boss1, password_hash: $2b$12$1ZC...","timestamp":"2026-05-30T16:09:34.855Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-30T16:09:35.191Z"}
+{"level":"warn","message":"[LOGIN DEBUG] Controller caught Invalid credentials for: Boss1","timestamp":"2026-05-30T16:09:35.192Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:09:35 +0000] \"POST /api/auth/login HTTP/1.1\" 401 49 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:09:35.196Z"}
+{"level":"info","message":"[LOGIN DEBUG] Attempting login for username: bosstest","timestamp":"2026-05-30T16:09:54.101Z"}
+{"level":"info","message":"[LOGIN DEBUG] User found in DB: bosstest, password_hash: $2b$12$LbG...","timestamp":"2026-05-30T16:09:54.480Z"}
+{"level":"info","message":"User logged in with username: bosstest","timestamp":"2026-05-30T16:09:55.012Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:09:55 +0000] \"POST /api/auth/login HTTP/1.1\" 200 439 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:09:55.015Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:09:58 +0000] \"GET /api/complaints/my HTTP/1.1\" 200 46 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:09:58.207Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:09:58 +0000] \"GET /api/complaints/my HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:09:58.468Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:09:58 +0000] \"GET /api/complaints/user-info HTTP/1.1\" 200 192 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:09:58.673Z"}
+{"level":"info","message":"::1 - - [30/May/2026:16:09:58 +0000] \"GET /api/complaints/user-info HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T16:09:58.988Z"}
