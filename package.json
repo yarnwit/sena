@@ -1,0 +1,23 @@
+{
+  "name": "sena",
+  "version": "1.0.0",
+  "description": "ระบบรับร้องเรียนและติดตามสถานะสำหรับนิติบุคคล พัฒนาด้วย Next.js + Express.js + Supabase",
+  "main": "generate-jwt.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yarnwit/sena.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/yarnwit/sena/issues"
+  },
+  "homepage": "https://github.com/yarnwit/sena#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^25.9.1"
+  }
+}

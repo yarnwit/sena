@@ -8867,3 +8867,26 @@
 {"level":"info","message":"::1 - - [30/May/2026:04:58:30 +0000] \"GET /api/admin/reports HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T04:58:30.109Z"}
 {"level":"info","message":"::1 - - [30/May/2026:04:58:30 +0000] \"GET /api/complaints/all?limit=8&sort=desc HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T04:58:30.255Z"}
 {"level":"info","message":"::1 - - [30/May/2026:04:58:30 +0000] \"GET /api/complaints/all?limit=8&sort=desc HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0\"","timestamp":"2026-05-30T04:58:30.575Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T08:48:15.423Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-05-30T08:48:15.424Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T08:48:15.424Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-05-30T08:48:15.424Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-05-30T08:48:15.425Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-05-30T08:48:15.425Z"}
+{"level":"info","message":"=================================","timestamp":"2026-05-30T08:48:15.425Z"}
+{"level":"info","message":"[LOGIN DEBUG] Attempting login for username: bosstest02","timestamp":"2026-05-30T08:56:38.978Z"}
+{"level":"info","message":"[LOGIN DEBUG] User found in DB: bosstest02, password_hash: $2b$12$KIv...","timestamp":"2026-05-30T08:56:40.002Z"}
+{"level":"info","message":"User logged in with username: bosstest02","timestamp":"2026-05-30T08:56:40.471Z"}
+{"level":"info","message":"::1 - - [30/May/2026:08:56:40 +0000] \"POST /api/auth/login HTTP/1.1\" 200 452 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36\"","timestamp":"2026-05-30T08:56:40.476Z"}
+{"level":"info","message":"::1 - - [30/May/2026:08:56:41 +0000] \"GET /api/complaints/my HTTP/1.1\" 200 46 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36\"","timestamp":"2026-05-30T08:56:41.017Z"}
+{"level":"info","message":"::1 - - [30/May/2026:08:56:41 +0000] \"GET /api/complaints/user-info HTTP/1.1\" 200 202 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36\"","timestamp":"2026-05-30T08:56:41.283Z"}
+{"level":"info","message":"::1 - - [30/May/2026:08:56:41 +0000] \"GET /api/complaints/my HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36\"","timestamp":"2026-05-30T08:56:41.287Z"}
+{"level":"info","message":"::1 - - [30/May/2026:08:56:41 +0000] \"GET /api/complaints/user-info HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36\"","timestamp":"2026-05-30T08:56:41.499Z"}
+{"level":"info","message":"[LOGIN DEBUG] Attempting login for username: bosstest02","timestamp":"2026-05-30T09:07:45.026Z"}
+{"level":"info","message":"[LOGIN DEBUG] User found in DB: bosstest02, password_hash: $2b$12$KIv...","timestamp":"2026-05-30T09:07:46.080Z"}
+{"level":"info","message":"User logged in with username: bosstest02","timestamp":"2026-05-30T09:07:46.456Z"}
+{"level":"info","message":"::1 - - [30/May/2026:09:07:46 +0000] \"POST /api/auth/login HTTP/1.1\" 200 452 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.7778.96 Safari/537.36\"","timestamp":"2026-05-30T09:07:46.458Z"}
+{"level":"info","message":"::1 - - [30/May/2026:09:07:46 +0000] \"GET /api/complaints/my HTTP/1.1\" 200 46 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.7778.96 Safari/537.36\"","timestamp":"2026-05-30T09:07:46.910Z"}
+{"level":"info","message":"::1 - - [30/May/2026:09:07:47 +0000] \"GET /api/complaints/my HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.7778.96 Safari/537.36\"","timestamp":"2026-05-30T09:07:47.100Z"}
+{"level":"info","message":"::1 - - [30/May/2026:09:07:47 +0000] \"GET /api/complaints/user-info HTTP/1.1\" 200 202 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.7778.96 Safari/537.36\"","timestamp":"2026-05-30T09:07:47.232Z"}
+{"level":"info","message":"::1 - - [30/May/2026:09:07:47 +0000] \"GET /api/complaints/user-info HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.7778.96 Safari/537.36\"","timestamp":"2026-05-30T09:07:47.419Z"}
