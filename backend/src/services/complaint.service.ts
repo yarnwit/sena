@@ -119,7 +119,7 @@ export const ComplaintService = {
   /**
    * สร้างคำร้องใหม่ (resident)
    */
-  async createComplaint(residentId: number, input: {
+  async createComplaint(residentId: number | null, input: {
     subject: string;
     description: string;
     location_written?: string | null;
@@ -211,7 +211,7 @@ export const ComplaintService = {
     const ticketNo = generateTicketNo();
 
     const result = await ComplaintModel.create({
-      resident_id: finalResidentId as number,
+      resident_id: finalResidentId,
       ticket_no: ticketNo,
       subject: input.subject,
       description: finalDescription,

@@ -17,7 +17,7 @@ export interface ComplaintRecord {
 }
 
 export interface ComplaintCreateInput {
-  resident_id: number;
+  resident_id: number | null;
   ticket_no: string;
   subject: string;
   description: string;

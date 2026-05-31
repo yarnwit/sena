@@ -157,7 +157,6 @@ export const createComplaint = async (req: Request, res: Response) => {
     const result = await ComplaintService.createComplaint(residentId, req.body, userId);
     
 
-
     return sendSuccess(res, result, 'สร้างคำร้องสำเร็จ', 201);
   } catch (error: any) {
     logger.error('Create complaint error:', error);
