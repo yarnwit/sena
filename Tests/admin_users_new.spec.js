@@ -1,0 +1,32 @@
+import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.goto('http://localhost:3000/login');
+  await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).click();
+  await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).fill('Tu1');
+  await page.getByRole('textbox', { name: 'รหัสผ่าน' }).click();
+  await page.getByRole('textbox', { name: 'รหัสผ่าน' }).fill('123456');
+  await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).click();
+  await page.getByRole('link', { name: 'เพิ่มบัญชีผู้ใช้งาน' }).click();
+  await page.getByRole('textbox', { name: 'เช่น somchai123' }).click();
+  await page.getByRole('textbox', { name: 'เช่น somchai123' }).fill('IA_001');
+  await page.getByRole('textbox', { name: 'ตั้งรหัสผ่าน 6 ตัวอักษรขึ้นไป' }).click();
+  await page.getByRole('textbox', { name: 'ตั้งรหัสผ่าน 6 ตัวอักษรขึ้นไป' }).fill('123456');
+  await page.locator('input[name="first_name"]').click();
+  await page.locator('input[name="first_name"]').fill('ลุง');
+  await page.locator('input[name="last_name"]').click();
+  await page.locator('input[name="last_name"]').fill('เอ');
+  await page.locator('input[name="phone_number"]').click();
+  await page.locator('input[name="phone_number"]').fill('0574129654');
+  await page.getByRole('textbox', { name: 'เช่น 123/' }).click();
+  await page.getByRole('textbox', { name: 'เช่น 123/' }).fill('123/45');
+  await page.getByRole('textbox', { name: 'เช่น เฟส' }).click();
+  await page.getByRole('textbox', { name: 'เช่น เฟส' }).fill('1');
+  await page.getByRole('textbox', { name: 'เช่น ซอย' }).click();
+  await page.getByRole('textbox', { name: 'เช่น ซอย' }).fill('2');
+  await page.getByRole('button', { name: 'ยืนยันการสร้างบัญชี' }).click();
+  await page.getByRole('link', { name: 'เพิ่มบัญชีผู้ใช้งาน' }).click();
+  await page.getByRole('link', { name: 'ยกเลิก' }).click();
+  await page.getByRole('link', { name: 'เพิ่มบัญชีผู้ใช้งาน' }).click();
+  await page.getByRole('link').filter({ hasText: /^$/ }).click();
+});
