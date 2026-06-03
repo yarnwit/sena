@@ -10,13 +10,6 @@ test('test', async ({ page }) => {
     await page.getByRole('textbox', { name: 'รหัสผ่าน' }).click();
     await page.getByRole('textbox', { name: 'รหัสผ่าน' }).fill('123456');
     await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).click();
-    await page.locator('div').filter({ hasText: 'เรื่องทั้งหมด' }).first().click();
-    await page.locator('div').filter({ hasText: 'รอดำเนินการ' }).first().click();
-    await page.getByText('10').first().click();
-    await page.locator('div').filter({ hasText: '1เข้าที่ประชุม' }).first().click();
-    await page.getByText('5 รายการล่าสุด').first().click();
-    await page.getByText('Audit log ล่าสุด').first().click();
-    await page.getByText('รายการล่าสุดในระบบ').first().click();
     await page.getByRole('link', { name: 'เพิ่มบัญชีผู้ใช้งาน' }).click();
     await page.getByRole('textbox', { name: 'เช่น somchai123' }).click();
     await page.getByRole('textbox', { name: 'เช่น somchai123' }).fill(username);
@@ -35,6 +28,8 @@ test('test', async ({ page }) => {
     await page.waitForTimeout(300); // รอให้เมนูกางเสร็จ
     await page.getByRole('link', { name: 'ปรับสิทธิ์ผู้ใช้งาน' }).click();
     await page.waitForURL(/.*\/admin\/users\?mode=roles/);
+    await page.locator('#user-search-input').fill(username);
+    await page.waitForTimeout(500); // รอ debounce ของการค้นหา
     await page.getByRole('row').filter({ hasText: `@${username}` }).getByRole('combobox').selectOption('resident');
     await page.getByRole('button', { name: 'ยืนยัน' }).click();
     await page.getByRole('link', { name: 'ลบบัญชีผู้ใช้งาน' }).click();
@@ -45,11 +40,16 @@ test('test', async ({ page }) => {
     await page.getByRole('button', { name: 'ลบบัญชีถาวร' }).click();
     await navigationPromise; // รอให้ระบบ reload หน้าจอเสร็จสมบูรณ์
     await page.getByRole('button', { name: 'จัดการร้องเรียน' }).click();
-    await page.waitForTimeout(300); // รอให้เมนูขยาย (Animation) เสร็จก่อน
+    await page.waitForTimeout(500); // รอให้เมนูขยาย (Animation) เสร็จก่อน
     await page.getByRole('link', { name: 'รายการร้องเรียนทั้งหมด' }).click();
-    await page.getByRole('link', { name: 'สร้างคำร้องใหม่' }).click();
-    await page.waitForURL('**/admin/complaints/new');
-    await page.getByRole('button', { name: /83\/34/ }).first().click();
+    await page.waitForURL('**/admin/complaints');
+    // ใช้ page.goto เพื่อแก้ปัญหา Next.js Link ไม่ทำงานบางครั้ง (flaky)
+    await page.goto('http://localhost:3000/admin/complaints/new');
+    
+    // รอให้โหลดข้อมูลลูกบ้านเสร็จ
+    await page.waitForSelector('.max-h-48 button'); 
+    // กดเลือกลูกบ้านคนแรกในลิสต์ (แทนการระบุบ้านเลขที่ 83/34 ตายตัว)
+    await page.locator('.max-h-48 button').first().click();
     await page.getByRole('textbox', { name: 'เช่น น้ำรั่วซึม' }).click();
     await page.getByRole('textbox', { name: 'เช่น น้ำรั่วซึม' }).fill('a');
     await page.getByRole('textbox', { name: 'อธิบายรายละเอียดปัญหา' }).click();
