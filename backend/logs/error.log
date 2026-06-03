@@ -106,3 +106,27 @@
 {"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-30T18:59:13.388Z"}
 {"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-30T19:01:23.130Z"}
 {"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-05-30T19:03:17.072Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-03T05:10:44.502Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-03T05:10:46.139Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-03T05:11:00.182Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-03T05:11:09.743Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-03T05:11:17.188Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-03T05:11:20.223Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-03T05:16:12.953Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-03T05:51:54.465Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-03T05:52:01.950Z"}
+{"level":"error","message":"Registration error: Username already exists","stack":"Error: Username already exists\n    at Object.register (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\services\\auth.service.ts:112:13)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at register (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\controllers\\auth.controller.ts:42:20)","timestamp":"2026-06-03T06:24:52.759Z"}
+{"level":"error","message":"Registration error: Username already exists","stack":"Error: Username already exists\n    at Object.register (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\services\\auth.service.ts:112:13)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at register (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\controllers\\auth.controller.ts:42:20)","timestamp":"2026-06-03T06:28:35.974Z"}
+{"level":"error","message":"Registration error: Username already exists","stack":"Error: Username already exists\n    at Object.register (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\services\\auth.service.ts:112:13)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at register (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\controllers\\auth.controller.ts:42:20)","timestamp":"2026-06-03T06:28:44.512Z"}
+{"level":"error","message":"Registration error: Username already exists","stack":"Error: Username already exists\n    at Object.register (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\services\\auth.service.ts:112:13)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at register (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\controllers\\auth.controller.ts:42:20)","timestamp":"2026-06-03T06:28:52.777Z"}
+{"level":"error","message":"Registration error: Username already exists","stack":"Error: Username already exists\n    at Object.register (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\services\\auth.service.ts:112:13)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at register (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\controllers\\auth.controller.ts:42:20)","timestamp":"2026-06-03T06:29:38.514Z"}
+{"level":"error","message":"Registration error: Username already exists","stack":"Error: Username already exists\n    at Object.register (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\services\\auth.service.ts:112:13)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at register (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\controllers\\auth.controller.ts:42:20)","timestamp":"2026-06-03T06:29:38.565Z"}
+{"level":"error","message":"Registration error: Username already exists","stack":"Error: Username already exists\n    at Object.register (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\services\\auth.service.ts:112:13)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at register (C:\\Users\\thana_m\\OneDrive\\Documents\\GitHub\\sena\\backend\\src\\controllers\\auth.controller.ts:42:20)","timestamp":"2026-06-03T06:31:54.799Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-03T06:55:06.547Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-03T06:56:08.888Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-03T06:56:34.782Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-03T06:58:30.906Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-03T06:58:49.608Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-03T07:11:43.989Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-03T07:12:26.749Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-03T07:14:52.478Z"}
