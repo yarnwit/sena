@@ -54,6 +54,8 @@ function StaffComplaintsContent() {
   const [endDate, setEndDate] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
+
+
   useEffect(() => {
     const fetchComplaints = async () => {
       try {
@@ -134,11 +136,12 @@ function StaffComplaintsContent() {
     return matchFilter && matchSearch && matchDate;
   });
 
-  // Count per filter
-  const countByStatus = (status: string) =>
-    status === "all"
-      ? complaints.length
-      : complaints.filter((c) => c.status === status).length;
+  const countByStatus = (status: string) => {
+    if (status === "all") return complaints.length;
+    return complaints.filter((c) => c.status === status).length;
+  };
+
+
 
   if (loading) {
     return (
@@ -403,9 +406,11 @@ function StaffComplaintsContent() {
                         })}
                       </p>
                     </div>
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium shrink-0 ${config.bgClass} ${config.textClass}`}>
-                      {config.label}
-                    </span>
+                    <div className="flex flex-col items-end gap-3 shrink-0">
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${config.bgClass} ${config.textClass}`}>
+                        {config.label}
+                      </span>
+                    </div>
                   </div>
                 </Link>
               );
@@ -413,6 +418,9 @@ function StaffComplaintsContent() {
           </div>
         </>
       )}
+
+
+
     </div>
   );
 }

@@ -227,7 +227,13 @@ function StaffMeetingsContent() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-xs text-gray-400 uppercase tracking-wider bg-gray-50/50">
-                    <th className="px-6 py-3.5 font-medium w-12 no-print">
+                    <th className="px-6 py-3.5 font-medium">เลขที่</th>
+                    <th className="px-6 py-3.5 font-medium">หัวข้อ</th>
+                    <th className="px-6 py-3.5 font-medium">บ้านเลขที่</th>
+                    <th className="px-6 py-3.5 font-medium">ชื่อลูกบ้าน</th>
+                    <th className="px-6 py-3.5 font-medium">สถานะ</th>
+                    <th className="px-6 py-3.5 font-medium">วันที่แจ้ง</th>
+                    <th className="px-6 py-3.5 font-medium w-12 text-center no-print">
                       <input 
                         type="checkbox" 
                         className="w-4 h-4 rounded border-gray-300 text-[#d4a574] focus:ring-[#d4a574] cursor-pointer"
@@ -235,12 +241,6 @@ function StaffMeetingsContent() {
                         onChange={handleSelectAll}
                       />
                     </th>
-                    <th className="px-6 py-3.5 font-medium">เลขที่</th>
-                    <th className="px-6 py-3.5 font-medium">หัวข้อ</th>
-                    <th className="px-6 py-3.5 font-medium">บ้านเลขที่</th>
-                    <th className="px-6 py-3.5 font-medium">ชื่อลูกบ้าน</th>
-                    <th className="px-6 py-3.5 font-medium">สถานะ</th>
-                    <th className="px-6 py-3.5 font-medium">วันที่แจ้ง</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -252,14 +252,6 @@ function StaffMeetingsContent() {
                         className={`transition-colors cursor-pointer ${isSelected ? 'bg-amber-50/50' : 'hover:bg-gray-50'}`}
                         onClick={() => handleToggleSelect(c.complaint_id)}
                       >
-                        <td className="px-6 py-4 no-print" onClick={(e) => e.stopPropagation()}>
-                          <input 
-                            type="checkbox" 
-                            className="w-4 h-4 rounded border-gray-300 text-[#d4a574] focus:ring-[#d4a574] cursor-pointer"
-                            checked={isSelected}
-                            onChange={() => handleToggleSelect(c.complaint_id)}
-                          />
-                        </td>
                         <td className="px-6 py-4 font-semibold text-[#d4a574] text-sm">
                           {c.ticket_no || `#${c.complaint_id}`}
                         </td>
@@ -290,6 +282,14 @@ function StaffMeetingsContent() {
                             day: "numeric",
                           })}
                         </td>
+                        <td className="px-6 py-4 text-center no-print" onClick={(e) => e.stopPropagation()}>
+                          <input 
+                            type="checkbox" 
+                            className="w-4 h-4 rounded border-gray-300 text-[#d4a574] focus:ring-[#d4a574] cursor-pointer"
+                            checked={isSelected}
+                            onChange={() => handleToggleSelect(c.complaint_id)}
+                          />
+                        </td>
                       </tr>
                     );
                   })}
@@ -309,14 +309,6 @@ function StaffMeetingsContent() {
                     }`}
                     onClick={() => handleToggleSelect(c.complaint_id)}
                   >
-                    <div className="shrink-0 mt-1" onClick={(e) => e.stopPropagation()}>
-                      <input 
-                        type="checkbox" 
-                        className="w-4 h-4 rounded border-gray-300 text-[#d4a574] focus:ring-[#d4a574] cursor-pointer"
-                        checked={isSelected}
-                        onChange={() => handleToggleSelect(c.complaint_id)}
-                      />
-                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <span className="text-xs font-semibold text-[#d4a574]">
@@ -341,6 +333,14 @@ function StaffMeetingsContent() {
                           {c.first_name && c.last_name ? `${c.first_name} ${c.last_name}` : "-"}
                         </span>
                       </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
+                      <input 
+                        type="checkbox" 
+                        className="w-5 h-5 rounded border-gray-300 text-[#d4a574] focus:ring-[#d4a574] cursor-pointer"
+                        checked={isSelected}
+                        onChange={() => handleToggleSelect(c.complaint_id)}
+                      />
                     </div>
                   </div>
                 );
@@ -398,7 +398,7 @@ function StaffMeetingsContent() {
                   <button
                     onClick={() => handleBulkUpdate('in_progress')}
                     disabled={isBulkUpdating}
-                    className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-600/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:-translate-y-0.5"
+                    className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-600/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:-translate-y-0.5 cursor-pointer"
                   >
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
@@ -410,7 +410,7 @@ function StaffMeetingsContent() {
                   <button
                     onClick={() => handleBulkUpdate('rejected')}
                     disabled={isBulkUpdating}
-                    className="w-full py-3.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-red-600/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:-translate-y-0.5"
+                    className="w-full py-3.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-red-600/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:-translate-y-0.5 cursor-pointer"
                   >
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="18" y1="6" x2="6" y2="18" />
@@ -418,6 +418,7 @@ function StaffMeetingsContent() {
                     </svg>
                     มติ: ไม่อนุมัติ
                   </button>
+
                 </div>
               </div>
             </div>

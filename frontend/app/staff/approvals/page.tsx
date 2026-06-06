@@ -227,7 +227,13 @@ function StaffApprovalsContent() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-xs text-gray-400 uppercase tracking-wider bg-gray-50/50">
-                    <th className="px-6 py-3.5 font-medium w-12 no-print">
+                    <th className="px-6 py-3.5 font-medium">เลขที่</th>
+                    <th className="px-6 py-3.5 font-medium">หัวข้อ</th>
+                    <th className="px-6 py-3.5 font-medium">บ้านเลขที่</th>
+                    <th className="px-6 py-3.5 font-medium">ชื่อลูกบ้าน</th>
+                    <th className="px-6 py-3.5 font-medium">สถานะ</th>
+                    <th className="px-6 py-3.5 font-medium">วันที่แจ้ง</th>
+                    <th className="px-6 py-3.5 font-medium w-12 text-center no-print">
                       <input 
                         type="checkbox" 
                         className="w-4 h-4 rounded border-gray-300 text-[#d4a574] focus:ring-[#d4a574] cursor-pointer"
@@ -235,12 +241,6 @@ function StaffApprovalsContent() {
                         onChange={handleSelectAll}
                       />
                     </th>
-                    <th className="px-6 py-3.5 font-medium">เลขที่</th>
-                    <th className="px-6 py-3.5 font-medium">หัวข้อ</th>
-                    <th className="px-6 py-3.5 font-medium">บ้านเลขที่</th>
-                    <th className="px-6 py-3.5 font-medium">ชื่อลูกบ้าน</th>
-                    <th className="px-6 py-3.5 font-medium">สถานะ</th>
-                    <th className="px-6 py-3.5 font-medium">วันที่แจ้ง</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -252,14 +252,6 @@ function StaffApprovalsContent() {
                         className={`transition-colors cursor-pointer ${isSelected ? 'bg-amber-50/50' : 'hover:bg-gray-50'}`}
                         onClick={() => handleToggleSelect(c.complaint_id)}
                       >
-                        <td className="px-6 py-4 no-print" onClick={(e) => e.stopPropagation()}>
-                          <input 
-                            type="checkbox" 
-                            className="w-4 h-4 rounded border-gray-300 text-[#d4a574] focus:ring-[#d4a574] cursor-pointer"
-                            checked={isSelected}
-                            onChange={() => handleToggleSelect(c.complaint_id)}
-                          />
-                        </td>
                         <td className="px-6 py-4 font-semibold text-[#d4a574] text-sm">
                           {c.ticket_no || `#${c.complaint_id}`}
                         </td>
@@ -290,6 +282,14 @@ function StaffApprovalsContent() {
                             day: "numeric",
                           })}
                         </td>
+                        <td className="px-6 py-4 text-center no-print" onClick={(e) => e.stopPropagation()}>
+                          <input 
+                            type="checkbox" 
+                            className="w-4 h-4 rounded border-gray-300 text-[#d4a574] focus:ring-[#d4a574] cursor-pointer"
+                            checked={isSelected}
+                            onChange={() => handleToggleSelect(c.complaint_id)}
+                          />
+                        </td>
                       </tr>
                     );
                   })}
@@ -309,14 +309,6 @@ function StaffApprovalsContent() {
                     }`}
                     onClick={() => handleToggleSelect(c.complaint_id)}
                   >
-                    <div className="shrink-0 mt-1" onClick={(e) => e.stopPropagation()}>
-                      <input 
-                        type="checkbox" 
-                        className="w-4 h-4 rounded border-gray-300 text-[#d4a574] focus:ring-[#d4a574] cursor-pointer"
-                        checked={isSelected}
-                        onChange={() => handleToggleSelect(c.complaint_id)}
-                      />
-                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <span className="text-xs font-semibold text-[#d4a574]">
@@ -341,6 +333,14 @@ function StaffApprovalsContent() {
                           {c.first_name && c.last_name ? `${c.first_name} ${c.last_name}` : "-"}
                         </span>
                       </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
+                      <input 
+                        type="checkbox" 
+                        className="w-5 h-5 rounded border-gray-300 text-[#d4a574] focus:ring-[#d4a574] cursor-pointer"
+                        checked={isSelected}
+                        onChange={() => handleToggleSelect(c.complaint_id)}
+                      />
                     </div>
                   </div>
                 );
@@ -392,22 +392,30 @@ function StaffApprovalsContent() {
                   ))}
                 </div>
 
-                <div className="p-6 border-t border-gray-100 bg-white space-y-3 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">ดำเนินการ ({selectedIds.length} รายการ)</p>
+                <div className="p-6 border-t border-gray-100 bg-white shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">ดำเนินการ ({selectedIds.length} รายการ)</p>
                   
-                  <button
-                    onClick={() => handleBulkUpdate('in_meeting')}
-                    disabled={isBulkUpdating}
-                    className="w-full py-3.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-purple-600/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:-translate-y-0.5"
-                  >
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                      <circle cx="9" cy="7" r="4" />
-                      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
-                    นำเรื่องเข้าที่ประชุม
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setSelectedIds([])}
+                      className="flex-1 py-3.5 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 font-medium transition-colors cursor-pointer"
+                    >
+                      ยกเลิก
+                    </button>
+                    <button
+                      onClick={() => handleBulkUpdate('in_meeting')}
+                      disabled={isBulkUpdating}
+                      className="flex-[2] py-3.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-purple-600/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                      </svg>
+                      นำเรื่องเข้าที่ประชุม
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

@@ -66,9 +66,9 @@ export default function LoginPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#f3f3f3] p-4 sm:p-8 font-sans">
-      <div className="flex w-full max-w-[1200px] min-h-[600px] bg-white rounded-3xl shadow-[0_20px_60px_rgb(0,0,0,0.08)] overflow-hidden">
+      <div className="flex w-full max-w-[960px] min-h-[520px] bg-white rounded-3xl shadow-[0_20px_60px_rgb(0,0,0,0.08)] overflow-hidden">
         {/* ===== Left Side (Image) ===== */}
-        <div className="hidden lg:flex lg:w-[55%] relative bg-[#1a1a2e]">
+        <div className="hidden lg:flex lg:w-[50%] relative bg-[#1a1a2e]">
           {/* Background Image */}
           <div
             className="absolute inset-0 bg-cover bg-[35%_center] bg-no-repeat transition-transform duration-1000 hover:scale-105"
@@ -79,17 +79,17 @@ export default function LoginPage() {
         </div>
 
         {/* ===== Right Side (Login Form) ===== */}
-        <div className="w-full lg:w-[45%] flex items-center justify-center p-8 sm:p-14 bg-white">
-          <div className="w-full max-w-[420px]">
+        <div className="w-full lg:w-[50%] flex items-center justify-center p-8 sm:p-12 bg-white">
+          <div className="w-full max-w-[380px]">
             {/* Logo Section */}
             <div className="text-center mb-8">
-              <div className="flex flex-col items-center w-full max-w-[280px] sm:max-w-[320px] mx-auto">
-                <span className="font-['Times_New_Roman',_'Georgia',_serif] text-xl sm:text-2xl font-normal tracking-[2px] text-[#111] uppercase pb-1">SENA</span>
-                <div className="w-full h-[1.5px] bg-[#111] mb-1.5"></div>
-                <h1 className="font-['Times_New_Roman',_'Georgia',_serif] text-[32px] sm:text-[42px] font-normal tracking-[1px] text-[#111] m-0 leading-none">GRAND HOME</h1>
-                <span className="font-['Times_New_Roman',_'Georgia',_serif] text-[13px] sm:text-[15px] font-normal tracking-[2px] text-[#333] mt-2">Rangsit - Tiwanon</span>
+              <div className="flex flex-col items-center w-full max-w-[260px] sm:max-w-[280px] mx-auto">
+                <span className="font-['Times_New_Roman',_'Georgia',_serif] text-lg sm:text-xl font-normal tracking-[2px] text-[#111] uppercase pb-1">SENA</span>
+                <div className="w-full h-[1px] bg-[#111] mb-1.5"></div>
+                <h1 className="font-['Times_New_Roman',_'Georgia',_serif] text-[28px] sm:text-[36px] font-normal tracking-[1px] text-[#111] m-0 leading-none">GRAND HOME</h1>
+                <span className="font-['Times_New_Roman',_'Georgia',_serif] text-[12px] sm:text-[13px] font-normal tracking-[2px] text-[#333] mt-2">Rangsit - Tiwanon</span>
               </div>
-              <p className="text-[13px] text-[#555] mt-3 leading-relaxed">
+              <p className="text-[12px] text-[#555] mt-3 leading-relaxed">
                 ระบบจัดการรับเรื่องร้องเรียนและติดตามปัญหานิติบุคคล
               </p>
             </div>
