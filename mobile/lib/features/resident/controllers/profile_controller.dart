@@ -19,11 +19,32 @@ class ProfileController extends AsyncNotifier<UserProfile?> {
       if (response.statusCode == 200 && response.data['success'] == true) {
         return UserProfile.fromJson(response.data['data']);
       }
-      return null;
     } catch (e) {
       debugPrint('Failed to fetch profile: $e');
-      return null;
     }
+
+    // Fallback for staff/admin in case the backend profile endpoint fails or doesn't support them
+    try {
+      final storage = ref.read(secureStorageProvider);
+      final role = await storage.read(key: 'userRole');
+      if (role == 'staff' || role == 'admin') {
+        return UserProfile(
+          userId: '',
+          username: role == 'admin' ? 'admin' : 'staff',
+          firstName: role == 'admin' ? 'Admin' : 'Staff',
+          lastName: 'User',
+          houseNo: '',
+          phoneNumber: '',
+          residentType: role ?? '',
+          phase: '',
+          soi: '',
+        );
+      }
+    } catch (e) {
+      debugPrint('Fallback profile error: $e');
+    }
+
+    return null;
   }
 
   Future<void> refresh() async {

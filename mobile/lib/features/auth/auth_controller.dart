@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../core/network/api_client.dart';
+import '../resident/controllers/profile_controller.dart';
 
 class AuthState {
   final bool isAuthenticated;
@@ -44,6 +45,10 @@ class AuthController extends AsyncNotifier<AuthState> {
           if (role != null) {
             await _storage.write(key: 'userRole', value: role);
           }
+          
+          // Invalidate user-specific data providers so the new user's data is fetched
+          ref.invalidate(profileControllerProvider);
+          
           state = AsyncValue.data(AuthState(isAuthenticated: true, role: role));
         } else {
           state = AsyncValue.error('Login failed. Token is missing.', StackTrace.current);
@@ -65,6 +70,10 @@ class AuthController extends AsyncNotifier<AuthState> {
   Future<void> logout() async {
     await _storage.delete(key: 'accessToken');
     await _storage.delete(key: 'userRole');
+    
+    // Invalidate user-specific data providers
+    ref.invalidate(profileControllerProvider);
+    
     state = const AsyncValue.data(AuthState(isAuthenticated: false));
   }
 }

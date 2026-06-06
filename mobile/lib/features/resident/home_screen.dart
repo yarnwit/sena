@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'controllers/complaint_controller.dart';
 import 'models/complaint.dart';
 import '../notifications/notification_controller.dart';
+import 'controllers/profile_controller.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -13,6 +14,8 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final complaintState = ref.watch(complaintControllerProvider);
     final complaintNotifier = ref.read(complaintControllerProvider.notifier);
+    final profileState = ref.watch(profileControllerProvider);
+    final profile = profileState.value;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -35,7 +38,10 @@ class HomeScreen extends ConsumerWidget {
         child: SafeArea(
           bottom: false,
           child: RefreshIndicator(
-            onRefresh: () => complaintNotifier.refresh(),
+            onRefresh: () async {
+              await ref.read(profileControllerProvider.notifier).refresh();
+              await complaintNotifier.refresh();
+            },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
@@ -77,9 +83,11 @@ class HomeScreen extends ConsumerWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'สมชาย ใจดี',
-                            style: TextStyle(
+                          Text(
+                            profile != null 
+                              ? '${profile.firstName} ${profile.lastName}'.trim()
+                              : 'กำลังโหลด...',
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -87,7 +95,11 @@ class HomeScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'บ้านเลขที่ 88/1 เฟส 1 ซอย 1',
+                            profile != null 
+                              ? (profile.houseNo.isNotEmpty 
+                                  ? 'บ้านเลขที่ ${profile.houseNo} ${profile.phase.isNotEmpty ? 'เฟส ${profile.phase}' : ''} ${profile.soi.isNotEmpty ? 'ซอย ${profile.soi}' : ''}'.trim() 
+                                  : 'ยังไม่มีข้อมูลบ้าน')
+                              : 'กำลังโหลดข้อมูล...',
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.7),
                               fontSize: 14,

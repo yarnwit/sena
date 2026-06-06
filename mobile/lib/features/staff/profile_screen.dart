@@ -55,7 +55,20 @@ class ProfileScreen extends ConsumerWidget {
             ),
             data: (profile) {
               if (profile == null) {
-                return const Center(child: Text('ไม่พบข้อมูลโปรไฟล์', style: TextStyle(color: Colors.white)));
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('ไม่พบข้อมูลโปรไฟล์', style: TextStyle(color: Colors.white)),
+                      const SizedBox(height: 20),
+                      ElevatedButton.icon(
+                        onPressed: () => ref.read(authControllerProvider.notifier).logout(),
+                        icon: const Icon(Icons.logout),
+                        label: const Text('ออกจากระบบ'),
+                      ),
+                    ],
+                  ),
+                );
               }
               return SingleChildScrollView(
                 padding: const EdgeInsets.all(24.0),
