@@ -83,9 +83,30 @@ const CalendarIcon = () => (
   </svg>
 );
 
+const CreateComplaintIcon = () => (
+  <svg className="w-[24px] h-[24px] shrink-0 opacity-80 group-[.active]:opacity-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+    <line x1="12" y1="18" x2="12" y2="12" />
+    <line x1="9" y1="15" x2="15" y2="15" />
+  </svg>
+);
+
 /* ===== Navigation Items ===== */
 const navItems = [
   { href: "/admin/dashboard", label: "ภาพรวมระบบ", icon: DashboardIcon },
+  { href: "/admin/complaints/new", label: "สร้างคำร้อง", icon: CreateComplaintIcon },
+  { 
+    label: "จัดการร้องเรียน", 
+    icon: LogsIcon,
+    subItems: [
+      { href: "/admin/complaints", label: "รายการร้องเรียนทั้งหมด" },
+      { href: "/admin/pending", label: "รอตรวจสอบ" },
+      { href: "/admin/approvals", label: "รอเข้าที่ประชุม" },
+      { href: "/admin/meetings", label: "นำเรื่องเข้าที่ประชุม" },
+      { href: "/admin/maintenance", label: "ติดตามการแก้ไขปัญหา" }
+    ]
+  },
   { href: "/admin/users/new", label: "เพิ่มบัญชีผู้ใช้งาน", icon: UserPlusIcon },
   { 
     label: "จัดการบัญชีผู้ใช้งาน", 
@@ -96,16 +117,6 @@ const navItems = [
       { href: "/admin/users?mode=delete", label: "ลบบัญชีผู้ใช้งาน" }
     ]
   },
-  { 
-    label: "จัดการร้องเรียน", 
-    icon: LogsIcon,
-    subItems: [
-      { href: "/admin/complaints", label: "รายการร้องเรียนทั้งหมด" },
-      { href: "/admin/approvals", label: "รอเข้าที่ประชุม" },
-      { href: "/admin/meetings", label: "นำเรื่องเข้าที่ประชุม" },
-      { href: "/admin/maintenance", label: "ติดตามการแก้ไขปัญหา" }
-    ]
-  },
   { href: "/admin/reports", label: "รายงานสรุป", icon: ReportsIcon },
   { href: "/admin/logs", label: "Audit Logs", icon: LogsIcon },
   { href: "/admin/profile", label: "โปรไฟล์", icon: ProfileIcon }
@@ -114,8 +125,10 @@ const navItems = [
 /* ===== Page Title Map ===== */
 function getPageInfo(pathname: string) {
   if (pathname === "/admin/dashboard") return { icon: DashboardIcon, title: "ภาพรวมระบบ", subtitle: "สรุปข้อมูลทั้งระบบสำหรับผู้ดูแล" };
+  if (pathname === "/admin/complaints/new") return { icon: CreateComplaintIcon, title: "สร้างเรื่องร้องเรียน", subtitle: "บันทึกเรื่องร้องเรียนใหม่เข้าระบบ" };
   if (pathname === "/admin/users") return { icon: UsersIcon, parent: "จัดการบัญชีผู้ใช้งาน", title: "บัญชีผู้ใช้ทั้งหมด", subtitle: "เพิ่ม ลบ แก้ไขสิทธิ์ผู้ใช้ทุก Role" };
   if (pathname === "/admin/complaints") return { icon: LogsIcon, parent: "จัดการร้องเรียน", title: "รายการร้องเรียนทั้งหมด", subtitle: "ดูและจัดการเรื่องร้องเรียนในระบบทั้งหมด" };
+  if (pathname === "/admin/pending") return { icon: LogsIcon, parent: "จัดการร้องเรียน", title: "รอตรวจสอบ", subtitle: "เรื่องร้องเรียนใหม่ที่รอการตรวจสอบเบื้องต้น" };
   if (pathname === "/admin/approvals") return { icon: LogsIcon, parent: "จัดการร้องเรียน", title: "รอเข้าที่ประชุม", subtitle: "เรื่องร้องเรียนที่รอการตรวจสอบเพื่อเข้าที่ประชุม" };
   if (pathname === "/admin/meetings") return { icon: LogsIcon, parent: "จัดการร้องเรียน", title: "นำเรื่องเข้าที่ประชุม", subtitle: "จัดการเรื่องที่ต้องนำเข้าที่ประชุมหรืออยู่ระหว่างการประชุม" };
   if (pathname === "/admin/maintenance") return { icon: LogsIcon, parent: "จัดการร้องเรียน", title: "ติดตามการแก้ไขปัญหา", subtitle: "จัดการปัญหาที่ต้องติดตามหรือรอการแก้ไขจากช่าง" };

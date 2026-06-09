@@ -76,12 +76,13 @@ const CreateComplaintIcon = () => (
 /* ===== Navigation Items ===== */
 const navItems = [
   { href: "/staff/dashboard", label: "ภาพรวมงาน", icon: DashboardIcon },
-  { href: "/staff/complaints/new", label: "สร้างเรื่องร้องเรียน", icon: CreateComplaintIcon },
+  { href: "/staff/complaints/new", label: "สร้างคำร้อง", icon: CreateComplaintIcon },
   {
     label: "จัดการร้องเรียน",
     icon: ComplaintIcon,
     subItems: [
       { href: "/staff/complaints", label: "เรื่องร้องเรียนทั้งหมด" },
+      { href: "/staff/pending", label: "รอตรวจสอบ" },
       { href: "/staff/approvals", label: "รอเข้าที่ประชุม" },
       { href: "/staff/meetings", label: "นำเรื่องเข้าที่ประชุม" },
       { href: "/staff/maintenance", label: "ติดตามการแก้ไขปัญหา" }
@@ -96,6 +97,7 @@ function getPageInfo(pathname: string) {
   if (pathname === "/staff/complaints/new") return { icon: CreateComplaintIcon, title: "สร้างเรื่องร้องเรียน", subtitle: "บันทึกเรื่องร้องเรียนใหม่เข้าระบบ" };
   if (pathname.startsWith("/staff/complaints/")) return { icon: ComplaintIcon, title: "รายละเอียดการร้องเรียน", subtitle: "ข้อมูลเรื่องร้องเรียนและการอัปเดตสถานะ" };
   if (pathname === "/staff/complaints") return { icon: ComplaintIcon, parent: "จัดการร้องเรียน", title: "เรื่องร้องเรียนทั้งหมด", subtitle: "จัดการและติดตามเรื่องร้องเรียนจากลูกบ้านทั้งหมด" };
+  if (pathname === "/staff/pending") return { icon: ComplaintIcon, parent: "จัดการร้องเรียน", title: "รอตรวจสอบ", subtitle: "เรื่องร้องเรียนใหม่ที่รอการตรวจสอบเบื้องต้น" };
   if (pathname === "/staff/approvals") return { icon: ComplaintIcon, parent: "จัดการร้องเรียน", title: "รอเข้าที่ประชุม", subtitle: "เรื่องร้องเรียนที่รอการตรวจสอบเพื่อเข้าที่ประชุม" };
   if (pathname === "/staff/meetings") return { icon: ComplaintIcon, parent: "จัดการร้องเรียน", title: "นำเรื่องเข้าที่ประชุม", subtitle: "จัดการเรื่องที่ต้องนำเข้าที่ประชุมหรืออยู่ระหว่างการประชุม" };
   if (pathname === "/staff/maintenance") return { icon: ComplaintIcon, parent: "จัดการร้องเรียน", title: "ติดตามการแก้ไขปัญหา", subtitle: "จัดการปัญหาที่ต้องติดตามหรือรอการแก้ไขจากช่าง" };

@@ -30,7 +30,7 @@ const statusConfig: Record<string, { label: string; bgClass: string; textClass: 
   closed: { label: "ปิดเรื่อง", bgClass: "bg-gray-100", textClass: "text-gray-500" },
 };
 
-function StaffMeetingsContent() {
+function AdminPendingContent() {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -63,9 +63,9 @@ function StaffMeetingsContent() {
       const res = await api.get('/complaints/all');
 
       if (res.data?.success && res.data?.data) {
-        // Only load in_meeting
-        const meetingComplaints = res.data.data.filter((c: Complaint) => c.status === 'in_meeting');
-        setComplaints(meetingComplaints);
+        // Only load pending
+        const pendingComplaints = res.data.data.filter((c: Complaint) => c.status === 'pending');
+        setComplaints(pendingComplaints);
       }
     } catch {
       // fallback
@@ -77,13 +77,13 @@ function StaffMeetingsContent() {
     try {
       const res = await api.get(`/complaints/all`);
         if (res.data.success && res.data.data) {
-          const meetingComplaints = res.data.data.filter((c: Complaint) => c.status === 'in_meeting');
-          setComplaints(meetingComplaints);
+          const pendingComplaints = res.data.data.filter((c: Complaint) => c.status === 'pending');
+          setComplaints(pendingComplaints);
         }
     } catch {}
   };
 
-  // Filter based on search and date
+  // Filter based on search & date
   const filtered = complaints.filter((c) => {
     const matchSearch =
       search === "" ||
@@ -93,12 +93,17 @@ function StaffMeetingsContent() {
 
     let matchDate = true;
     if (startDate || endDate) {
-      const reportedDate = new Date(c.reported_date);
-      if (startDate) matchDate = matchDate && reportedDate >= new Date(startDate);
+      const rDate = new Date(c.reported_date);
+      rDate.setHours(0, 0, 0, 0);
+      if (startDate) {
+        const sDate = new Date(startDate);
+        sDate.setHours(0, 0, 0, 0);
+        if (rDate < sDate) matchDate = false;
+      }
       if (endDate) {
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999);
-        matchDate = matchDate && reportedDate <= end;
+        const eDate = new Date(endDate);
+        eDate.setHours(0, 0, 0, 0);
+        if (rDate > eDate) matchDate = false;
       }
     }
 
@@ -127,7 +132,7 @@ function StaffMeetingsContent() {
 
     setIsBulkUpdating(true);
     try {
-      const res = await api.patch('/complaints/staff/bulk-status', {
+      const res = await api.patch('/complaints/admin/bulk-status', {
         complaintIds: selectedIds,
         status: newStatus
       });
@@ -177,8 +182,8 @@ function StaffMeetingsContent() {
         {/* Page Title */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-200 pb-4">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-800 m-0">นำเรื่องเข้าที่ประชุม</h1>
-            <p className="text-sm text-gray-400 mt-1 m-0 no-print">จัดการวาระการประชุมและสรุปผลหลังการประชุม</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-800 m-0">รอตรวจสอบ</h1>
+            <p className="text-sm text-gray-400 mt-1 m-0 no-print">พิจารณาเรื่องร้องเรียนใหม่ที่เพิ่งถูกส่งเข้ามาในระบบ</p>
           </div>
         </div>
 
@@ -187,84 +192,84 @@ function StaffMeetingsContent() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1">
             <div className="relative flex-1 min-w-[200px] max-w-lg">
               <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-              <input
-                type="text"
-                placeholder="ค้นหาวาระการประชุม..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 outline-none transition-all focus:border-[#d4a574] focus:ring-2 focus:ring-amber-100"
-              />
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                          </svg>
+                          <input
+                            type="text"
+                            placeholder="ค้นหาเรื่องร้องเรียน..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 outline-none transition-all focus:border-[#d4a574] focus:ring-2 focus:ring-amber-100"
+                          />
             </div>
 
-            {/* Date Filter Dropdown */}
-            <div className="relative w-full sm:w-auto shrink-0 z-40">
-              <button
-                onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border transition-all text-sm font-medium ${
-                  (startDate || endDate) 
-                    ? "bg-amber-50 border-amber-200 text-amber-700" 
-                    : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-                </svg>
-                ตัวกรองเพิ่มเติม
-                {(startDate || endDate) && (
-                  <span className="flex w-2 h-2 rounded-full bg-amber-500 ml-1"></span>
-                )}
-              </button>
+          {/* Date Filter Dropdown */}
+          <div className="relative w-full sm:w-auto shrink-0 z-40">
+            <button
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border transition-all text-sm font-medium ${
+                (startDate || endDate) 
+                  ? "bg-amber-50 border-amber-200 text-amber-700" 
+                  : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+              </svg>
+              ตัวกรองเพิ่มเติม
+              {(startDate || endDate) && (
+                <span className="flex w-2 h-2 rounded-full bg-amber-500 ml-1"></span>
+              )}
+            </button>
 
-              {/* Dropdown Menu */}
-              {isFilterOpen && (
-                <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-80 bg-white rounded-2xl shadow-xl border border-gray-100 p-5 animate-in fade-in slide-in-from-top-2">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-sm font-bold text-gray-800 m-0">กรองตามวันที่</h4>
-                    {(startDate || endDate) && (
-                      <button 
-                        onClick={() => { setStartDate(""); setEndDate(""); setIsFilterOpen(false); }}
-                        className="text-xs text-red-500 hover:text-red-700 font-medium cursor-pointer bg-transparent border-none p-0"
-                      >
-                        ล้างตัวกรอง
-                      </button>
-                    )}
+            {/* Dropdown Menu */}
+            {isFilterOpen && (
+              <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-80 bg-white rounded-2xl shadow-xl border border-gray-100 p-5 animate-in fade-in slide-in-from-top-2">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-sm font-bold text-gray-800 m-0">กรองตามวันที่</h4>
+                  {(startDate || endDate) && (
+                    <button 
+                      onClick={() => { setStartDate(""); setEndDate(""); setIsFilterOpen(false); }}
+                      className="text-xs text-red-500 hover:text-red-700 font-medium cursor-pointer bg-transparent border-none p-0"
+                    >
+                      ล้างตัวกรอง
+                    </button>
+                  )}
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">วันที่เริ่มต้น</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 outline-none focus:border-[#d4a574] focus:ring-1 focus:ring-[#d4a574] focus:bg-white transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">วันที่สิ้นสุด</label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 outline-none focus:border-[#d4a574] focus:ring-1 focus:ring-[#d4a574] focus:bg-white transition-all"
+                    />
                   </div>
                   
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1">วันที่เริ่มต้น</label>
-                      <input
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 outline-none focus:border-[#d4a574] focus:ring-1 focus:ring-[#d4a574] focus:bg-white transition-all"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1">วันที่สิ้นสุด</label>
-                      <input
-                        type="date"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 outline-none focus:border-[#d4a574] focus:ring-1 focus:ring-[#d4a574] focus:bg-white transition-all"
-                      />
-                    </div>
-                    
-                    <div className="pt-3 mt-1 border-t border-gray-100 grid grid-cols-2 gap-2">
-                      <button type="button" onClick={() => setQuickDate(7, 'days')} className="w-full px-2 py-2 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-xl border border-gray-200 hover:border-amber-200 transition-all cursor-pointer text-center">ย้อนหลัง 1 สัปดาห์</button>
-                      <button type="button" onClick={() => setQuickDate(14, 'days')} className="w-full px-2 py-2 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-xl border border-gray-200 hover:border-amber-200 transition-all cursor-pointer text-center">ย้อนหลัง 2 สัปดาห์</button>
-                      <button type="button" onClick={() => setQuickDate(21, 'days')} className="w-full px-2 py-2 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-xl border border-gray-200 hover:border-amber-200 transition-all cursor-pointer text-center">ย้อนหลัง 3 สัปดาห์</button>
-                      <button type="button" onClick={() => setQuickDate(1, 'months')} className="w-full px-2 py-2 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-xl border border-gray-200 hover:border-amber-200 transition-all cursor-pointer text-center">ย้อนหลัง 1 เดือน</button>
-                      <button type="button" onClick={() => setQuickDate(3, 'months')} className="w-full px-2 py-2 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-xl border border-gray-200 hover:border-amber-200 transition-all cursor-pointer text-center">ย้อนหลัง 3 เดือน</button>
-                      <button type="button" onClick={() => setQuickDate(6, 'months')} className="w-full px-2 py-2 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-xl border border-gray-200 hover:border-amber-200 transition-all cursor-pointer text-center">ย้อนหลัง 6 เดือน</button>
-                    </div>
+                  <div className="pt-3 mt-1 border-t border-gray-100 grid grid-cols-2 gap-2">
+                    <button type="button" onClick={() => setQuickDate(7, 'days')} className="w-full px-2 py-2 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-xl border border-gray-200 hover:border-amber-200 transition-all cursor-pointer text-center">ย้อนหลัง 1 สัปดาห์</button>
+                    <button type="button" onClick={() => setQuickDate(14, 'days')} className="w-full px-2 py-2 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-xl border border-gray-200 hover:border-amber-200 transition-all cursor-pointer text-center">ย้อนหลัง 2 สัปดาห์</button>
+                    <button type="button" onClick={() => setQuickDate(21, 'days')} className="w-full px-2 py-2 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-xl border border-gray-200 hover:border-amber-200 transition-all cursor-pointer text-center">ย้อนหลัง 3 สัปดาห์</button>
+                    <button type="button" onClick={() => setQuickDate(1, 'months')} className="w-full px-2 py-2 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-xl border border-gray-200 hover:border-amber-200 transition-all cursor-pointer text-center">ย้อนหลัง 1 เดือน</button>
+                    <button type="button" onClick={() => setQuickDate(3, 'months')} className="w-full px-2 py-2 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-xl border border-gray-200 hover:border-amber-200 transition-all cursor-pointer text-center">ย้อนหลัง 3 เดือน</button>
+                    <button type="button" onClick={() => setQuickDate(6, 'months')} className="w-full px-2 py-2 text-xs bg-white hover:bg-amber-50 text-gray-600 hover:text-amber-600 font-medium rounded-xl border border-gray-200 hover:border-amber-200 transition-all cursor-pointer text-center">ย้อนหลัง 6 เดือน</button>
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
+          </div>
           </div>
 
           <button
@@ -276,7 +281,7 @@ function StaffMeetingsContent() {
               <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
               <rect x="6" y="14" width="12" height="8" />
             </svg>
-            พิมพ์วาระการประชุม
+            พิมพ์รายการ
           </button>
         </div>
 
@@ -292,18 +297,21 @@ function StaffMeetingsContent() {
               </svg>
             </div>
             <h3 className="text-base font-semibold text-gray-700 mb-2">ไม่มีรายการ</h3>
-            <p className="text-sm text-gray-400 mb-6">ขณะนี้ไม่มีเรื่องร้องเรียนที่รอเข้าที่ประชุม</p>
+            <p className="text-sm text-gray-400 mb-6">ขณะนี้ไม่มีเรื่องร้องเรียนใหม่ที่รอตรวจสอบ</p>
           </div>
         ) : (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="bg-purple-50/50 px-6 py-4 border-b border-purple-100 flex items-center justify-between no-print">
+            <div className="bg-amber-50/50 px-6 py-4 border-b border-amber-100 flex items-center justify-between no-print">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-purple-900 m-0">วาระการประชุมปัจจุบัน</p>
-                  <p className="text-xs text-purple-600 m-0 mt-0.5">กรุณาเลือกรายการด้านล่างเพื่ออัปเดตมติที่ประชุม</p>
+                  <p className="text-sm font-bold text-amber-900 m-0">รายการเรื่องร้องเรียนใหม่</p>
+                  <p className="text-xs text-amber-600 m-0 mt-0.5">พิจารณารับเรื่อง หรือ ปัดตก</p>
                 </div>
               </div>
             </div>
@@ -313,20 +321,16 @@ function StaffMeetingsContent() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-xs text-gray-400 uppercase tracking-wider bg-gray-50/50">
+                    
                     <th className="px-6 py-3.5 font-medium">เลขที่</th>
                     <th className="px-6 py-3.5 font-medium">หัวข้อ</th>
                     <th className="px-6 py-3.5 font-medium">บ้านเลขที่</th>
                     <th className="px-6 py-3.5 font-medium">ชื่อลูกบ้าน</th>
                     <th className="px-6 py-3.5 font-medium">สถานะ</th>
                     <th className="px-6 py-3.5 font-medium">วันที่แจ้ง</th>
-                    <th className="px-6 py-3.5 font-medium w-12 no-print text-right">
-                      <input 
-                        type="checkbox" 
-                        className="w-4 h-4 rounded border-gray-300 text-[#d4a574] focus:ring-[#d4a574] cursor-pointer"
-                        checked={filtered.length > 0 && selectedIds.length === filtered.length}
-                        onChange={handleSelectAll}
-                      />
-                    </th>
+                  
+                  
+                  
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -338,6 +342,7 @@ function StaffMeetingsContent() {
                         className={`transition-colors cursor-pointer ${isSelected ? 'bg-amber-50/50' : 'hover:bg-gray-50'}`}
                         onClick={() => handleToggleSelect(c.complaint_id)}
                       >
+                        
                         <td className="px-6 py-4 font-semibold text-[#d4a574] text-sm">
                           {c.ticket_no || `#${c.complaint_id}`}
                         </td>
@@ -368,14 +373,6 @@ function StaffMeetingsContent() {
                             day: "numeric",
                           })}
                         </td>
-                        <td className="px-6 py-4 no-print text-right" onClick={(e) => e.stopPropagation()}>
-                          <input 
-                            type="checkbox" 
-                            className="w-4 h-4 rounded border-gray-300 text-[#d4a574] focus:ring-[#d4a574] cursor-pointer"
-                            checked={isSelected}
-                            onChange={() => handleToggleSelect(c.complaint_id)}
-                          />
-                        </td>
                       </tr>
                     );
                   })}
@@ -395,6 +392,7 @@ function StaffMeetingsContent() {
                     }`}
                     onClick={() => handleToggleSelect(c.complaint_id)}
                   >
+                    
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <span className="text-xs font-semibold text-[#d4a574]">
@@ -420,14 +418,6 @@ function StaffMeetingsContent() {
                         </span>
                       </div>
                     </div>
-                    <div className="shrink-0 mt-1" onClick={(e) => e.stopPropagation()}>
-                      <input 
-                        type="checkbox" 
-                        className="w-4 h-4 rounded border-gray-300 text-[#d4a574] focus:ring-[#d4a574] cursor-pointer"
-                        checked={isSelected}
-                        onChange={() => handleToggleSelect(c.complaint_id)}
-                      />
-                    </div>
                   </div>
                 );
               })}
@@ -437,7 +427,7 @@ function StaffMeetingsContent() {
 
         {/* Right Sidebar Slide-over (Bulk Action) */}
         <div className="no-print">
-          {selectedIds.length > 0 && (
+          {false && (
             <div className="fixed inset-0 z-50 flex justify-end">
               <div 
                 className="absolute inset-0 bg-black/20 backdrop-blur-sm animate-in fade-in duration-300"
@@ -447,7 +437,7 @@ function StaffMeetingsContent() {
               <div className="relative w-full max-w-sm sm:max-w-md h-full bg-white/95 backdrop-blur-xl shadow-[0_0_40px_rgba(0,0,0,0.1)] flex flex-col animate-in slide-in-from-right duration-300 border-l border-white/50">
                 <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-bold text-gray-800 m-0">อัปเดตมติที่ประชุม</h3>
+                    <h3 className="text-lg font-bold text-gray-800 m-0">พิจารณาเรื่องร้องเรียน</h3>
                     <p className="text-xs text-gray-500 m-0 mt-1">เลือกไว้ทั้งหมด <span className="font-bold text-[#d4a574]">{selectedIds.length}</span> รายการ</p>
                   </div>
                   <button
@@ -466,53 +456,43 @@ function StaffMeetingsContent() {
                     <div key={c.complaint_id} className="bg-gray-50/80 rounded-xl p-3 border border-gray-100 flex items-start gap-3 transition-colors hover:border-[#d4a574]/30">
                       <div className="w-8 h-8 rounded-full bg-[#d4a574]/10 text-[#d4a574] flex items-center justify-center shrink-0 mt-0.5">
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                          <polyline points="14 2 14 8 20 8" />
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
                       </div>
-                      <div className="min-w-0 flex-1">
+                      <div className="min-w-0">
                         <p className="text-xs font-semibold text-[#d4a574] truncate m-0">{c.ticket_no || `#${c.complaint_id}`}</p>
                         <p className="text-sm font-medium text-gray-700 truncate m-0 mt-0.5">{c.subject}</p>
                       </div>
-                      <button 
-                        onClick={() => handleToggleSelect(c.complaint_id)}
-                        className="w-6 h-6 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 flex items-center justify-center transition-colors ml-auto"
-                      >
-                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="18" y1="6" x2="6" y2="18"></line>
-                          <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                      </button>
                     </div>
                   ))}
                 </div>
 
-                <div className="p-6 border-t border-gray-100 bg-white space-y-3 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">มติที่ประชุม ({selectedIds.length} รายการ)</p>
+                <div className="p-6 border-t border-gray-100 bg-white shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">ดำเนินการ ({selectedIds.length} รายการ)</p>
                   
-                  <button
-                    onClick={() => handleBulkUpdate('in_progress')}
-                    disabled={isBulkUpdating}
-                    className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-600/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:-translate-y-0.5"
-                  >
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                      <polyline points="22 4 12 14.01 9 11.01" />
-                    </svg>
-                    มติ: อนุมัติให้ดำเนินการ
-                  </button>
-
-                  <button
-                    onClick={() => handleBulkUpdate('rejected')}
-                    disabled={isBulkUpdating}
-                    className="w-full py-3.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-red-600/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:-translate-y-0.5"
-                  >
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                    มติ: ไม่อนุมัติ
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleBulkUpdate('rejected')}
+                      disabled={isBulkUpdating}
+                      className="flex-1 py-3 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-sm font-bold rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                      </svg>
+                      ไม่อนุมัติ
+                    </button>
+                    <button
+                      onClick={() => handleBulkUpdate('approved')}
+                      disabled={isBulkUpdating}
+                      className="flex-[2] py-3 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-green-600/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer hover:-translate-y-0.5"
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      อนุมัติรับเรื่อง
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -524,14 +504,14 @@ function StaffMeetingsContent() {
   );
 }
 
-export default function StaffMeetingsPage() {
+export default function AdminPendingPage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center py-32">
         <div className="w-10 h-10 border-3 border-gray-200 border-t-[#d4a574] rounded-full animate-spin" />
       </div>
     }>
-      <StaffMeetingsContent />
+      <AdminPendingContent />
     </Suspense>
   );
 }
