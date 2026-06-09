@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/api";
+import { useComplaintDetail } from "@/hooks/useComplaintDetail";
 
 const intakeChannelOptions = [
   { value: "", label: "-- เลือกช่องทาง --" },
@@ -63,7 +64,7 @@ export default function StaffEditComplaintPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(false);
-  const [pageLoading, setPageLoading] = useState(true);
+  const { complaint, isLoading: pageLoading, error: fetchError } = useComplaintDetail(complaintId, 'staff');
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -89,47 +90,34 @@ export default function StaffEditComplaintPage() {
     attachment_url: "",
   });
 
-  // ดึงข้อมูลคำร้องจาก Backend API (ใช้ staff endpoint)
   useEffect(() => {
-    const fetchComplaint = async () => {
-      try {
-        const res = await api.get(`/complaints/staff/${complaintId}`);
-        const json = res.data;
-        if (json.success && json.data) {
-          const c = json.data;
+    if (complaint) {
+      setUserInfo({
+        first_name: complaint.first_name || "",
+        last_name: complaint.last_name || "",
+        phone_number: complaint.phone_number || "",
+        house_no: complaint.house_no || "",
+        phase: complaint.phase || "",
+        soi: complaint.soi || "",
+      });
 
-          setUserInfo({
-            first_name: c.first_name || "",
-            last_name: c.last_name || "",
-            phone_number: c.phone_number || "",
-            house_no: c.house_no || "",
-            phase: c.phase || "",
-            soi: c.soi || "",
-          });
+      const rDate = complaint.reported_date
+        ? new Date(complaint.reported_date).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0];
 
-          const rDate = c.reported_date
-            ? new Date(c.reported_date).toISOString().split("T")[0]
-            : new Date().toISOString().split("T")[0];
-
-          setForm({
-            subject: c.subject || "",
-            description: c.description || "",
-            location_written: c.location_written || "",
-            intake_channel: c.intake_channel || "website",
-            reported_date: rDate,
-            attachment_url: c.attachment_url || "",
-          });
-        } else {
-          setError("ไม่พบข้อมูลคำร้อง หรือคุณไม่มีสิทธิ์เข้าถึง");
-        }
-      } catch {
-        setError("เกิดข้อผิดพลาดในการโหลดข้อมูล");
-      }
-      setPageLoading(false);
-    };
-
-    fetchComplaint();
-  }, [complaintId]);
+      setForm({
+        subject: complaint.subject || "",
+        description: complaint.description || "",
+        location_written: complaint.location_written || "",
+        intake_channel: complaint.intake_channel || "website",
+        reported_date: rDate,
+        attachment_url: complaint.attachment_url || "",
+      });
+    }
+    if (fetchError) {
+      setError("ไม่พบข้อมูลคำร้อง หรือคุณไม่มีสิทธิ์เข้าถึง");
+    }
+  }, [complaint, fetchError]);
 
   const handleChange = (
     e: React.ChangeEvent<

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-
+import api from "@/lib/api";
 /* ===== Types ===== */
 interface AuditLog {
   log_id: string | number;
@@ -49,15 +49,6 @@ const IconChevronRight = () => (
 );
 
 /* ===== Helpers ===== */
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
-
-function getToken() {
-  return "http-only-cookie";
-}
-
-function authHeaders() {
-  return { "Content-Type": "application/json" };
-}
 
 function getActionStyle(action: string) {
   const a = action.toLowerCase();
@@ -106,30 +97,8 @@ export default function AdminLogsPage() {
   /* ── Fetch Logs ── */
   const fetchLogs = useCallback(async () => {
     try {
-      let res = await fetch(`${API}/admin/logs`, { credentials: "include", headers: authHeaders() });
-
-      // If token expired, try to refresh and retry
-      if (res.status === 401) {
-        const refreshToken = localStorage.getItem("refreshToken");
-        if (refreshToken) {
-          const refreshRes = await fetch(`${API}/auth/refresh`, { credentials: "include",
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ refreshToken }),
-          });
-          const refreshData = await refreshRes.json();
-          if (refreshRes.ok && refreshData.data?.accessToken) {
-            
-            if (refreshData.data.refreshToken) {
-              localStorage.setItem("refreshToken", refreshData.data.refreshToken);
-            }
-            res = await fetch(`${API}/admin/logs`, { credentials: "include", headers: authHeaders() });
-          }
-        }
-      }
-
-      if (res.ok) {
-        const data = await res.json();
+      const { data } = await api.get('/admin/logs');
+      if (data.success || Array.isArray(data.data)) {
         const list: AuditLog[] = data.data ?? data;
         setLogs(list);
       } else {

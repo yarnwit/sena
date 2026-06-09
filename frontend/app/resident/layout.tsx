@@ -83,21 +83,28 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
   useEffect(() => {
     const loadUser = () => {
       try {
-        const userStr = localStorage.getItem("user");
-        if (userStr) {
-          const user = JSON.parse(userStr);
-          const fullName = user.full_name || `${user.first_name || ""} ${user.last_name || ""}`.trim();
-          setUserName(fullName);
-          
-          let address = "";
-          if (user.house_no) address += user.house_no;
-          if (user.phase) address += ` เฟส ${user.phase}`;
-          if (user.soi) address += ` ซอย ${user.soi}`;
-          
-          setHouseNo(address.trim() || user.address || "---");
+        const token = sessionStorage.getItem("accessToken");
+        const userStr = sessionStorage.getItem("user");
+
+        // ถ้าไม่มี token หรือ user → redirect ไป login
+        if (!token || !userStr) {
+          router.replace("/login");
+          return;
         }
+
+        const user = JSON.parse(userStr);
+        const fullName = user.full_name || `${user.first_name || ""} ${user.last_name || ""}`.trim();
+        setUserName(fullName);
+        
+        let address = "";
+        if (user.house_no) address += user.house_no;
+        if (user.phase) address += ` เฟส ${user.phase}`;
+        if (user.soi) address += ` ซอย ${user.soi}`;
+        
+        setHouseNo(address.trim() || user.address || "---");
       } catch {
-        // ignore parse error
+        router.replace("/login");
+        return;
       }
       setLoading(false);
     };
@@ -105,15 +112,12 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
     loadUser();
     window.addEventListener("user-updated", loadUser);
     return () => window.removeEventListener("user-updated", loadUser);
-  }, []);
+  }, [router]);
 
   const handleLogout = () => {
-    // ลบข้อมูลจาก localStorage
-    
-    localStorage.removeItem("user");
-    // ลบ cookie
-    document.cookie = "accessToken=; path=/; max-age=0";
-    document.cookie = "user=; path=/; max-age=0";
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("accessToken");
+    sessionStorage.removeItem("refreshToken");
     router.push("/login");
     router.refresh();
   };

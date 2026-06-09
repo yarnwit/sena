@@ -23,12 +23,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Load user from localStorage on mount
   useEffect(() => {
     try {
-      // Clean up legacy accessToken from localStorage to prevent confusion
+      // Clean up legacy tokens from localStorage to prevent confusion
       localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
       
-      const savedUser = localStorage.getItem('user');
-      // Token is now an HttpOnly cookie, we only rely on user data from localStorage
-      // However, to ensure they are actually authenticated, the API calls will fail if token is missing
+      // Clean up legacy cookies to prevent Infinite Loop from proxy.ts
+      document.cookie = 'user=; path=/; max-age=0';
+      document.cookie = 'accessToken=; path=/; max-age=0';
+      document.cookie = 'refreshToken=; path=/; max-age=0';
+      
+      const savedUser = sessionStorage.getItem('user');
       if (savedUser) {
         setUser(JSON.parse(savedUser));
       }
@@ -41,12 +45,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(async (data: LoginRequest) => {
     const response = await api.post<{ success: boolean; data: AuthResponse }>('/auth/login', data);
-    const { user: userData } = response.data.data;
+    const { user: userData, accessToken, refreshToken } = response.data.data;
 
-    localStorage.setItem('user', JSON.stringify(userData));
-
-    // Set user cookie for middleware
-    document.cookie = `user=${encodeURIComponent(JSON.stringify(userData))}; path=/; max-age=${15 * 60}`;
+    sessionStorage.setItem('user', JSON.stringify(userData));
+    sessionStorage.setItem('accessToken', accessToken);
+    if (refreshToken) {
+      sessionStorage.setItem('refreshToken', refreshToken);
+    }
 
     setUser(userData);
   }, []);
@@ -62,14 +67,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Even if API fails, clear local state
     }
 
-    localStorage.removeItem('user');
-    document.cookie = 'user=; path=/; max-age=0';
+    sessionStorage.removeItem('user');
+    sessionStorage.removeItem('accessToken');
+    sessionStorage.removeItem('refreshToken');
+    document.cookie = 'user=; path=/; max-age=0'; // cleanup legacy
     setUser(null);
   }, []);
 
   const refreshUser = useCallback(() => {
     try {
-      const savedUser = localStorage.getItem('user');
+      const savedUser = sessionStorage.getItem('user');
       if (savedUser) {
         setUser(JSON.parse(savedUser));
       }

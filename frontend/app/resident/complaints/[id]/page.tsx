@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import StatusTimeline from "@/components/complaints/StatusTimeline";
-import api from "@/lib/api";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { useComplaintDetail, TimelineEvent } from "@/hooks/useComplaintDetail";
 
 /* ===== Types ===== */
 interface ComplaintDetail {
@@ -30,17 +28,6 @@ interface ComplaintDetail {
   reviewer_name?: string | null;
 }
 
-interface TimelineEvent {
-  id: string | number;
-  type: 'comment' | 'system_log';
-  content?: string;
-  action?: string;
-  details?: any;
-  created_at: string;
-  user_name: string;
-  user_role: string;
-  user_id: string;
-}
 
 /* ===== Config Maps ===== */
 const statusConfig: Record<string, { label: string; bgClass: string; textClass: string }> = {
@@ -113,67 +100,8 @@ export default function ComplaintDetailPage() {
   const params = useParams();
   const complaintId = params.id as string;
 
-  const [complaint, setComplaint] = useState<ComplaintDetail | null>(null);
-  const [comments, setComments] = useState<TimelineEvent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { complaint, comments, isLoading: loading, error } = useComplaintDetail(complaintId, 'resident');
   const [imageError, setImageError] = useState(false);
-
-  useEffect(() => {
-    let didSet = false;
-
-    const fetchDetail = async () => {
-      try {
-        const token = "http-only-cookie";
-        if (token) {
-          const res = await fetch(`${API_URL}/complaints/${complaintId}`, { credentials: "include",
-            headers: { },
-          });
-          if (res.ok) {
-            const json = await res.json();
-            if (json.success && json.data) {
-              setComplaint(json.data);
-              didSet = true;
-            }
-          }
-        }
-      } catch {
-        // Fallback handled below
-      }
-
-      if (!didSet) {
-        try {
-          const { createClient } = await import("@/lib/supabase/client");
-          const supabase = createClient();
-
-          const { data } = await supabase
-            .from("complaints")
-            .select("*")
-            .eq("complaint_id", complaintId)
-            .single();
-
-          if (data) {
-            setComplaint(data);
-          }
-        } catch {
-          // fallback failed
-        }
-      }
-
-      // Fetch Timeline
-      try {
-        const timelineRes = await api.get(`/complaints/${complaintId}/comments`);
-        if (timelineRes.data?.success) {
-          setComments(timelineRes.data.data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch timeline:", err);
-      }
-
-      setLoading(false);
-    };
-
-    fetchDetail();
-  }, [complaintId]);
 
   if (loading) {
     return (

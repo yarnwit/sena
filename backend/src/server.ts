@@ -4,7 +4,7 @@ import logger from './config/logger';
 
 const PORT = env.PORT || 5000;
 
-app.listen(PORT, () => {
+app.listen(PORT as number, '0.0.0.0', () => {
   logger.info(`=================================`);
   logger.info(`🚀 SENA Backend API`);
   logger.info(`=================================`);

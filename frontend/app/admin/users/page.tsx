@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import api from "@/lib/api";
 
 /* ===== Types ===== */
 interface User {
@@ -104,15 +105,6 @@ const IconEmptyUser = () => (
   </svg>
 );
 
-/* ===== Helpers ===== */
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
-
-function getToken() {
-  return "http-only-cookie";
-}
-function authHeaders() {
-  return { "Content-Type": "application/json" };
-}
 function roleLabel(role: string) {
   return { resident: "ลูกบ้าน", staff: "นิติบุคคล", admin: "แอดมิน" }[role] ?? role;
 }
@@ -166,34 +158,11 @@ function AdminUsersContent() {
   /* ── Fetch Users ── */
   const fetchUsers = useCallback(async () => {
     try {
-      let res = await fetch(`${API}/admin/users`, { credentials: "include", headers: authHeaders() });
-
-      // If token expired, try to refresh and retry
-      if (res.status === 401) {
-        const refreshToken = localStorage.getItem("refreshToken");
-        if (refreshToken) {
-          const refreshRes = await fetch(`${API}/auth/refresh`, { credentials: "include",
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ refreshToken }),
-          });
-          const refreshData = await refreshRes.json();
-          if (refreshRes.ok && refreshData.data?.accessToken) {
-            
-            if (refreshData.data.refreshToken) {
-              localStorage.setItem("refreshToken", refreshData.data.refreshToken);
-            }
-            res = await fetch(`${API}/admin/users`, { credentials: "include", headers: authHeaders() });
-          }
-        }
-      }
-
-      if (res.ok) {
-        const data = await res.json();
-        const list: User[] = data.data ?? data;
-        setUsers(list);
+      const res = await api.get('/admin/users');
+      if (res.data?.success && res.data?.data) {
+        setUsers(res.data.data);
       } else {
-        setUsers([]);
+        setUsers(res.data ?? []);
       }
       setLastUpdated(new Date());
     } catch {
@@ -220,37 +189,28 @@ function AdminUsersContent() {
 
     try {
       if (action === "changeRole" && targetRole) {
-        const res = await fetch(`${API}/admin/users/${user.user_id}`, { credentials: "include",
-          method: "PATCH",
-          headers: authHeaders(),
-          body: JSON.stringify({ role: targetRole }),
-        });
+        const res = await api.patch(`/admin/users/${user.user_id}`, { role: targetRole });
 
-        if (res.ok) {
+        if (res.data?.success || res.status === 200) {
           await fetchUsers();
           showToast(`เปลี่ยนสิทธิ์ ${user.first_name} ${user.last_name} สำเร็จ`, "success");
         } else {
-          const errData = await res.json().catch(() => null);
-          showToast(errData?.message || "เกิดข้อผิดพลาดในการเปลี่ยนสิทธิ์", "error");
+          showToast(res.data?.message || "เกิดข้อผิดพลาดในการเปลี่ยนสิทธิ์", "error");
         }
       } else if (action === "delete") {
-        const res = await fetch(`${API}/admin/users/${user.user_id}`, { credentials: "include",
-          method: "DELETE",
-          headers: authHeaders(),
-        });
+        const res = await api.delete(`/admin/users/${user.user_id}`);
 
-        if (res.ok) {
+        if (res.data?.success || res.status === 200 || res.status === 204) {
           showToast(`ลบบัญชี ${user.first_name} ${user.last_name} สำเร็จ`, "success");
           setTimeout(() => {
             window.location.reload();
           }, 1000);
         } else {
-          const errData = await res.json().catch(() => null);
-          showToast(errData?.message || "เกิดข้อผิดพลาดในการลบบัญชี", "error");
+          showToast(res.data?.message || "เกิดข้อผิดพลาดในการลบบัญชี", "error");
         }
       }
-    } catch {
-      showToast("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้", "error");
+    } catch (err: any) {
+      showToast(err.response?.data?.message || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้", "error");
     }
 
     setUpdating(false);

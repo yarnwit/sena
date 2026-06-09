@@ -1,82 +1,69 @@
-'use client';
-
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '@/lib/api';
-import { Complaint, CreateComplaintRequest, UpdateComplaintRequest } from '@/types/complaint';
+import { Complaint } from '@/types/complaint';
 
-/**
- * Custom hook for complaint CRUD operations
- * ตาม AGENTS.md — แยก Business Logic ไปไว้ใน Custom Hooks
- */
-export function useComplaints() {
+export function useComplaints(role: 'admin' | 'staff' | 'resident', initialFilter?: string) {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchMyComplaints = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+  const fetchComplaints = useCallback(async (filter?: string) => {
     try {
-      const { data } = await api.get('/complaints/my');
-      setComplaints(data.data || []);
+      setIsLoading(true);
+      setError(null);
+      
+      const endpoint = role === 'resident' ? '/complaints/my' : '/complaints/all';
+      const params = filter && filter !== 'all' ? { filter } : {};
+      
+      const res = await api.get(endpoint, { params });
+      
+      if (res.data?.success) {
+        setComplaints(res.data.data || []);
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch complaints');
+      console.error("Fetch complaints error:", err);
+      setError(err.message || 'เกิดข้อผิดพลาดในการดึงข้อมูลเรื่องร้องเรียน');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [role]);
 
-  const fetchAllComplaints = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+  useEffect(() => {
+    fetchComplaints(initialFilter);
+  }, [fetchComplaints, initialFilter]);
+
+  return { complaints, isLoading, error, refetch: fetchComplaints };
+}
+
+export function useComplaintDetail(id: string, role: 'admin' | 'staff' | 'resident') {
+  const [complaint, setComplaint] = useState<Complaint | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchDetail = useCallback(async () => {
+    if (!id) return;
+    
     try {
-      const { data } = await api.get('/complaints/all');
-      setComplaints(data.data || []);
+      setIsLoading(true);
+      setError(null);
+      
+      const endpoint = role === 'resident' ? `/complaints/${id}` : `/complaints/staff/${id}`;
+      const res = await api.get(endpoint);
+      
+      if (res.data?.success) {
+        setComplaint(res.data.data);
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch complaints');
+      console.error("Fetch complaint detail error:", err);
+      setError(err.message || 'เกิดข้อผิดพลาดในการดึงข้อมูลรายละเอียด');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [id, role]);
 
-  const getComplaintById = useCallback(async (id: string | number): Promise<Complaint | null> => {
-    try {
-      const { data } = await api.get(`/complaints/${id}`);
-      return data.data;
-    } catch {
-      return null;
-    }
-  }, []);
+  useEffect(() => {
+    fetchDetail();
+  }, [fetchDetail]);
 
-  const createComplaint = useCallback(async (input: CreateComplaintRequest) => {
-    const { data } = await api.post('/complaints', input);
-    return data.data;
-  }, []);
-
-  const updateComplaint = useCallback(async (id: string | number, input: UpdateComplaintRequest) => {
-    const { data } = await api.patch(`/complaints/${id}`, input);
-    return data.data;
-  }, []);
-
-  const updateStatus = useCallback(async (id: string | number, status: string) => {
-    const { data } = await api.patch(`/complaints/staff/${id}/status`, { status });
-    return data.data;
-  }, []);
-
-  const deleteComplaint = useCallback(async (id: string | number) => {
-    await api.delete(`/complaints/${id}`);
-  }, []);
-
-  return {
-    complaints,
-    isLoading,
-    error,
-    fetchMyComplaints,
-    fetchAllComplaints,
-    getComplaintById,
-    createComplaint,
-    updateComplaint,
-    updateStatus,
-    deleteComplaint,
-  };
+  return { complaint, isLoading, error, refetch: fetchDetail };
 }

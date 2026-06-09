@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/api";
+import { useUserInfo } from "@/hooks/useUserInfo";
 
 const intakeChannelOptions = [
   { value: "", label: "-- เลือกช่องทาง --" },
@@ -60,21 +61,11 @@ export default function NewComplaintPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
-  const [pageLoading, setPageLoading] = useState(true);
+  const { userInfo, isLoading: pageLoading } = useUserInfo();
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-
-  // ข้อมูลลูกบ้าน (read-only, ดึงจาก DB)
-  const [userInfo, setUserInfo] = useState({
-    first_name: "",
-    last_name: "",
-    phone_number: "",
-    house_no: "",
-    phase: "",
-    soi: "",
-  });
 
   // ข้อมูลคำร้อง (กรอกใหม่)
   const [form, setForm] = useState({
@@ -84,31 +75,6 @@ export default function NewComplaintPage() {
     intake_channel: "website",
     reported_date: new Date().toISOString().split("T")[0],
   });
-
-  // ดึงข้อมูลลูกบ้านจาก Backend API
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const res = await api.get('/complaints/user-info');
-        if (res.data.success && res.data.data) {
-          setUserInfo({
-            first_name: res.data.data.first_name || "",
-            last_name: res.data.data.last_name || "",
-            phone_number: res.data.data.phone_number || "",
-            house_no: res.data.data.house_no || "",
-            phase: res.data.data.phase || "",
-            soi: res.data.data.soi || "",
-          });
-        }
-      } catch (err) {
-        console.error("Failed to fetch user info:", err);
-      } finally {
-        setPageLoading(false);
-      }
-    };
-
-    fetchUserInfo();
-  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -229,7 +195,7 @@ export default function NewComplaintPage() {
                 <label className={labelClasses}>ชื่อจริง</label>
                 <input
                   type="text"
-                  value={userInfo.first_name}
+                  value={userInfo?.first_name || ""}
                   className={readOnlyClasses}
                   readOnly
                 />
@@ -238,7 +204,7 @@ export default function NewComplaintPage() {
                 <label className={labelClasses}>นามสกุล</label>
                 <input
                   type="text"
-                  value={userInfo.last_name}
+                  value={userInfo?.last_name || ""}
                   className={readOnlyClasses}
                   readOnly
                 />
@@ -247,7 +213,7 @@ export default function NewComplaintPage() {
                 <label className={labelClasses}>เบอร์โทรศัพท์</label>
                 <input
                   type="text"
-                  value={userInfo.phone_number || "-"}
+                  value={userInfo?.phone_number || "-"}
                   className={readOnlyClasses}
                   readOnly
                 />
@@ -260,7 +226,7 @@ export default function NewComplaintPage() {
                 <label className={labelClasses}>บ้านเลขที่</label>
                 <input
                   type="text"
-                  value={userInfo.house_no || "-"}
+                  value={userInfo?.house_no || "-"}
                   className={readOnlyClasses}
                   readOnly
                 />
@@ -269,7 +235,7 @@ export default function NewComplaintPage() {
                 <label className={labelClasses}>เฟส</label>
                 <input
                   type="text"
-                  value={userInfo.phase || "-"}
+                  value={userInfo?.phase || "-"}
                   className={readOnlyClasses}
                   readOnly
                 />
@@ -278,7 +244,7 @@ export default function NewComplaintPage() {
                 <label className={labelClasses}>ซอย</label>
                 <input
                   type="text"
-                  value={userInfo.soi || "-"}
+                  value={userInfo?.soi || "-"}
                   className={readOnlyClasses}
                   readOnly
                 />

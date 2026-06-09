@@ -9,23 +9,10 @@ export const login = async (req: Request, res: Response) => {
 
     const result = await AuthService.login(username, password);
 
-    res.cookie('refreshToken', result.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    res.cookie('accessToken', result.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 15 * 60 * 1000, // 15 minutes
-    });
-
     return sendSuccess(res, {
       user: result.user,
       accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
     }, 'Login successful');
   } catch (error: any) {
     if (error.message === 'Invalid credentials') {
@@ -51,22 +38,15 @@ export const register = async (req: Request, res: Response) => {
 
 export const refresh = async (req: Request, res: Response) => {
   try {
-    const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
+    const refreshToken = req.body.refreshToken;
 
     if (!refreshToken) {
       return sendError(res, 'Refresh token required', 401);
     }
 
-    const accessToken = await AuthService.refreshToken(refreshToken);
+    const { accessToken, refreshToken: newRefreshToken } = await AuthService.refreshToken(refreshToken);
 
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 15 * 60 * 1000,
-    });
-
-    return sendSuccess(res, { accessToken });
+    return sendSuccess(res, { accessToken, refreshToken: newRefreshToken });
   } catch (error) {
     return sendError(res, 'Invalid or expired refresh token', 401);
   }
@@ -75,8 +55,6 @@ export const refresh = async (req: Request, res: Response) => {
 export const logout = async (req: Request, res: Response) => {
   try {
     await AuthService.logout();
-    res.clearCookie('refreshToken');
-    res.clearCookie('accessToken');
     return sendSuccess(res, null, 'Logout successful');
   } catch (error) {
     return sendError(res, 'Internal server error');

@@ -3,16 +3,9 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import api from "@/lib/api";
 
-/* ===== Helpers ===== */
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
 
-function getToken() {
-  return "http-only-cookie";
-}
-function authHeaders() {
-  return { "Content-Type": "application/json" };
-}
 
 /* ===== SVG Icons ===== */
 const IconArrowLeft = () => (
@@ -64,52 +57,20 @@ export default function CreateUserPage() {
     e.preventDefault();
     setLoading(true);
 
-    const doCreate = async () => {
-      const res = await fetch(`${API}/admin/users`, { credentials: "include",
-        method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify(formData),
-      });
-      return res;
-    };
-
     try {
-      let res = await doCreate();
+      const res = await api.post("/admin/users", formData);
 
-      // If token expired, try to refresh and retry
-      if (res.status === 401) {
-        const refreshToken = localStorage.getItem("refreshToken");
-        if (refreshToken) {
-          const refreshRes = await fetch(`${API}/auth/refresh`, { credentials: "include",
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ refreshToken }),
-          });
-          const refreshData = await refreshRes.json();
-          if (refreshRes.ok && refreshData.data?.accessToken) {
-            
-            if (refreshData.data.refreshToken) {
-              localStorage.setItem("refreshToken", refreshData.data.refreshToken);
-            }
-            // Retry with new token
-            res = await doCreate();
-          }
-        }
-      }
-
-      const data = await res.json();
-
-      if (res.ok && data.success !== false) {
+      if (res.data?.success || res.status === 201) {
         showToast("สร้างบัญชีผู้ใช้สำเร็จ", "success");
         setTimeout(() => {
           router.push("/admin/users");
         }, 1500);
       } else {
-        showToast(data.message || "เกิดข้อผิดพลาดในการสร้างบัญชี", "error");
+        showToast(res.data?.message || "เกิดข้อผิดพลาดในการสร้างบัญชี", "error");
         setLoading(false);
       }
-    } catch (err) {
-      showToast("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้", "error");
+    } catch (err: any) {
+      showToast(err.response?.data?.message || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้", "error");
       setLoading(false);
     }
   };

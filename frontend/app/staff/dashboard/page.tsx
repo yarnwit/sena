@@ -1,29 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useDashboard } from "@/hooks/useDashboard";
 import Link from "next/link";
-import api from "@/lib/api";
-
-/* ===== Types ===== */
-interface Complaint {
-  complaint_id: number;
-  ticket_no: string;
-  subject: string;
-  status: string;
-  reported_date: string;
-  location_written: string | null;
-}
-
-interface Stats {
-  total: number;
-  pending: number;
-  approved: number;
-  in_meeting: number;
-  in_progress: number;
-  resolved: number;
-  rejected: number;
-}
 
 /* ===== Helpers ===== */
 const statusLabels: Record<string, string> = {
@@ -100,90 +78,22 @@ const CrossIcon = () => (
   </svg>
 );
 
-const AlertIcon = () => (
-  <svg className="w-5 h-5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" />
-    <line x1="12" y1="8" x2="12" y2="12" />
-    <line x1="12" y1="16" x2="12.01" y2="16" />
-  </svg>
-);
-
-const ListIcon = () => (
-  <svg className="w-8 h-8 text-violet-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="8" y1="6" x2="21" y2="6" />
-    <line x1="8" y1="12" x2="21" y2="12" />
-    <line x1="8" y1="18" x2="21" y2="18" />
-    <line x1="3" y1="6" x2="3.01" y2="6" />
-    <line x1="3" y1="12" x2="3.01" y2="12" />
-    <line x1="3" y1="18" x2="3.01" y2="18" />
-  </svg>
-);
-
-const ZapIcon = () => (
-  <svg className="w-8 h-8 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-  </svg>
-);
-
 /* ===== Page Component ===== */
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-
 export default function StaffDashboardPage() {
-  const [stats, setStats] = useState<Stats>({ total: 0, pending: 0, approved: 0, in_meeting: 0, in_progress: 0, resolved: 0, rejected: 0 });
-  const [urgentComplaints, setUrgentComplaints] = useState<Complaint[]>([]);
-  const [recentComplaints, setRecentComplaints] = useState<Complaint[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { stats, urgentComplaints, recentComplaints, isLoading, error } = useDashboard('staff');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = "http-only-cookie";
-        if (!token) {
-          setLoading(false);
-          return;
-        }
-
-        const res = await api.get('/complaints/all');
-        const json = res.data;
-
-        if (json.success && json.data) {
-          const complaints = json.data;
-
-          // คำนวณ Stats
-          setStats({
-            total: complaints.length,
-            pending: complaints.filter((c: Complaint) => c.status === "pending").length,
-            approved: complaints.filter((c: Complaint) => c.status === "approved").length,
-            in_meeting: complaints.filter((c: Complaint) => c.status === "in_meeting").length,
-            in_progress: complaints.filter((c: Complaint) => c.status === "in_progress").length,
-            resolved: complaints.filter((c: Complaint) => c.status === "resolved" || c.status === "closed").length,
-            rejected: complaints.filter((c: Complaint) => c.status === "rejected").length,
-          });
-
-          // เรื่องเร่งด่วน = pending ที่นานเกิน 3 วัน + pending ใหม่ทั้งหมด
-          const urgent = complaints
-            .filter((c: Complaint) => c.status === "pending")
-            .sort((a: Complaint, b: Complaint) => new Date(a.reported_date).getTime() - new Date(b.reported_date).getTime())
-            .slice(0, 6);
-          setUrgentComplaints(urgent);
-
-          // เรื่องล่าสุดทั้งหมด (5 รายการ)
-          setRecentComplaints(complaints.slice(0, 5));
-        }
-      } catch (error) {
-        console.error("Fetch dashboard data error:", error);
-      }
-
-      setLoading(false);
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center p-20">
         <div className="w-10 h-10 border-4 border-gray-200 border-t-amber-500 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 bg-red-50 text-red-600 rounded-lg">
+        {error}
       </div>
     );
   }

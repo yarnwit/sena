@@ -2,12 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import StatusTimeline from "@/components/complaints/StatusTimeline";
-import api from "@/lib/api";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { useComplaintDetail, TimelineEvent } from "@/hooks/useComplaintDetail";
+import { useAuthContext } from "@/context/AuthContext";
 
 /* ===== Types ===== */
 interface ComplaintDetail {
@@ -31,17 +29,6 @@ interface ComplaintDetail {
   reviewer_name?: string | null;
 }
 
-interface TimelineEvent {
-  id: string | number;
-  type: 'comment' | 'system_log';
-  content?: string;
-  action?: string;
-  details?: any;
-  created_at: string;
-  user_name: string;
-  user_role: string;
-  user_id: string;
-}
 
 /* ===== Config Maps ===== */
 const statusConfig: Record<string, { label: string; bgClass: string; textClass: string }> = {
@@ -116,61 +103,25 @@ export default function StaffComplaintDetailPage() {
   const params = useParams();
   const router = useRouter();
   const complaintId = params.id as string;
+  const { user } = useAuthContext();
+  const userRole = user?.role || "staff";
 
-  const [complaint, setComplaint] = useState<ComplaintDetail | null>(null);
-  const [comments, setComments] = useState<TimelineEvent[]>([]);
+  const { complaint, comments, isLoading: loading, error, updateStatus, addComment, fetchDetail } = useComplaintDetail(complaintId, 'staff');
+
   const [newComment, setNewComment] = useState("");
-  const [sending, setSending] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
   const [imageError, setImageError] = useState(false);
 
   // Status Update State
   const [selectedStatus, setSelectedStatus] = useState<string>("");
-  const [updatingStatus, setUpdatingStatus] = useState(false);
   const [petition, setPetition] = useState<string>("");
-  const [userRole, setUserRole] = useState<string>("");
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = "http-only-cookie";
-        if (!token) { setLoading(false); return; }
-
-        const userStr = localStorage.getItem("user");
-        if (userStr) {
-          try {
-            const u = JSON.parse(userStr);
-            setUserRole(u.role || "");
-          } catch {}
-        }
-
-        const res = await api.get(`/complaints/staff/${complaintId}`);
-        const json = res.data;
-        if (json.success && json.data) {
-          setComplaint(json.data);
-          setSelectedStatus(json.data.status);
-          setPetition(json.data.petition || "");
-        }
-
-        let fetchedComments: TimelineEvent[] = [];
-        
-        try {
-          const timelineRes = await api.get(`/complaints/${complaintId}/comments`);
-          if (timelineRes.data?.success) {
-            fetchedComments = timelineRes.data.data;
-          }
-        } catch (err) {
-          console.error("Failed to fetch timeline:", err);
-        }
-        
-        setComments(fetchedComments);
-      } catch {
-        // error
-      }
-      setLoading(false);
-    };
-    fetchData();
-  }, [complaintId]);
+    if (complaint) {
+      setSelectedStatus(complaint.status);
+      setPetition(complaint.petition || "");
+    }
+  }, [complaint]);
 
   const handleUpdateStatusAndComment = async () => {
     const statusChanged = selectedStatus !== complaint?.status || petition !== (complaint?.petition || "");
@@ -180,55 +131,25 @@ export default function StaffComplaintDetailPage() {
 
     setUpdatingStatus(true);
     try {
-      const token = "http-only-cookie";
-      if (!token) { alert("กรุณาเข้าสู่ระบบใหม่"); setUpdatingStatus(false); return; }
-
       let hasError = false;
 
       // 1. Update Status
       if (statusChanged && complaint) {
-        const res = await api.patch(`/complaints/staff/${complaint.complaint_id}/status`, {
-          status: selectedStatus,
-          petition,
-        });
-        if (res.data.success) {
-          setComplaint({ ...complaint, status: selectedStatus, petition: petition });
-        } else {
+        try {
+          await updateStatus(selectedStatus, petition);
+        } catch (error: any) {
           hasError = true;
-          alert("เกิดข้อผิดพลาดในการอัปเดตสถานะ: " + res.data.message);
+          alert("เกิดข้อผิดพลาดในการอัปเดตสถานะ: " + (error.response?.data?.message || error.message));
         }
       }
 
       // 2. Insert Comment
       if (commentFilled && !hasError) {
-        const supabase = createClient();
-        const userStr = localStorage.getItem("user");
-        if (userStr) {
-          const user = JSON.parse(userStr);
-          const { data: userData } = await supabase
-            .from("users").select("first_name, last_name, role").eq("id", user.id).single();
-
-          const { data: insertedComment, error } = await supabase
-            .from("comments")
-            .insert({
-              complaint_id: parseInt(complaintId),
-              user_id: user.id,
-              content: newComment,
-            })
-            .select().single();
-
-          if (!error && insertedComment) {
-            setComments([...comments, {
-              id: `comment_${insertedComment.comment_id}`,
-              type: 'comment',
-              content: insertedComment.content,
-              created_at: insertedComment.created_at,
-              user_id: user.id,
-              user_name: userData ? `${userData.first_name} ${userData.last_name}` : "ผู้ใช้",
-              user_role: userData?.role || "staff",
-            }]);
-            setNewComment("");
-          }
+        try {
+          await addComment(newComment);
+          setNewComment("");
+        } catch (error: any) {
+          alert("เกิดข้อผิดพลาดในการบันทึกคอมเมนต์: " + (error.response?.data?.message || error.message));
         }
       }
 
@@ -236,8 +157,6 @@ export default function StaffComplaintDetailPage() {
         alert("อัปเดตข้อมูลสำเร็จ");
         router.refresh();
       }
-    } catch (error: any) {
-      alert("เกิดข้อผิดพลาดในการบันทึก: " + (error.response?.data?.message || error.message || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์"));
     } finally {
       setUpdatingStatus(false);
     }

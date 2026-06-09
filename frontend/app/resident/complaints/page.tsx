@@ -1,9 +1,8 @@
 "use client";
-
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
+import { useComplaints } from "@/hooks/useComplaints";
+import { useUserInfo } from "@/hooks/useUserInfo";
 import Link from "next/link";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 interface Complaint {
   complaint_id: number;
@@ -36,48 +35,15 @@ const filterOptions = [
 ];
 
 export default function ComplaintsPage() {
-  const [complaints, setComplaints] = useState<Complaint[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { complaints, isLoading: loadingComplaints, error } = useComplaints('resident');
+  const { houseNo, isLoading: loadingUserInfo } = useUserInfo();
+  const loading = loadingComplaints || loadingUserInfo;
+
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [houseNo, setHouseNo] = useState<string>("");
-
-  useEffect(() => {
-    const fetchComplaints = async () => {
-      try {
-        const token = "http-only-cookie";
-        if (!token) {
-          setLoading(false);
-          return;
-        }
-
-        const res = await fetch(`${API_URL}/complaints/my`, { credentials: "include",
-          headers: { },
-        });
-
-        const json = await res.json();
-        if (json.success && json.data) {
-          setComplaints(json.data);
-        }
-
-        const userRes = await fetch(`${API_URL}/complaints/user-info`, { credentials: "include",
-          headers: { },
-        });
-        const userJson = await userRes.json();
-        if (userJson.success && userJson.data) {
-          setHouseNo(userJson.data.house_no || "");
-        }
-      } catch {
-        // fallback
-      }
-      setLoading(false);
-    };
-
-    fetchComplaints();
-  }, []);
 
   // Filter + Search + Date Range
   const filtered = complaints.filter((c) => {
@@ -117,6 +83,14 @@ export default function ComplaintsPage() {
     return (
       <div className="flex items-center justify-center py-32">
         <div className="w-10 h-10 border-3 border-gray-200 border-t-[#d4a574] rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 bg-red-50 text-red-600 rounded-lg">
+        {error}
       </div>
     );
   }

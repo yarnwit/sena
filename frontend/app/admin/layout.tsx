@@ -152,15 +152,21 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const loadUser = () => {
       try {
-        const userStr = localStorage.getItem("user");
-        if (userStr) {
-          const user = JSON.parse(userStr);
-          const fullName = user.full_name || `${user.first_name || ""} ${user.last_name || ""}`.trim();
-          setUserName(fullName);
-          setUserInitial(fullName ? fullName.charAt(0).toUpperCase() : "?");
+        const token = sessionStorage.getItem("accessToken");
+        const userStr = sessionStorage.getItem("user");
+
+        if (!token || !userStr) {
+          router.replace("/login");
+          return;
         }
+
+        const user = JSON.parse(userStr);
+        const fullName = user.full_name || `${user.first_name || ""} ${user.last_name || ""}`.trim();
+        setUserName(fullName);
+        setUserInitial(fullName ? fullName.charAt(0).toUpperCase() : "?");
       } catch {
-        // ignore parse error
+        router.replace("/login");
+        return;
       }
       setLoading(false);
       setMounted(true);
@@ -169,15 +175,12 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
     loadUser();
     window.addEventListener("user-updated", loadUser);
     return () => window.removeEventListener("user-updated", loadUser);
-  }, []);
+  }, [router]);
 
   const handleLogout = () => {
-    // ลบข้อมูลจาก localStorage
-    
-    localStorage.removeItem("user");
-    // ลบ cookie
-    document.cookie = "accessToken=; path=/; max-age=0";
-    document.cookie = "user=; path=/; max-age=0";
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("accessToken");
+    sessionStorage.removeItem("refreshToken");
     router.push("/login");
     router.refresh();
   };

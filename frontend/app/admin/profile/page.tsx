@@ -61,11 +61,11 @@ export default function AdminProfilePage() {
         setSuccess("บันทึกข้อมูลสำเร็จ!");
         
         // Update local storage so headers can reflect it without reloading
-        const userStr = localStorage.getItem("user");
+        const userStr = sessionStorage.getItem("user");
         if (userStr) {
           const authUser = JSON.parse(userStr);
           authUser.full_name = `${user.first_name} ${user.last_name}`.trim();
-          localStorage.setItem("user", JSON.stringify(authUser));
+          sessionStorage.setItem("user", JSON.stringify(authUser));
           window.dispatchEvent(new Event("user-updated"));
         }
         

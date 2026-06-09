@@ -83,13 +83,13 @@ export default function ProfilePage() {
         setSuccess("บันทึกข้อมูลสำเร็จ!");
         
         // Update local storage so headers can reflect it without reloading
-        const userStr = localStorage.getItem("user");
+        const userStr = sessionStorage.getItem("user");
         if (userStr) {
           const authUser = JSON.parse(userStr);
           authUser.full_name = `${user.first_name} ${user.last_name}`.trim();
           authUser.house_no = resident.house_no;
-          localStorage.setItem("user", JSON.stringify(authUser));
-          // Dispatch custom event to tell layouts to re-read localStorage
+          sessionStorage.setItem("user", JSON.stringify(authUser));
+          // Dispatch custom event to tell layouts to re-read sessionStorage
           window.dispatchEvent(new Event("user-updated"));
         }
         

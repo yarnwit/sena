@@ -156,9 +156,13 @@ export const AuthService = {
     };
   },
 
-  async refreshToken(token: string): Promise<string> {
+  async refreshToken(token: string): Promise<{ accessToken: string, refreshToken: string }> {
     const decoded = verifyRefreshToken(token);
-    return generateAccessToken({ id: decoded.id, role: decoded.role });
+    const payload = { id: decoded.id, role: decoded.role };
+    return {
+      accessToken: generateAccessToken(payload),
+      refreshToken: generateRefreshToken(payload),
+    };
   },
 
   async logout(): Promise<void> {

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, Label } from 'recharts';
+import api from "@/lib/api";
 
 /* ===== Types ===== */
 interface ReportStats {
@@ -70,15 +71,6 @@ const IconDownload = () => (
   </svg>
 );
 
-/* ===== Helpers ===== */
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
-
-function getToken() {
-  return "http-only-cookie";
-}
-function authHeaders() {
-  return { "Content-Type": "application/json" };
-}
 function statusLabel(s: string) {
   return { pending: "รอดำเนินการ", in_progress: "กำลังดำเนินการ", resolved: "แก้ไขแล้ว", rejected: "ปฏิเสธ", closed: "ปิดแล้ว" }[s] ?? s;
 }
@@ -150,17 +142,16 @@ export default function AdminReportsPage() {
 
   async function loadData() {
     try {
-      const headers = authHeaders();
       let query = "?sort=desc";
       if (dateFilter !== "all") query += `&filter=${dateFilter}`;
       
       const [reportRes, complaintsRes] = await Promise.allSettled([
-        fetch(`${API}/admin/reports${query}`, { credentials: "include", headers }),
-        fetch(`${API}/complaints/all${query}`, { credentials: "include", headers }),
+        api.get(`/admin/reports${query}`),
+        api.get(`/complaints/all${query}`),
       ]);
 
-      if (reportRes.status === "fulfilled" && reportRes.value.ok) {
-        const data = await reportRes.value.json();
+      if (reportRes.status === "fulfilled" && reportRes.value.data) {
+        const data = reportRes.value.data;
         const r = data.data ?? data;
         setStats({
           totalComplaints: r.total_complaints ?? r.totalComplaints ?? 0,
@@ -184,8 +175,8 @@ export default function AdminReportsPage() {
         });
       }
 
-      if (complaintsRes.status === "fulfilled" && complaintsRes.value.ok) {
-        const data = await complaintsRes.value.json();
+      if (complaintsRes.status === "fulfilled" && complaintsRes.value.data) {
+        const data = complaintsRes.value.data;
         setComplaints(data.data ?? data);
       }
 

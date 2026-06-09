@@ -51,21 +51,12 @@ function StaffMaintenanceContent() {
 
   const fetchComplaints = async () => {
     try {
-      const token = "http-only-cookie";
-      if (!token) {
-        setLoading(false);
-        return;
-      }
+      const res = await api.get('/complaints/all');
 
-      const res = await fetch(`${API_URL}/complaints/all`, { credentials: "include",
-        headers: { },
-      });
-
-      const json = await res.json();
-      if (json.success && json.data) {
-        // ONLY fetch in_progress
-        const maintenanceComplaints = json.data.filter((c: Complaint) => c.status === 'in_progress');
-        setComplaints(maintenanceComplaints);
+      if (res.data?.success && res.data?.data) {
+        // Load in_progress
+        const meetingComplaints = res.data.data.filter((c: Complaint) => c.status === 'in_progress');
+        setComplaints(meetingComplaints);
       }
     } catch {
       // fallback

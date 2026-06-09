@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import api from "@/lib/api";
 
 interface Complaint {
   complaint_id: number;
@@ -39,17 +38,9 @@ export default function StaffReportsPage() {
 
   const fetchComplaints = async () => {
     try {
-      const token = "http-only-cookie";
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-      const res = await fetch(`${API_URL}/complaints/all`, { credentials: "include",
-        headers: { },
-      });
-      const json = await res.json();
-      if (json.success && json.data) {
-        setComplaints(json.data);
+      const res = await api.get('/complaints/all');
+      if (res.data?.success && res.data?.data) {
+        setComplaints(res.data.data);
       }
     } catch {
       // fallback

@@ -35,15 +35,14 @@ export default function LoginPage() {
         return;
       }
 
-      const { accessToken, user } = json.data;
+      const { accessToken, refreshToken, user } = json.data;
 
-      // เก็บ accessToken และข้อมูลผู้ใช้ไว้ใน localStorage
-      
-      localStorage.setItem("user", JSON.stringify(user));
-
-      // เก็บ accessToken และ user ไว้ใน cookie เพื่อให้ middleware อ่านได้
-      document.cookie = `accessToken=${accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`;
-      document.cookie = `user=${encodeURIComponent(JSON.stringify(user))}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`;
+      // เก็บ accessToken, refreshToken และข้อมูลผู้ใช้ไว้ใน sessionStorage
+      sessionStorage.setItem("user", JSON.stringify(user));
+      sessionStorage.setItem("accessToken", accessToken);
+      if (refreshToken) {
+        sessionStorage.setItem("refreshToken", refreshToken);
+      }
 
       // Redirect ตาม Role
       const role = user.role || "resident";

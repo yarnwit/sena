@@ -45,20 +45,11 @@ function StaffMeetingsContent() {
 
   const fetchComplaints = async () => {
     try {
-      const token = "http-only-cookie";
-      if (!token) {
-        setLoading(false);
-        return;
-      }
+      const res = await api.get('/complaints/all');
 
-      const res = await fetch(`${API_URL}/complaints/all`, { credentials: "include",
-        headers: { },
-      });
-
-      const json = await res.json();
-      if (json.success && json.data) {
+      if (res.data?.success && res.data?.data) {
         // Only load in_meeting
-        const meetingComplaints = json.data.filter((c: Complaint) => c.status === 'in_meeting');
+        const meetingComplaints = res.data.data.filter((c: Complaint) => c.status === 'in_meeting');
         setComplaints(meetingComplaints);
       }
     } catch {

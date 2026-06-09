@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { useComplaintDetail } from "@/hooks/useComplaintDetail";
+import api from "@/lib/api";
 
 const intakeChannelOptions = [
   { value: "", label: "-- เลือกช่องทาง --" },
@@ -65,13 +65,10 @@ export default function EditComplaintPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(false);
-  const [pageLoading, setPageLoading] = useState(true);
-  const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [success, setSuccess] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-
-  // ข้อมูลลูกบ้าน (read-only, ดึงมาพร้อมคำร้อง)
+  const [file, setFile] = useState<File | null>(null);
   const [userInfo, setUserInfo] = useState({
     first_name: "",
     last_name: "",
@@ -80,6 +77,7 @@ export default function EditComplaintPage() {
     phase: "",
     soi: "",
   });
+  const { complaint, isLoading: pageLoading, error: fetchError } = useComplaintDetail(complaintId, 'resident');
 
   // ข้อมูลคำร้อง (กรอกและแก้ไขได้)
   const [form, setForm] = useState({
@@ -91,55 +89,32 @@ export default function EditComplaintPage() {
     attachment_url: "",
   });
 
-  // ดึงข้อมูลคำร้องจาก Backend API
   useEffect(() => {
-    const fetchComplaint = async () => {
-      try {
-        const token = "http-only-cookie";
-        if (!token) {
-          setPageLoading(false);
-          return;
-        }
+    if (complaint) {
+      setUserInfo({
+        first_name: complaint.first_name || "",
+        last_name: complaint.last_name || "",
+        phone_number: complaint.phone_number || "",
+        house_no: complaint.house_no || "",
+        phase: complaint.phase || "",
+        soi: complaint.soi || "",
+      });
 
-        const res = await fetch(`${API_URL}/complaints/${complaintId}`, { credentials: "include",
-          headers: { },
-        });
+      const rDate = complaint.reported_date ? new Date(complaint.reported_date).toISOString().split("T")[0] : new Date().toISOString().split("T")[0];
 
-        const json = await res.json();
-        if (json.success && json.data) {
-          const c = json.data;
-          
-          setUserInfo({
-            first_name: c.first_name || "",
-            last_name: c.last_name || "",
-            phone_number: c.phone_number || "",
-            house_no: c.house_no || "",
-            phase: c.phase || "",
-            soi: c.soi || "",
-          });
-
-          // วันที่รายงาน (ตัดเวลาออก)
-          const rDate = c.reported_date ? new Date(c.reported_date).toISOString().split("T")[0] : new Date().toISOString().split("T")[0];
-
-          setForm({
-            subject: c.subject || "",
-            description: c.description || "",
-            location_written: c.location_written || "",
-            intake_channel: c.intake_channel || "website",
-            reported_date: rDate,
-            attachment_url: c.attachment_url || "",
-          });
-        } else {
-          setError("ไม่พบข้อมูลคำร้อง หรือคุณไม่มีสิทธิ์เข้าถึง");
-        }
-      } catch {
-        setError("เกิดข้อผิดพลาดในการโหลดข้อมูล");
-      }
-      setPageLoading(false);
-    };
-
-    fetchComplaint();
-  }, [complaintId]);
+      setForm({
+        subject: complaint.subject || "",
+        description: complaint.description || "",
+        location_written: complaint.location_written || "",
+        intake_channel: complaint.intake_channel || "website",
+        reported_date: rDate,
+        attachment_url: complaint.attachment_url || "",
+      });
+    }
+    if (fetchError) {
+      setError("ไม่พบข้อมูลคำร้อง หรือคุณไม่มีสิทธิ์เข้าถึง");
+    }
+  }, [complaint, fetchError]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -168,12 +143,6 @@ export default function EditComplaintPage() {
     setLoading(true);
 
     try {
-      const token = "http-only-cookie";
-      if (!token) {
-        setError("กรุณาเข้าสู่ระบบก่อน");
-        setLoading(false);
-        return;
-      }
 
       // ในโปรเจกต์จริง ส่วนนี้ต้องเป็นการอัปโหลดไฟล์ไป Storage ก่อน
       // แต่ตอนนี้เราสมมติว่าใช้ attachment_url เดิม หรือถ้ายกเลิกก็ส่งค่าว่าง
@@ -184,24 +153,16 @@ export default function EditComplaintPage() {
       }
 
       // ส่งแก้ไขคำร้องผ่าน Backend API (PATCH)
-      const res = await fetch(`${API_URL}/complaints/${complaintId}`, { credentials: "include",
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          },
-        body: JSON.stringify({
-          subject: form.subject,
-          description: form.description,
-          location_written: form.location_written || null,
-          intake_channel: form.intake_channel || null,
-          attachment_url: finalAttachmentUrl || null,
-        }),
+      const res = await api.patch(`/complaints/${complaintId}`, {
+        subject: form.subject,
+        description: form.description,
+        location_written: form.location_written || null,
+        intake_channel: form.intake_channel || null,
+        attachment_url: finalAttachmentUrl || null,
       });
 
-      const json = await res.json();
-
-      if (!res.ok || !json.success) {
-        setError(json.message || "เกิดข้อผิดพลาดในการบันทึก");
+      if (!res.data?.success) {
+        setError(res.data?.message || "เกิดข้อผิดพลาดในการบันทึก");
         setLoading(false);
         return;
       }

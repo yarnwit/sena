@@ -3,9 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import api from "@/lib/api";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { useComplaints } from "@/hooks/useComplaints";
 
 interface Complaint {
   complaint_id: number;
@@ -46,36 +44,12 @@ function AdminComplaintsContent() {
   const searchParams = useSearchParams();
   const defaultStatus = searchParams.get("status") || "all";
 
-  const [complaints, setComplaints] = useState<Complaint[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { complaints, isLoading: loading, error } = useComplaints('admin');
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState(defaultStatus);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-
-  useEffect(() => {
-    const fetchComplaints = async () => {
-      try {
-        const token = "http-only-cookie";
-        if (!token) {
-          setLoading(false);
-          return;
-        }
-
-        const res = await api.get('/complaints/all');
-        const json = res.data;
-        if (json.success && json.data) {
-          setComplaints(json.data);
-        }
-      } catch {
-        // fallback
-      }
-      setLoading(false);
-    };
-
-    fetchComplaints();
-  }, []);
 
   // Update filter when URL param changes (e.g. clicking quick action from dashboard)
   useEffect(() => {
@@ -144,6 +118,14 @@ function AdminComplaintsContent() {
     return (
       <div className="flex items-center justify-center py-32">
         <div className="w-10 h-10 border-3 border-gray-200 border-t-[#d4a574] rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 bg-red-50 text-red-600 rounded-lg">
+        {error}
       </div>
     );
   }

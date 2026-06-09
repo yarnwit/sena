@@ -1,24 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useDashboard } from "@/hooks/useDashboard";
 import Link from "next/link";
-
-/* ===== Types ===== */
-interface Complaint {
-  complaint_id: number;
-  ticket_no: string;
-  subject: string;
-  status: string;
-  reported_date: string;
-  approved?: boolean;
-}
-
-interface Stats {
-  pending: number;
-  resolved: number;
-  approved: number;
-  rejected: number;
-}
 
 /* ===== Status Config ===== */
 const statusConfig: Record<string, { label: string; bgClass: string; textClass: string }> = {
@@ -66,60 +49,21 @@ const ChevronRightIcon = () => (
     <polyline points="9 18 15 12 9 6" />
   </svg>
 );
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-
 export default function DashboardPage() {
-  const [stats, setStats] = useState<Stats>({ pending: 0, resolved: 0, approved: 0, rejected: 0 });
-  const [recentComplaints, setRecentComplaints] = useState<Complaint[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [houseNo, setHouseNo] = useState<string>("");
+  const { stats, recentComplaints, houseNo, isLoading, error } = useDashboard('resident');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = "http-only-cookie";
-        if (!token) {
-          setLoading(false);
-          return;
-        }
-
-        const res = await fetch(`${API_URL}/complaints/my`, { credentials: "include",
-          headers: { },
-        });
-
-        const json = await res.json();
-        if (json.success && json.data) {
-          const complaints: Complaint[] = json.data;
-          setRecentComplaints(complaints.slice(0, 5));
-          setStats({
-            pending: complaints.filter((c) => c.status === "pending" || c.status === "in_progress").length,
-            resolved: complaints.filter((c) => c.status === "closed").length,
-            approved: complaints.filter((c) => c.status === "resolved").length,
-            rejected: complaints.filter((c) => c.status === "rejected").length,
-          });
-        }
-
-        // Fetch user-info to get house_no
-        const userRes = await fetch(`${API_URL}/complaints/user-info`, { credentials: "include",
-          headers: { },
-        });
-        const userJson = await userRes.json();
-        if (userJson.success && userJson.data) {
-          setHouseNo(userJson.data.house_no || "");
-        }
-      } catch {
-        // fallback
-      }
-      setLoading(false);
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-32">
         <div className="w-10 h-10 border-3 border-gray-200 border-t-[#d4a574] rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 bg-red-50 text-red-600 rounded-lg">
+        {error}
       </div>
     );
   }
