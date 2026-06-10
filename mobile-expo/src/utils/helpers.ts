@@ -12,6 +12,8 @@ import type { ComplaintStatus } from '../types/complaint';
 export const getStatusColor = (status: ComplaintStatus): string => {
   const colors: Record<ComplaintStatus, string> = {
     pending: '#F59E0B',     // Yellow/Orange
+    approved: '#8B5CF6',    // Purple
+    in_meeting: '#EC4899',  // Pink
     in_progress: '#3B82F6', // Blue
     resolved: '#10B981',    // Green
     rejected: '#EF4444',    // Red
@@ -26,6 +28,8 @@ export const getStatusColor = (status: ComplaintStatus): string => {
 export const getStatusLabel = (status: ComplaintStatus): string => {
   const labels: Record<ComplaintStatus, string> = {
     pending: 'รอดำเนินการ',
+    approved: 'อนุมัติรับเรื่อง',
+    in_meeting: 'เข้าที่ประชุม',
     in_progress: 'กำลังดำเนินการ',
     resolved: 'แก้ไขแล้ว',
     rejected: 'ถูกปฏิเสธ',

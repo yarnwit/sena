@@ -17,11 +17,13 @@ const { width } = Dimensions.get('window');
 
 // Import Screens
 import DashboardScreen from '../screens/staff/DashboardScreen';
-import ComplaintsListScreen from '../screens/staff/ComplaintsListScreen';
+import StaffComplaintsMenuScreen from '../screens/staff/StaffComplaintsMenuScreen';
+import ComplaintSubListScreen from '../screens/staff/ComplaintSubListScreen';
 import ProfileScreen from '../screens/staff/ProfileScreen';
 import ComplaintDetailScreen from '../screens/staff/ComplaintDetailScreen';
 import NewComplaintScreen from '../screens/staff/NewComplaintScreen';
-
+import EditComplaintScreen from '../screens/resident/EditComplaintScreen';
+import NotificationsScreen from '../screens/staff/NotificationsScreen';
 const Tab = createBottomTabNavigator<StaffTabParamList>();
 const Stack = createStackNavigator<StaffStackParamList>();
 
@@ -35,13 +37,15 @@ const StaffTabs: React.FC = () => {
         tabBarStyle: {
           position: 'absolute',
           bottom: 25,
-          left: 24,
-          right: 24,
-          backgroundColor: '#1E2C3A', // Dark pill background
+          left: 0,
+          right: 0,
+          marginHorizontal: 20,
+          backgroundColor: '#1E2C3A',
           borderRadius: 35,
-          height: 65,
-          paddingBottom: 10,
-          paddingTop: 10,
+          height: 68,
+          paddingHorizontal: 15,
+          paddingBottom: 15,
+          paddingTop: 8,
           borderTopWidth: 0,
           elevation: 10,
           shadowColor: '#000',
@@ -50,7 +54,7 @@ const StaffTabs: React.FC = () => {
           shadowRadius: 5,
         },
         tabBarLabelStyle: {
-          fontSize: 10, // คืนขนาดตัวหนังสือ
+          fontSize: 9,
           fontWeight: '500',
           marginTop: 2,
         },
@@ -81,7 +85,7 @@ const StaffTabs: React.FC = () => {
       />
       <Tab.Screen
         name="Complaints"
-        component={ComplaintsListScreen}
+        component={StaffComplaintsMenuScreen}
         options={{
           title: 'จัดการร้องเรียน',
           tabBarIcon: ({ color, size }) => (
@@ -119,9 +123,24 @@ const StaffNavigator: React.FC = () => {
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name="ComplaintSubList"
+        component={ComplaintSubListScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name="ComplaintDetail"
         component={ComplaintDetailScreen}
-        options={{ title: 'รายละเอียดและจัดการ' }}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EditComplaint"
+        component={EditComplaintScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

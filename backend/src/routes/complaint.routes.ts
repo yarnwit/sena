@@ -17,6 +17,7 @@ import {
   deleteComplaint,
 } from '../controllers/complaint.controller';
 import { getComments, createComment, deleteComment } from '../controllers/comment.controller';
+import { upload } from '../middlewares/upload.middleware';
 
 const router = Router();
 
@@ -39,10 +40,10 @@ router.patch('/staff/:id/status', authenticate, authorize('staff', 'admin'), upd
 router.patch('/staff/bulk-status', authenticate, authorize('staff', 'admin'), bulkUpdateComplaintStatus);
 
 // สร้างคำร้องโดย staff (เลือกลูกบ้านจากระบบ)
-router.post('/staff', authenticate, authorize('staff', 'admin'), createComplaintForStaff);
+router.post('/staff', authenticate, authorize('staff', 'admin'), upload.single('attachment'), createComplaintForStaff);
 
 // แก้ไขคำร้องโดย staff/admin (ไม่ต้องตรวจ ownership)
-router.patch('/staff/:id', authenticate, authorize('staff', 'admin'), updateComplaintByStaff);
+router.patch('/staff/:id', authenticate, authorize('staff', 'admin'), upload.single('attachment'), updateComplaintByStaff);
 
 // ดึงคำร้องทั้งหมดของลูกบ้าน
 router.get('/my', authenticate, getMyComplaints);
@@ -56,10 +57,10 @@ router.delete('/:id/comments/:commentId', authenticate, deleteComment);
 router.get('/:id', authenticate, getComplaintById);
 
 // สร้างคำร้องใหม่
-router.post('/', authenticate, createComplaint);
+router.post('/', authenticate, upload.single('attachment'), createComplaint);
 
 // แก้ไขคำร้อง — PATCH ตาม spec
-router.patch('/:id', authenticate, updateComplaint);
+router.patch('/:id', authenticate, upload.single('attachment'), updateComplaint);
 
 // ลบคำร้อง — Admin only
 router.delete('/:id', authenticate, authorize('admin'), deleteComplaint);

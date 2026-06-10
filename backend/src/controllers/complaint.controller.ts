@@ -3,6 +3,7 @@ import { ComplaintModel } from '../models/Complaint.model';
 import { ComplaintService } from '../services/complaint.service';
 import { AuditLogModel } from '../models/AuditLog.model';
 import { sendSuccess, sendError } from '../utils/response.util';
+import { UploadService } from '../services/upload.service';
 import logger from '../config/logger';
 import { supabase } from '../config/supabase';
 
@@ -154,6 +155,13 @@ export const createComplaint = async (req: Request, res: Response) => {
       }
     }
 
+    if (req.file) {
+      const ext = req.file.originalname.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+      const url = await UploadService.uploadFile('attachments', `complaints/${fileName}`, req.file.buffer, req.file.mimetype);
+      if (url) req.body.attachment_url = url;
+    }
+
     const result = await ComplaintService.createComplaint(residentId, req.body, userId);
     
 
@@ -226,6 +234,13 @@ export const updateComplaint = async (req: Request, res: Response) => {
     const complaint = await ComplaintModel.findByIdAndResident(req.params.id, residentId);
     if (!complaint) return sendError(res, 'ไม่พบคำร้องนี้', 404);
 
+    if (req.file) {
+      const ext = req.file.originalname.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+      const url = await UploadService.uploadFile('attachments', `complaints/${fileName}`, req.file.buffer, req.file.mimetype);
+      if (url) req.body.attachment_url = url;
+    }
+
     const result = await ComplaintModel.update(req.params.id, req.body);
     if (!result) return sendError(res, 'Failed to update complaint');
 
@@ -271,6 +286,13 @@ export const updateComplaintByStaff = async (req: Request, res: Response) => {
     // Staff/Admin ไม่ต้องตรวจ ownership — จัดการได้ทุกเรื่อง
     const complaint = await ComplaintModel.findById(req.params.id);
     if (!complaint) return sendError(res, 'ไม่พบคำร้องนี้', 404);
+
+    if (req.file) {
+      const ext = req.file.originalname.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+      const url = await UploadService.uploadFile('attachments', `complaints/${fileName}`, req.file.buffer, req.file.mimetype);
+      if (url) req.body.attachment_url = url;
+    }
 
     const result = await ComplaintModel.update(req.params.id, req.body);
     if (!result) return sendError(res, 'Failed to update complaint');
@@ -338,6 +360,13 @@ export const createComplaintForStaff = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
     if (!userId) return sendError(res, 'Unauthorized', 401);
+
+    if (req.file) {
+      const ext = req.file.originalname.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+      const url = await UploadService.uploadFile('attachments', `complaints/${fileName}`, req.file.buffer, req.file.mimetype);
+      if (url) req.body.attachment_url = url;
+    }
 
     const result = await ComplaintService.createComplaintForStaff(req.body, userId);
     

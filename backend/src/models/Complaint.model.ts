@@ -109,7 +109,11 @@ export const ComplaintModel = {
       .select('complaint_id, ticket_no')
       .single();
 
-    if (error || !data) return null;
+    if (error) {
+      console.error('Supabase error in ComplaintModel.create:', error);
+      return null;
+    }
+    if (!data) return null;
     return data as { complaint_id: number; ticket_no: string };
   },
 

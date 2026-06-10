@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { AuthProvider } from "@/context/AuthContext";
 
 /* ===== SVG Icons ===== */
 const DashboardIcon = () => (
@@ -172,7 +173,8 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
   });
 
   return (
-    <div className="flex min-h-screen bg-[#f3f3f3]">
+    <AuthProvider>
+      <div className="flex min-h-screen bg-[#f3f3f3]">
       {/* Sidebar Overlay (mobile) */}
       <div
         className={`fixed inset-0 bg-black/50 z-[99] transition-opacity duration-300 md:hidden ${sidebarOpen ? "opacity-100 block" : "opacity-0 hidden"}`}
@@ -314,6 +316,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
         {/* Page Content */}
         <main className="flex-1 min-w-0 w-full p-5 md:p-7 md:px-8">{children}</main>
       </div>
-    </div>
+      </div>
+    </AuthProvider>
   );
 }

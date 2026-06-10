@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import StatusTimeline from "@/components/complaints/StatusTimeline";
 import { useComplaintDetail, TimelineEvent } from "@/hooks/useComplaintDetail";
-import { useAuthContext } from "@/context/AuthContext";
 
 /* ===== Types ===== */
 interface ComplaintDetail {
@@ -103,9 +102,19 @@ export default function StaffComplaintDetailPage() {
   const params = useParams();
   const router = useRouter();
   const complaintId = params.id as string;
-  const { user } = useAuthContext();
-  const userRole = user?.role || "staff";
+  const [userRole, setUserRole] = useState("staff");
 
+  useEffect(() => {
+    try {
+      const userStr = sessionStorage.getItem("user");
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        if (user.role) setUserRole(user.role);
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
   const { complaint, comments, isLoading: loading, error, updateStatus, addComment, fetchDetail } = useComplaintDetail(complaintId, 'staff');
 
   const [newComment, setNewComment] = useState("");

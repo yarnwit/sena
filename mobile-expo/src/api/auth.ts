@@ -77,3 +77,19 @@ export const resetPassword = async (
   const response = await apiClient.post('/auth/reset-password', data);
   return response.data;
 };
+
+/** Change password request payload */
+export interface ChangePasswordPayload {
+  oldPassword?: string;
+  newPassword: string;
+}
+
+/**
+ * Change password — for authenticated users
+ */
+export const changePassword = async (
+  data: ChangePasswordPayload,
+): Promise<{ success: boolean; message: string }> => {
+  const response = await apiClient.post('/auth/change-password', data);
+  return response.data;
+};

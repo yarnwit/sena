@@ -11,8 +11,9 @@ export type UserRole = 'resident' | 'staff' | 'admin';
 export interface User {
   user_id: string;
   username: string;
-  first_name: string;
-  last_name: string;
+  full_name?: string;
+  first_name?: string;
+  last_name?: string;
   role: UserRole;
 }
 

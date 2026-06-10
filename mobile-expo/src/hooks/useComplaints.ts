@@ -12,6 +12,7 @@ import type {
   ComplaintCreatePayload,
   ComplaintListParams,
   ComplaintStatus,
+  ComplaintCreateForStaffPayload,
 } from '../types/complaint';
 
 interface UseComplaintsReturn {
@@ -32,9 +33,14 @@ interface UseComplaintsReturn {
   search: (keyword: string) => Promise<void>;
   /** Create a new complaint */
   createComplaint: (data: ComplaintCreatePayload) => Promise<Complaint>;
+  /** Create a new complaint by staff */
+  createComplaintForStaff: (data: ComplaintCreateForStaffPayload) => Promise<Complaint>;
 }
 
+import { useAuth } from './useAuth';
+
 export const useComplaints = (): UseComplaintsReturn => {
+  const { user } = useAuth();
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,14 +53,26 @@ export const useComplaints = (): UseComplaintsReturn => {
     setError(null);
     try {
       const queryParams = { ...params, page: params?.page || 1, limit: 10 };
-      const response = await complaintsApi.getComplaints(queryParams);
-      if (queryParams.page === 1) {
-        setComplaints(response.data);
-      } else {
-        setComplaints(prev => [...prev, ...response.data]);
+      const response = await complaintsApi.getComplaints(queryParams, user?.role);
+
+      let newComplaints = response.data || [];
+      if (queryParams.status) {
+        newComplaints = newComplaints.filter(c => c.status === queryParams.status);
       }
-      setPage(response.pagination.page);
-      setTotalPages(response.pagination.totalPages);
+
+      if (queryParams.page === 1) {
+        setComplaints(newComplaints);
+      } else {
+        setComplaints(prev => [...prev, ...newComplaints]);
+      }
+
+      if (response.pagination) {
+        setPage(response.pagination.page);
+        setTotalPages(response.pagination.totalPages);
+      } else {
+        setPage(1);
+        setTotalPages(1);
+      }
       setCurrentParams(queryParams);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการโหลดข้อมูล';
@@ -62,7 +80,7 @@ export const useComplaints = (): UseComplaintsReturn => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user?.role]);
 
   const refresh = useCallback(async () => {
     await fetchComplaints({ ...currentParams, page: 1 });
@@ -98,6 +116,16 @@ export const useComplaints = (): UseComplaintsReturn => {
     [],
   );
 
+  const createComplaintForStaff = useCallback(
+    async (data: ComplaintCreateForStaffPayload): Promise<Complaint> => {
+      const response = await complaintsApi.createComplaintForStaff(data);
+      // Prepend the new complaint to the list
+      setComplaints(prev => [response.data, ...prev]);
+      return response.data;
+    },
+    [],
+  );
+
   return {
     complaints,
     isLoading,
@@ -110,5 +138,6 @@ export const useComplaints = (): UseComplaintsReturn => {
     filterByStatus,
     search: searchByKeyword,
     createComplaint,
+    createComplaintForStaff,
   };
 };

@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from '@expo/vector-icons/MaterialCommunityIcons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 import { useAuth } from '../../hooks/useAuth';
 import { useComplaints } from '../../hooks/useComplaints';
@@ -29,9 +29,11 @@ const DashboardScreen: React.FC = () => {
   const { complaints, isLoading, fetchComplaints, refresh } = useComplaints();
   const navigation = useNavigation<StaffNavigationProp>();
 
-  useEffect(() => {
-    fetchComplaints({ limit: 10 });
-  }, [fetchComplaints]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchComplaints({ limit: 10 });
+    }, [fetchComplaints])
+  );
 
   const totalCount = complaints.length;
   const pendingCount = complaints.filter(c => c.status === 'pending').length;
@@ -41,10 +43,10 @@ const DashboardScreen: React.FC = () => {
 
   const recentComplaints = complaints.slice(0, 3);
 
-  // Use a fallback name if first_name is not available
-  const fullName = user?.first_name 
-    ? `${user.first_name} ${user.last_name || ''}ครับ` 
-    : 'กิตติพงศ์ เจริญทรัพย์ครับ';
+  // Use the full_name provided by the backend auth response
+  const fullName = user?.full_name 
+    ? `${user.full_name}ครับ` 
+    : 'เจ้าหน้าที่';
 
   return (
     <LinearGradient colors={['#1c2e42', '#0058b8']} style={styles.container}>
@@ -56,14 +58,11 @@ const DashboardScreen: React.FC = () => {
           }
         >
           {/* Top Bar */}
-          <View style={styles.topBar}>
-            <Text style={styles.title}>หน้าหลัก</Text>
-            <View style={styles.topActions}>
-              <TouchableOpacity style={styles.actionBtn}>
-                <Icon name="bell-outline" size={20} color="#fff" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.actionBtn}>
-                <Icon name="cog-outline" size={20} color="#fff" />
+          <View style={styles.headerNav}>
+            <Text style={styles.headerTitle}>หน้าหลัก</Text>
+            <View style={styles.headerRight}>
+              <TouchableOpacity style={styles.bellBtn} onPress={() => navigation.navigate('Notifications')}>
+                <Icon name="bell-outline" size={22} color="#fff" />
               </TouchableOpacity>
             </View>
           </View>
@@ -107,7 +106,12 @@ const DashboardScreen: React.FC = () => {
 
           {/* Recent Complaints Section */}
           <View style={styles.recentSection}>
-            <Text style={styles.recentTitle}>เรื่องร้องเรียนล่าสุด</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 }}>
+              <Text style={[styles.recentTitle, { marginBottom: 0 }]}>เรื่องร้องเรียนล่าสุด</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Complaints')}>
+                <Text style={{ color: '#7BA4FF', fontSize: 13, fontWeight: '500' }}>ดูทั้งหมด</Text>
+              </TouchableOpacity>
+            </View>
             {recentComplaints.length > 0 ? (
               recentComplaints.map(complaint => (
                 <TouchableOpacity 
@@ -148,21 +152,26 @@ const styles = StyleSheet.create({
     padding: 20, 
     paddingBottom: 100 
   },
-  topBar: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    marginTop: 10 
+  headerNav: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    marginBottom: 10,
   },
-  title: { 
-    fontSize: 26, 
-    fontFamily: theme.typography.h1.fontFamily,
-    fontWeight: 'bold', 
-    color: '#fff' 
+  headerTitle: {
+    flex: 1,
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'left',
   },
-  topActions: { 
-    flexDirection: 'row', 
-    gap: 12 
+  headerRight: {
+    width: 40,
+    alignItems: 'flex-end',
+  },
+  bellBtn: {
+    padding: 4,
   },
   actionBtn: { 
     width: 44, 

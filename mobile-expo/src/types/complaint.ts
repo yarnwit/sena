@@ -7,6 +7,8 @@
 /** Complaint status values */
 export type ComplaintStatus =
   | 'pending'
+  | 'approved'
+  | 'in_meeting'
   | 'in_progress'
   | 'resolved'
   | 'rejected'
@@ -28,6 +30,12 @@ export interface Complaint {
   /** Joined from resident/user tables */
   resident_name?: string;
   house_no?: string;
+  first_name?: string;
+  last_name?: string;
+  phone_number?: string;
+  phase?: string;
+  soi?: string;
+  reviewer_name?: string | null;
 }
 
 /** File attachment for complaint creation */
@@ -59,6 +67,7 @@ export interface ComplaintUpdatePayload {
 /** Payload for updating complaint status */
 export interface ComplaintStatusPayload {
   status: ComplaintStatus;
+  petition?: string;
 }
 
 /** Query params for complaint list */
@@ -94,9 +103,28 @@ export interface Comment {
   username?: string;
   first_name?: string;
   last_name?: string;
+  /** Audit Log fields */
+  type?: 'comment' | 'system_log';
+  action?: string;
+  details?: Record<string, any>;
 }
 
 /** Payload for creating a comment */
 export interface CommentCreatePayload {
   content: string;
 }
+
+/** Payload for creating a complaint by staff */
+export interface ComplaintCreateForStaffPayload {
+  subject: string;
+  description: string;
+  intake_channel?: string;
+  attachment?: AttachmentFile;
+  resident_id?: number | null;
+  manual_name?: string;
+  manual_house_no?: string;
+  manual_phone?: string;
+  phase?: string;
+  soi?: string;
+}
+

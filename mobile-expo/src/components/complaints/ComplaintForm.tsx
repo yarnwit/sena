@@ -62,7 +62,7 @@ export const ComplaintForm: React.FC<ComplaintFormProps> = ({
         location_written: location,
         attachment,
         // Default intake_channel if creating new
-        intake_channel: isEdit ? initialValues.intake_channel : 'Mobile App',
+        intake_channel: isEdit ? initialValues.intake_channel : 'mobile',
       });
     }
   };
@@ -100,16 +100,16 @@ export const ComplaintForm: React.FC<ComplaintFormProps> = ({
           <View style={styles.imageContainer}>
             <Image source={{ uri: attachment.uri }} style={styles.image} />
             <TouchableOpacity 
-              style={styles.removeImageBtn} 
+              style={styles.removeImageBtn}
               onPress={() => setAttachment(undefined)}
             >
-              <Icon name="close" size={20} color={theme.colors.white} />
+              <Icon name="close" size={20} color="#fff" />
             </TouchableOpacity>
           </View>
         ) : (
           <TouchableOpacity style={styles.uploadBtn} onPress={handleImagePick}>
-            <Icon name="camera-plus" size={32} color={theme.colors.primary} />
-            <Text style={styles.uploadText}>แตะเพื่อเลือกรูปภาพ</Text>
+            <Icon name="camera-plus" size={30} color="rgba(255,255,255,0.6)" />
+            <Text style={styles.uploadText}>เลือกรูปภาพ</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -129,56 +129,57 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: theme.spacing.lg,
-  },
-  attachmentContainer: {
-    marginBottom: theme.spacing.xl,
+    padding: 16,
   },
   label: {
-    ...theme.typography.subtitle,
     fontSize: 14,
-    color: theme.colors.text.primary,
-    marginBottom: theme.spacing.sm,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 8,
+  },
+  attachmentContainer: {
+    marginTop: 16,
+    marginBottom: 24,
   },
   uploadBtn: {
     height: 120,
-    borderWidth: 2,
-    borderColor: theme.colors.border,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
     borderStyle: 'dashed',
-    borderRadius: theme.borderRadius.md,
-    alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: theme.colors.surface,
+    alignItems: 'center',
   },
   uploadText: {
-    ...theme.typography.body,
-    color: theme.colors.text.secondary,
-    marginTop: theme.spacing.sm,
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 14,
+    marginTop: 8,
   },
   imageContainer: {
     height: 200,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: 12,
     overflow: 'hidden',
     position: 'relative',
   },
   image: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
   },
   removeImageBtn: {
     position: 'absolute',
-    top: theme.spacing.sm,
-    right: theme.spacing.sm,
+    top: 8,
+    right: 8,
     backgroundColor: 'rgba(0,0,0,0.5)',
     width: 32,
     height: 32,
     borderRadius: 16,
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
   },
   submitBtn: {
-    marginTop: theme.spacing.md,
-    marginBottom: theme.spacing.xl,
+    marginTop: 8,
+    marginBottom: 100, // Padding for floating tabs
+    backgroundColor: '#38BC0B',
   },
 });

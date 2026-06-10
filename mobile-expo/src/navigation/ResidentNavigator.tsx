@@ -19,6 +19,7 @@ import ProfileScreen from '../screens/resident/ProfileScreen';
 import ComplaintDetailScreen from '../screens/resident/ComplaintDetailScreen';
 import NewComplaintScreen from '../screens/resident/NewComplaintScreen';
 import EditComplaintScreen from '../screens/resident/EditComplaintScreen';
+import NotificationsScreen from '../screens/resident/NotificationsScreen';
 
 const Tab = createBottomTabNavigator<ResidentTabParamList>();
 const Stack = createStackNavigator<ResidentStackParamList>();
@@ -27,17 +28,35 @@ const ResidentTabs: React.FC = () => {
   return (
     <Tab.Navigator
       screenOptions={{
-        headerShown: true,
-        headerStyle: {
-          backgroundColor: theme.colors.primary,
-        },
-        headerTintColor: theme.colors.white,
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.text.tertiary,
+        headerShown: false,
+        tabBarActiveTintColor: '#38BC0B', // Active green
+        tabBarInactiveTintColor: 'rgba(255,255,255,0.6)', // Inactive gray
         tabBarStyle: {
-          paddingBottom: 5,
-          paddingTop: 5,
-          height: 60,
+          position: 'absolute',
+          bottom: 25,
+          left: 0,
+          right: 0,
+          marginHorizontal: 20,
+          backgroundColor: '#161D19',
+          borderRadius: 35,
+          height: 68,
+          paddingHorizontal: 15,
+          paddingBottom: 15,
+          paddingTop: 8,
+          borderTopWidth: 0,
+          elevation: 10,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 5,
+        },
+        tabBarLabelStyle: {
+          fontSize: 9,
+          fontWeight: '500',
+          marginTop: 2,
+        },
+        tabBarItemStyle: {
+          padding: 0,
         },
       }}
     >
@@ -45,9 +64,19 @@ const ResidentTabs: React.FC = () => {
         name="Dashboard"
         component={DashboardScreen}
         options={{
-          title: 'หน้าแรก',
+          title: 'ภาพรวม',
           tabBarIcon: ({ color, size }) => (
-            <Icon name="view-dashboard" size={size} color={color} />
+            <Icon name="home" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="NewComplaint"
+        component={NewComplaintScreen}
+        options={{
+          title: 'สร้างคำร้อง',
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="plus-circle-outline" size={24} color={color} />
           ),
         }}
       />
@@ -55,9 +84,9 @@ const ResidentTabs: React.FC = () => {
         name="ComplaintsList"
         component={ComplaintsListScreen}
         options={{
-          title: 'ร้องเรียน',
+          title: 'ประวัติ',
           tabBarIcon: ({ color, size }) => (
-            <Icon name="clipboard-text" size={size} color={color} />
+            <Icon name="receipt" size={24} color={color} />
           ),
         }}
       />
@@ -67,7 +96,7 @@ const ResidentTabs: React.FC = () => {
         options={{
           title: 'โปรไฟล์',
           tabBarIcon: ({ color, size }) => (
-            <Icon name="account" size={size} color={color} />
+            <Icon name="account-outline" size={24} color={color} />
           ),
         }}
       />
@@ -83,6 +112,7 @@ const ResidentNavigator: React.FC = () => {
           backgroundColor: theme.colors.primary,
         },
         headerTintColor: theme.colors.white,
+        headerTitleAlign: 'center',
       }}
     >
       <Stack.Screen
@@ -93,17 +123,18 @@ const ResidentNavigator: React.FC = () => {
       <Stack.Screen
         name="ComplaintDetail"
         component={ComplaintDetailScreen}
-        options={{ title: 'รายละเอียดการร้องเรียน' }}
+        options={{ headerShown: false }}
       />
-      <Stack.Screen
-        name="NewComplaint"
-        component={NewComplaintScreen}
-        options={{ title: 'แจ้งเรื่องร้องเรียน' }}
-      />
+
       <Stack.Screen
         name="EditComplaint"
         component={EditComplaintScreen}
-        options={{ title: 'แก้ไขเรื่องร้องเรียน' }}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Notifications"
+        component={NotificationsScreen as any}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

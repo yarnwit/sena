@@ -32,6 +32,7 @@ const AdminTabNavigator = () => {
           backgroundColor: theme.colors.primary,
         },
         headerTintColor: theme.colors.white,
+        headerTitleAlign: 'center',
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.text.tertiary,
       }}
@@ -89,6 +90,7 @@ const AdminNavigator: React.FC = () => {
           backgroundColor: theme.colors.primary,
         },
         headerTintColor: theme.colors.white,
+        headerTitleAlign: 'center',
       }}
     >
       <Stack.Screen 
