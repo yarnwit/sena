@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<'resident' | 'staff' | 'admin'>('resident');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +37,14 @@ export default function LoginPage() {
       }
 
       const { accessToken, refreshToken, user } = json.data;
+      const actualRole = user.role || "resident";
+
+      // ดักจับ: ถ้าสิทธิ์ที่เลือกไม่ตรงกับสิทธิ์จริงของบัญชี
+      if (actualRole !== selectedRole) {
+        setError("บัญชีของคุณไม่สามารถเข้าสู่ระบบในสิทธิ์ที่เลือกได้");
+        setLoading(false);
+        return;
+      }
 
       // เก็บ accessToken, refreshToken และข้อมูลผู้ใช้ไว้ใน sessionStorage
       sessionStorage.setItem("user", JSON.stringify(user));
@@ -45,10 +54,9 @@ export default function LoginPage() {
       }
 
       // Redirect ตาม Role
-      const role = user.role || "resident";
-      if (role === "admin") {
+      if (actualRole === "admin") {
         router.push("/admin/dashboard");
-      } else if (role === "staff") {
+      } else if (actualRole === "staff") {
         router.push("/staff/dashboard");
       } else {
         router.push("/resident/dashboard");
@@ -81,14 +89,14 @@ export default function LoginPage() {
         <div className="w-full lg:w-[50%] flex items-center justify-center p-8 sm:p-12 bg-white">
           <div className="w-full max-w-[380px]">
             {/* Logo Section */}
-            <div className="text-center mb-8">
+            <div className="text-center mb-10 mt-2">
               <div className="flex flex-col items-center w-full max-w-[260px] sm:max-w-[280px] mx-auto">
                 <span className="font-['Times_New_Roman',_'Georgia',_serif] text-lg sm:text-xl font-normal tracking-[2px] text-[#111] uppercase pb-1">SENA</span>
                 <div className="w-full h-[1px] bg-[#111] mb-1.5"></div>
                 <h1 className="font-['Times_New_Roman',_'Georgia',_serif] text-[28px] sm:text-[36px] font-normal tracking-[1px] text-[#111] m-0 leading-none">GRAND HOME</h1>
                 <span className="font-['Times_New_Roman',_'Georgia',_serif] text-[12px] sm:text-[13px] font-normal tracking-[2px] text-[#333] mt-2">Rangsit - Tiwanon</span>
               </div>
-              <p className="text-[12px] text-[#555] mt-3 leading-relaxed">
+              <p className="text-[12px] text-[#555] mt-4 leading-relaxed tracking-wide">
                 ระบบจัดการรับเรื่องร้องเรียนและติดตามปัญหานิติบุคคล
               </p>
             </div>
@@ -118,9 +126,32 @@ export default function LoginPage() {
 
             {/* Login Form */}
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              {/* Role Selector */}
+              <div className="flex justify-center gap-8 mb-5 mt-2 w-full">
+                {(['resident', 'staff', 'admin'] as const).map((role) => (
+                  <label
+                    key={role}
+                    onClick={() => setSelectedRole(role)}
+                    className="flex items-center gap-2.5 cursor-pointer group"
+                  >
+                    {/* วงกลม Radio */}
+                    <div className={`w-[18px] h-[18px] rounded-full flex items-center justify-center transition-all duration-200 ${selectedRole === role
+                      ? (role === 'resident' ? 'bg-[#38BC0B]' : role === 'staff' ? 'bg-[#007AFF]' : 'bg-[#B31B1B]')
+                      : 'bg-transparent border-[2px] border-gray-300 group-hover:border-gray-400'
+                      }`} />
+
+                    {/* ข้อความ */}
+                    <span className={`text-[14px] font-medium transition-colors duration-200 ${selectedRole === role ? 'text-[#111]' : 'text-gray-500 group-hover:text-gray-700'
+                      }`}>
+                      {role === 'resident' ? 'ลูกบ้าน' : role === 'staff' ? 'นิติบุคคล' : 'แอดมิน'}
+                    </span>
+                  </label>
+                ))}
+              </div>
+
               {/* Username Field */}
               <div className="flex flex-col gap-2">
-                <label htmlFor="username" className="text-sm font-medium text-[#1a1a2e]">
+                <label htmlFor="username" className="text-[13px] font-medium text-gray-600 pl-1">
                   ชื่อผู้ใช้งาน
                 </label>
                 <div className="relative">
@@ -130,7 +161,7 @@ export default function LoginPage() {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="กรอกชื่อผู้ใช้งาน"
-                    className="w-full px-4 py-3.5 border border-[#e0e0e0] rounded-lg text-[15px] text-[#333] bg-white outline-none transition-all duration-200 placeholder:text-[#999] focus:border-[#3b5bff] focus:ring-[3px] focus:ring-[#3b5bff]/10 disabled:bg-[#f5f5f5] disabled:cursor-not-allowed"
+                    className="w-full px-4 py-3.5 border border-[#e0e0e0] rounded-lg text-[15px] text-[#333] bg-white outline-none transition-all duration-200 placeholder:text-[#999] focus:border-[#007AFF] focus:ring-[3px] focus:ring-[#007AFF]/15 disabled:bg-[#f5f5f5] disabled:cursor-not-allowed"
                     autoComplete="username"
                     required
                     disabled={loading}
@@ -140,7 +171,7 @@ export default function LoginPage() {
 
               {/* Password Field */}
               <div className="flex flex-col gap-2">
-                <label htmlFor="password" className="text-sm font-medium text-[#1a1a2e]">
+                <label htmlFor="password" className="text-[13px] font-medium text-gray-600 pl-1">
                   รหัสผ่าน
                 </label>
                 <div className="relative">
@@ -150,7 +181,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••"
-                    className="w-full pl-4 pr-12 py-3.5 border border-[#e0e0e0] rounded-lg text-[15px] text-[#333] bg-white outline-none transition-all duration-200 placeholder:text-[#999] focus:border-[#3b5bff] focus:ring-[3px] focus:ring-[#3b5bff]/10 disabled:bg-[#f5f5f5] disabled:cursor-not-allowed"
+                    className="w-full pl-4 pr-12 py-3.5 border border-[#e0e0e0] rounded-lg text-[15px] text-[#333] bg-white outline-none transition-all duration-200 placeholder:text-[#999] focus:border-[#007AFF] focus:ring-[3px] focus:ring-[#007AFF]/15 disabled:bg-[#f5f5f5] disabled:cursor-not-allowed"
                     autoComplete="current-password"
                     required
                     disabled={loading}
@@ -209,40 +240,32 @@ export default function LoginPage() {
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-[18px] h-[18px] border-[1.5px] border-[#d0d0d0] rounded cursor-pointer accent-[#3b5bff]"
+                    className="w-[18px] h-[18px] border-[1.5px] border-[#d0d0d0] rounded cursor-pointer accent-[#007AFF]"
                     disabled={loading}
                   />
                   <span className="text-[13px] text-[#555] select-none">จดจำไว้ในระบบ</span>
                 </label>
-                <Link href="/forgot-password" className="text-[13px] text-[#555] no-underline transition-colors duration-200 hover:text-[#3b5bff] hover:underline">
+                <Link href="/forgot-password" className="text-[13px] text-[#555] no-underline transition-colors duration-200 hover:text-[#007AFF] hover:underline">
                   ลืมรหัสผ่าน?
                 </Link>
               </div>
 
+              {/* Submit Button */}
               <button
                 type="submit"
-                id="login-button"
-                className="w-full p-4 bg-[#1400ff] text-white text-base font-semibold border-none rounded-xl cursor-pointer transition-all duration-200 mt-2 hover:bg-[#1000d6] hover:shadow-[0_4px_16px_rgba(20,0,255,0.3)] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none disabled:hover:bg-[#1400ff] disabled:hover:shadow-none"
                 disabled={loading}
+                className={`w-full py-3.5 mt-2 rounded-xl text-white text-[16px] font-semibold tracking-[0.5px] shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0 disabled:cursor-not-allowed ${selectedRole === 'resident'
+                  ? 'bg-[#38BC0B] hover:bg-[#2e9c09] shadow-[#38BC0B]/20'
+                  : selectedRole === 'staff'
+                    ? 'bg-[#007AFF] hover:bg-[#0062cc] shadow-[#007AFF]/20'
+                    : 'bg-[#B31B1B] hover:bg-[#8f1515] shadow-[#B31B1B]/20'
+                  }`}
               >
                 {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg
-                      className="animate-spin"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                    </svg>
-                    กำลังเข้าสู่ระบบ...
-                  </span>
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>กำลังเข้าสู่ระบบ...</span>
+                  </div>
                 ) : (
                   "เข้าสู่ระบบ"
                 )}
@@ -251,7 +274,7 @@ export default function LoginPage() {
               {/* Register Link */}
               <div className="text-center mt-4 text-sm">
                 <span className="text-[#555]">ไม่มีบัญชีใช่ไหม? </span>
-                <Link href="/register" className="text-[#3b5bff] no-underline font-medium transition-colors duration-200 hover:text-[#1400ff] hover:underline">
+                <Link href="/register" className="text-[#38BC0B] no-underline font-medium transition-colors duration-200 hover:text-[#2e9c09] hover:underline">
                   สมัครสมาชิก
                 </Link>
               </div>
