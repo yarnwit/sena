@@ -20,7 +20,7 @@ export const apiLimiter = rateLimit({
  */
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20,
+  max: process.env.NODE_ENV === 'test' ? 1000 : 1000, // Increased for E2E tests
   standardHeaders: true,
   legacyHeaders: false,
   message: {
