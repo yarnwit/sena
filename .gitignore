@@ -19,6 +19,9 @@ out/
 
 # production
 build
+release
+release.zip
+
 
 # misc
 .DS_Store
