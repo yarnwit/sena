@@ -1,0 +1,9 @@
+services:
+  web:
+    build: .
+    image: atiwitch1/test-frontend:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3002:3000"
+    env_file:
+      - .env.production
