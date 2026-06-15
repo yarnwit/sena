@@ -24,21 +24,21 @@ export interface LoginResult {
 
 export const AuthService = {
   async login(username: string, password: string): Promise<LoginResult> {
-    logger.info(`[LOGIN DEBUG] Attempting login for username: ${username}`);
+    logger.info(`[AuthService.login] Attempting login for username: ${username}`);
     // 1. Find user
     const user = await UserModel.findByUsername(username);
     if (!user) {
-      logger.warn(`[LOGIN DEBUG] User not found for username: ${username}`);
+      logger.warn(`[AuthService.login] User not found for username: ${username}`);
       throw new Error('Invalid credentials');
     }
-    logger.info(`[LOGIN DEBUG] User found in DB: ${user.username}, password_hash: ${user.password_hash.substring(0, 10)}...`);
+    logger.info(`[AuthService.login] User found in DB: ${user.username}, password_hash: ${user.password_hash.substring(0, 10)}...`);
 
     // 2. Verify password
     if (user.password_hash !== 'handled_by_supabase_auth') {
       // Local bcrypt authentication
       const isMatch = await comparePassword(password, user.password_hash);
       if (!isMatch) {
-        logger.error('Invalid password via bcrypt for:', username);
+        logger.error('[AuthService.login] Invalid password via bcrypt for:', username);
         throw new Error('Invalid credentials');
       }
     } else {
@@ -46,7 +46,7 @@ export const AuthService = {
       const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(user.user_id);
 
       if (authError || !authUser.user?.email) {
-        logger.error('Error fetching auth user by ID:', authError?.message);
+        logger.error('[AuthService.login] Error fetching auth user by ID:', authError?.message);
         throw new Error('Invalid credentials');
       }
 
@@ -56,7 +56,7 @@ export const AuthService = {
       });
 
       if (error) {
-        logger.error(`[LOGIN DEBUG] Login error from Supabase for ${authUser.user.email}:`, error.message);
+        logger.error(`[AuthService.login] Login error from Supabase for ${authUser.user.email}:`, error.message);
         throw new Error('Invalid credentials');
       }
     }
@@ -77,7 +77,7 @@ export const AuthService = {
       if (data) residentData = data;
     }
 
-    logger.info(`User logged in with username: ${username}`);
+    logger.info(`[AuthService.login] User logged in with username: ${username}`);
 
     return {
       user: {
@@ -125,7 +125,7 @@ export const AuthService = {
     });
 
     if (insertUserError) {
-      logger.error('Error inserting user manually:', insertUserError);
+      logger.error('[AuthService.register] Error inserting user manually:', insertUserError);
       throw new Error('Failed to create user in database');
     }
 
@@ -140,14 +140,14 @@ export const AuthService = {
       });
       
       if (insertResidentError && insertResidentError.code !== '23505') {
-        logger.error('Error inserting resident manually:', insertResidentError);
+        logger.error('[AuthService.register] Error inserting resident manually:', insertResidentError);
         // Rollback user creation
         await supabase.from('users').delete().eq('user_id', userId);
         throw new Error('เกิดข้อผิดพลาดในการบันทึกข้อมูลส่วนตัว (Database Error) กรุณาลองใหม่อีกครั้ง');
       }
     }
 
-    logger.info(`New user registered: ${data.username}`);
+    logger.info(`[AuthService.register] New user registered: ${data.username}`);
 
     return {
       id: userId,
@@ -190,7 +190,7 @@ export const AuthService = {
       { expiresIn: '15m' }
     );
 
-    logger.info(`Reset token issued for username: ${username}`);
+    logger.info(`[AuthService.verifyIdentity] Reset token issued for username: ${username}`);
     return resetToken;
   },
 
@@ -219,10 +219,10 @@ export const AuthService = {
     // 4. Try to update Supabase Auth
     const { error } = await supabase.auth.admin.updateUserById(decoded.userId, { password: newPassword });
     if (error && error.message !== 'User not found') {
-      logger.warn(`Failed to update Supabase Auth for user ${decoded.userId}: ${error.message}`);
+      logger.warn(`[AuthService.resetPassword] Failed to update Supabase Auth for user ${decoded.userId}: ${error.message}`);
     }
 
-    logger.info(`Password reset successful for user ID: ${decoded.userId}`);
+    logger.info(`[AuthService.resetPassword] Password reset successful for user ID: ${decoded.userId}`);
   },
 
   async changePassword(userId: string, newPassword: string): Promise<void> {
@@ -238,10 +238,10 @@ export const AuthService = {
     // 3. Try to update Supabase Auth
     const { error } = await supabase.auth.admin.updateUserById(userId, { password: newPassword });
     if (error && error.message !== 'User not found') {
-      logger.warn(`Failed to update Supabase Auth for user ${userId}: ${error.message}`);
+      logger.warn(`[AuthService.changePassword] Failed to update Supabase Auth for user ${userId}: ${error.message}`);
     }
 
-    logger.info(`Password changed successfully for user ID: ${userId}`);
+    logger.info(`[AuthService.changePassword] Password changed successfully for user ID: ${userId}`);
   },
 
   async deleteAccount(userId: string): Promise<void> {
@@ -252,7 +252,7 @@ export const AuthService = {
       .eq('user_id', userId);
 
     if (residentError) {
-      logger.error('Error deleting resident data:', residentError.message);
+      logger.error('[AuthService.deleteAccount] Error deleting resident data:', residentError.message);
     }
 
     // 2. Delete user data
@@ -264,9 +264,9 @@ export const AuthService = {
     // 3. Delete from Supabase Auth
     const { error: authError } = await supabase.auth.admin.deleteUser(userId);
     if (authError) {
-      logger.warn(`Failed to delete auth account for ${userId}: ${authError.message}`);
+      logger.warn(`[AuthService.deleteAccount] Failed to delete auth account for ${userId}: ${authError.message}`);
     }
 
-    logger.info(`Account deleted for user: ${userId}`);
+    logger.info(`[AuthService.deleteAccount] Account deleted for user: ${userId}`);
   },
 };

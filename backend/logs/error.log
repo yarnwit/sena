@@ -142,3 +142,6 @@
 {"level":"error","message":"File upload error:","timestamp":"2026-06-10T11:06:07.351Z"}
 {"level":"error","message":"File upload error:","timestamp":"2026-06-10T11:07:53.355Z"}
 {"level":"error","message":"File upload error:","timestamp":"2026-06-10T11:09:27.070Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-15T07:40:05.572Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-15T07:49:22.966Z"}
+[2026-06-15 14:56:09] ERROR: [AuthService.login] Invalid password via bcrypt for:

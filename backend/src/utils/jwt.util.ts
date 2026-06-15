@@ -6,12 +6,12 @@ export interface TokenPayload {
   role: string;
 }
 
-export const generateAccessToken = (payload: TokenPayload): string => {
-  return jwt.sign(payload, env.JWT_SECRET, { expiresIn: '8h' });
+export const generateAccessToken = (payload: TokenPayload, expiresIn: any = '15m'): string => {
+  return jwt.sign(payload, env.JWT_SECRET, { expiresIn });
 };
 
-export const generateRefreshToken = (payload: TokenPayload): string => {
-  return jwt.sign(payload, env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+export const generateRefreshToken = (payload: TokenPayload, expiresIn: any = '30d'): string => {
+  return jwt.sign(payload, env.JWT_REFRESH_SECRET, { expiresIn });
 };
 
 export const verifyAccessToken = (token: string): TokenPayload => {

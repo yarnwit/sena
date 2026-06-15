@@ -17021,3 +17021,167 @@
 {"level":"info","message":"127.0.0.1 - - [10/Jun/2026:12:17:34 +0000] \"GET /api/complaints/all?limit=10&page=1 HTTP/1.1\" 200 92892 \"-\" \"okhttp/4.12.0\"","timestamp":"2026-06-10T12:17:34.308Z"}
 {"level":"info","message":"127.0.0.1 - - [10/Jun/2026:12:17:36 +0000] \"GET /api/complaints/residents-list HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2026-06-10T12:17:36.061Z"}
 {"level":"info","message":"127.0.0.1 - - [10/Jun/2026:12:17:38 +0000] \"GET /api/users/profile HTTP/1.1\" 200 269 \"-\" \"okhttp/4.12.0\"","timestamp":"2026-06-10T12:17:38.630Z"}
+{"level":"info","message":"=================================","timestamp":"2026-06-15T07:24:57.397Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-06-15T07:24:57.400Z"}
+{"level":"info","message":"=================================","timestamp":"2026-06-15T07:24:57.400Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-06-15T07:24:57.400Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-06-15T07:24:57.401Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-06-15T07:24:57.401Z"}
+{"level":"info","message":"=================================","timestamp":"2026-06-15T07:24:57.401Z"}
+{"level":"info","message":"[LOGIN DEBUG] Attempting login for username: boss","timestamp":"2026-06-15T07:25:16.280Z"}
+{"level":"warn","message":"[LOGIN DEBUG] User not found for username: boss","timestamp":"2026-06-15T07:25:16.438Z"}
+{"level":"warn","message":"[LOGIN DEBUG] Controller caught Invalid credentials for: boss","timestamp":"2026-06-15T07:25:16.438Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:25:16 +0000] \"POST /api/auth/login HTTP/1.1\" 401 49 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:25:16.442Z"}
+{"level":"info","message":"[LOGIN DEBUG] Attempting login for username: Tanawat01","timestamp":"2026-06-15T07:25:24.011Z"}
+{"level":"info","message":"[LOGIN DEBUG] User found in DB: Tanawat01, password_hash: $2b$12$9tp...","timestamp":"2026-06-15T07:25:24.369Z"}
+{"level":"info","message":"User logged in with username: Tanawat01","timestamp":"2026-06-15T07:25:24.744Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:25:24 +0000] \"POST /api/auth/login HTTP/1.1\" 200 707 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:25:24.750Z"}
+{"level":"info","message":"[LOGIN DEBUG] Attempting login for username: Tanawat01","timestamp":"2026-06-15T07:40:05.113Z"}
+{"level":"info","message":"[LOGIN DEBUG] User found in DB: Tanawat01, password_hash: $2b$12$9tp...","timestamp":"2026-06-15T07:40:05.312Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-15T07:40:05.572Z"}
+{"level":"warn","message":"[LOGIN DEBUG] Controller caught Invalid credentials for: Tanawat01","timestamp":"2026-06-15T07:40:05.572Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:40:05 +0000] \"POST /api/auth/login HTTP/1.1\" 401 49 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:40:05.573Z"}
+{"level":"info","message":"[LOGIN DEBUG] Attempting login for username: Tanawat01","timestamp":"2026-06-15T07:40:07.462Z"}
+{"level":"info","message":"[LOGIN DEBUG] User found in DB: Tanawat01, password_hash: $2b$12$9tp...","timestamp":"2026-06-15T07:40:07.547Z"}
+{"level":"info","message":"User logged in with username: Tanawat01","timestamp":"2026-06-15T07:40:07.911Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:40:07 +0000] \"POST /api/auth/login HTTP/1.1\" 200 707 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:40:07.914Z"}
+{"level":"info","message":"[LOGIN DEBUG] Attempting login for username: Tanawat01","timestamp":"2026-06-15T07:49:22.577Z"}
+{"level":"info","message":"[LOGIN DEBUG] User found in DB: Tanawat01, password_hash: $2b$12$9tp...","timestamp":"2026-06-15T07:49:22.700Z"}
+{"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-15T07:49:22.966Z"}
+{"level":"warn","message":"[LOGIN DEBUG] Controller caught Invalid credentials for: Tanawat01","timestamp":"2026-06-15T07:49:22.967Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:49:22 +0000] \"POST /api/auth/login HTTP/1.1\" 401 49 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:49:22.968Z"}
+{"level":"info","message":"[LOGIN DEBUG] Attempting login for username: Tanawat01","timestamp":"2026-06-15T07:49:29.907Z"}
+{"level":"info","message":"[LOGIN DEBUG] User found in DB: Tanawat01, password_hash: $2b$12$9tp...","timestamp":"2026-06-15T07:49:30.458Z"}
+{"level":"info","message":"User logged in with username: Tanawat01","timestamp":"2026-06-15T07:49:30.806Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:49:30 +0000] \"POST /api/auth/login HTTP/1.1\" 200 707 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:49:30.807Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:49:31 +0000] \"GET /api/complaints/my HTTP/1.1\" 200 778 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:49:31.202Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:49:31 +0000] \"GET /api/complaints/my HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:49:31.357Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:49:31 +0000] \"GET /api/complaints/user-info HTTP/1.1\" 200 231 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:49:31.518Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:49:31 +0000] \"GET /api/complaints/user-info HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:49:31.660Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:49:41 +0000] \"GET /api/complaints/my HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:49:41.448Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:49:41 +0000] \"GET /api/complaints/user-info HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:49:41.627Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:49:44 +0000] \"GET /api/complaints/my HTTP/1.1\" - - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:49:44.565Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:49:46 +0000] \"GET /api/complaints/my HTTP/1.1\" 200 778 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:49:46.135Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:49:46 +0000] \"GET /api/complaints/user-info HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:49:46.255Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:49:56 +0000] \"GET /api/users/profile HTTP/1.1\" 200 305 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:49:56.896Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:49:57 +0000] \"GET /api/users/profile HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:49:57.096Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:50:00 +0000] \"GET /api/complaints/my HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:50:00.693Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:50:00 +0000] \"GET /api/complaints/my HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:50:00.841Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:50:00 +0000] \"GET /api/complaints/user-info HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:50:00.877Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:50:01 +0000] \"GET /api/complaints/user-info HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:50:01.008Z"}
+{"level":"info","message":"[LOGIN DEBUG] Attempting login for username: Tanawat01","timestamp":"2026-06-15T07:50:09.815Z"}
+{"level":"info","message":"[LOGIN DEBUG] User found in DB: Tanawat01, password_hash: $2b$12$9tp...","timestamp":"2026-06-15T07:50:10.023Z"}
+{"level":"info","message":"User logged in with username: Tanawat01","timestamp":"2026-06-15T07:50:10.379Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:50:10 +0000] \"POST /api/auth/login HTTP/1.1\" 200 707 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:50:10.382Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:50:11 +0000] \"GET /api/complaints/my HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:50:11.519Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:50:11 +0000] \"GET /api/complaints/my HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:50:11.705Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:50:11 +0000] \"GET /api/complaints/user-info HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:50:11.784Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:50:11 +0000] \"GET /api/complaints/user-info HTTP/1.1\" 304 - \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:50:11.942Z"}
+{"level":"info","message":"[LOGIN DEBUG] Attempting login for username: bosszaza","timestamp":"2026-06-15T07:50:33.757Z"}
+{"level":"info","message":"[LOGIN DEBUG] User found in DB: Bosszaza, password_hash: $2b$12$tJ9...","timestamp":"2026-06-15T07:50:33.853Z"}
+{"level":"info","message":"User logged in with username: bosszaza","timestamp":"2026-06-15T07:50:34.115Z"}
+{"level":"info","message":"127.0.0.1 - - [15/Jun/2026:07:50:34 +0000] \"POST /api/auth/login HTTP/1.1\" 200 645 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0\"","timestamp":"2026-06-15T07:50:34.116Z"}
+{"level":"info","message":"=================================","timestamp":"2026-06-15T07:52:51.867Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-06-15T07:52:51.870Z"}
+{"level":"info","message":"=================================","timestamp":"2026-06-15T07:52:51.871Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-06-15T07:52:51.871Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-06-15T07:52:51.872Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-06-15T07:52:51.872Z"}
+{"level":"info","message":"=================================","timestamp":"2026-06-15T07:52:51.872Z"}
+{"level":"info","message":"=================================","timestamp":"2026-06-15T07:52:54.050Z"}
+{"level":"info","message":"🚀 SENA Backend API","timestamp":"2026-06-15T07:52:54.053Z"}
+{"level":"info","message":"=================================","timestamp":"2026-06-15T07:52:54.054Z"}
+{"level":"info","message":"Environment: development","timestamp":"2026-06-15T07:52:54.054Z"}
+{"level":"info","message":"Server listening on port 5000","timestamp":"2026-06-15T07:52:54.054Z"}
+{"level":"info","message":"Health check: http://localhost:5000/api/health","timestamp":"2026-06-15T07:52:54.055Z"}
+{"level":"info","message":"=================================","timestamp":"2026-06-15T07:52:54.055Z"}
+[2026-06-15 14:55:31] INFO: =================================
+[2026-06-15 14:55:31] INFO: 🚀 SENA Backend API
+[2026-06-15 14:55:31] INFO: =================================
+[2026-06-15 14:55:31] INFO: Environment: development
+[2026-06-15 14:55:31] INFO: Server listening on port 5000
+[2026-06-15 14:55:31] INFO: Health check: http://localhost:5000/api/health
+[2026-06-15 14:55:31] INFO: =================================
+[2026-06-15 14:56:09] INFO: [AuthService.login] Attempting login for username: Tanawat01
+[2026-06-15 14:56:09] INFO: [AuthService.login] User found in DB: Tanawat01, password_hash: $2b$12$9tp...
+[2026-06-15 14:56:09] ERROR: [AuthService.login] Invalid password via bcrypt for:
+[2026-06-15 14:56:09] WARN: [AuthController.login] Controller caught Invalid credentials for: Tanawat01
+[2026-06-15 14:56:09] INFO: 127.0.0.1 - - [15/Jun/2026:07:56:09 +0000] "POST /api/auth/login HTTP/1.1" 401 49 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T07:57:54.331Z] INFO: =================================
+[2026-06-15T07:57:54.334Z] INFO: 🚀 SENA Backend API
+[2026-06-15T07:57:54.334Z] INFO: =================================
+[2026-06-15T07:57:54.334Z] INFO: Environment: development
+[2026-06-15T07:57:54.335Z] INFO: Server listening on port 5000
+[2026-06-15T07:57:54.335Z] INFO: Health check: http://localhost:5000/api/health
+[2026-06-15T07:57:54.335Z] INFO: =================================
+[2026-06-15T08:03:11.706Z] INFO: =================================
+[2026-06-15T08:03:11.712Z] INFO: 🚀 SENA Backend API
+[2026-06-15T08:03:11.715Z] INFO: =================================
+[2026-06-15T08:03:11.716Z] INFO: Environment: development
+[2026-06-15T08:03:11.717Z] INFO: Server listening on port 5000
+[2026-06-15T08:03:11.718Z] INFO: Health check: http://localhost:5000/api/health
+[2026-06-15T08:03:11.718Z] INFO: =================================
+[2026-06-15T08:05:56.231Z] INFO: [AuthService.login] Attempting login for username: admin
+[2026-06-15T08:05:56.354Z] INFO: [AuthService.login] User found in DB: admin, password_hash: $2b$12$piX...
+[2026-06-15T08:05:56.630Z] INFO: [AuthService.login] User logged in with username: admin
+[2026-06-15T08:05:56.635Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:05:56 +0000] "POST /api/auth/login HTTP/1.1" 200 627 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:00.650Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:00 +0000] "GET /api/admin/users HTTP/1.1" 200 1502 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:00.747Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:00 +0000] "GET /api/admin/reports HTTP/1.1" 200 3972 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:00.791Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:00 +0000] "GET /api/admin/logs?limit=10 HTTP/1.1" 200 3169 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:00.843Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:00 +0000] "GET /api/admin/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:00.882Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:00 +0000] "GET /api/admin/logs?limit=10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:01.011Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:01 +0000] "GET /api/admin/reports HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:14.489Z] INFO: [AuthService.login] Attempting login for username: admin
+[2026-06-15T08:06:15.033Z] INFO: [AuthService.login] User found in DB: admin, password_hash: $2b$12$piX...
+[2026-06-15T08:06:15.302Z] INFO: [AuthService.login] User logged in with username: admin
+[2026-06-15T08:06:15.303Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:15 +0000] "POST /api/auth/login HTTP/1.1" 200 627 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:15.689Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:15 +0000] "GET /api/admin/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:15.764Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:15 +0000] "GET /api/admin/reports HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:15.868Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:15 +0000] "GET /api/admin/logs?limit=10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:15.935Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:15 +0000] "GET /api/admin/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:16.067Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:16 +0000] "GET /api/admin/logs?limit=10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:16.089Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:16 +0000] "GET /api/admin/reports HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:27.660Z] INFO: [AuthService.login] Attempting login for username: admin
+[2026-06-15T08:06:27.764Z] INFO: [AuthService.login] User found in DB: admin, password_hash: $2b$12$piX...
+[2026-06-15T08:06:28.030Z] INFO: [AuthService.login] User logged in with username: admin
+[2026-06-15T08:06:28.032Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:28 +0000] "POST /api/auth/login HTTP/1.1" 200 627 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:28.456Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:28 +0000] "GET /api/admin/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:28.465Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:28 +0000] "GET /api/admin/reports HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:28.553Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:28 +0000] "GET /api/admin/logs?limit=10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:28.562Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:28 +0000] "GET /api/admin/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:28.682Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:28 +0000] "GET /api/admin/logs?limit=10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:06:28.764Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:06:28 +0000] "GET /api/admin/reports HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:07:40.649Z] INFO: [AuthService.login] Attempting login for username: admin
+[2026-06-15T08:07:40.764Z] INFO: [AuthService.login] User found in DB: admin, password_hash: $2b$12$piX...
+[2026-06-15T08:07:41.033Z] INFO: [AuthService.login] User logged in with username: admin
+[2026-06-15T08:07:41.034Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:07:41 +0000] "POST /api/auth/login HTTP/1.1" 200 627 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:07:41.453Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:07:41 +0000] "GET /api/admin/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:07:41.536Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:07:41 +0000] "GET /api/admin/logs?limit=10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:07:41.581Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:07:41 +0000] "GET /api/admin/reports HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:07:44.284Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:07:44 +0000] "GET /api/admin/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:07:45.886Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:07:45 +0000] "GET /api/admin/logs?limit=10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:07:46.373Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:07:46 +0000] "GET /api/complaints/all?limit=8&sort=desc HTTP/1.1" 200 68308 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:07:46.532Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:07:46 +0000] "GET /api/admin/reports HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:07:47.442Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:07:47 +0000] "GET /api/complaints/all?limit=8&sort=desc HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:07:48.320Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:07:48 +0000] "GET /api/admin/settings HTTP/1.1" 200 141 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:07:48.383Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:07:48 +0000] "GET /api/admin/settings HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:07:53.240Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:07:53 +0000] "PUT /api/admin/settings HTTP/1.1" 200 241 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:08:04.716Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:08:04 +0000] "PUT /api/admin/settings HTTP/1.1" 200 243 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:08:23.308Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:08:23 +0000] "PUT /api/admin/settings HTTP/1.1" 200 241 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:08:36.209Z] INFO: [AuthService.login] Attempting login for username: admin
+[2026-06-15T08:08:36.409Z] INFO: [AuthService.login] User found in DB: admin, password_hash: $2b$12$piX...
+[2026-06-15T08:08:36.683Z] INFO: [AuthService.login] User logged in with username: admin
+[2026-06-15T08:08:36.685Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:08:36 +0000] "POST /api/auth/login HTTP/1.1" 200 627 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:08:37.337Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:08:37 +0000] "GET /api/admin/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:08:37.371Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:08:37 +0000] "GET /api/admin/reports HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:08:37.429Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:08:37 +0000] "GET /api/admin/logs?limit=10 HTTP/1.1" 200 2614 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:08:38.178Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:08:38 +0000] "GET /api/admin/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:08:38.892Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:08:38 +0000] "GET /api/admin/logs?limit=10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:08:39.352Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:08:39 +0000] "GET /api/complaints/all?limit=8&sort=desc HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:08:39.402Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:08:39 +0000] "GET /api/admin/reports HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:08:40.849Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:08:40 +0000] "GET /api/complaints/all?limit=8&sort=desc HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:08:40.935Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:08:40 +0000] "GET /api/admin/settings HTTP/1.1" 200 170 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T08:08:41.004Z] INFO: 127.0.0.1 - - [15/Jun/2026:08:08:41 +0000] "GET /api/admin/settings HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T12:41:44.229Z] INFO: 127.0.0.1 - - [15/Jun/2026:12:41:44 +0000] "GET /api/admin/settings HTTP/1.1" 401 54 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T12:41:44.247Z] INFO: 127.0.0.1 - - [15/Jun/2026:12:41:44 +0000] "POST /api/auth/refresh HTTP/1.1" 200 494 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"
+[2026-06-15T12:41:44.364Z] INFO: 127.0.0.1 - - [15/Jun/2026:12:41:44 +0000] "GET /api/admin/settings HTTP/1.1" 200 170 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0"

@@ -264,3 +264,77 @@ export const getAuditLogs = async (req: Request, res: Response) => {
     return sendError(res, 'Internal server error');
   }
 };
+
+// ===== GET /api/admin/settings =====
+export const getSystemSettings = async (req: Request, res: Response) => {
+  try {
+    const { data, error } = await supabase.from('system_settings').select('*').single();
+    
+    // PGRST116 means zero rows returned from single()
+    if (error && error.code !== 'PGRST116') {
+      logger.error('Get system settings error:', error);
+      return sendError(res, 'Internal server error');
+    }
+    
+    return sendSuccess(res, data || { is_maintenance: false });
+  } catch (error) {
+    logger.error('Get system settings exception:', error);
+    return sendError(res, 'Internal server error');
+  }
+};
+
+// ===== PUT /api/admin/settings =====
+export const updateSystemSettings = async (req: Request, res: Response) => {
+  try {
+    const { is_maintenance } = req.body;
+    
+    // Check if row exists
+    const { data: existingData } = await supabase.from('system_settings').select('id').single();
+    
+    let result;
+    if (existingData) {
+      result = await supabase.from('system_settings')
+        .update({ 
+          is_maintenance, 
+          updated_by: req.user?.id, 
+          updated_at: new Date().toISOString() 
+        })
+        .eq('id', existingData.id)
+        .select()
+        .single();
+    } else {
+      result = await supabase.from('system_settings')
+        .insert({ 
+          id: 1, 
+          is_maintenance, 
+          updated_by: req.user?.id 
+        })
+        .select()
+        .single();
+    }
+
+    if (result.error) {
+      logger.error('Update system settings error:', result.error);
+      return sendError(res, 'Failed to update settings');
+    }
+
+    // Audit log
+    try {
+      await AuditLogModel.create({
+        user_id: req.user?.id || '',
+        action: 'UPDATE_SYSTEM_SETTINGS',
+        entity: 'system_settings',
+        entity_id: '1',
+        details: { is_maintenance },
+        ip_address: req.ip || '',
+      });
+    } catch (logErr) {
+      logger.error('Audit log error (non-critical):', logErr);
+    }
+
+    return sendSuccess(res, result.data, 'อัปเดตการตั้งค่าระบบสำเร็จ');
+  } catch (error) {
+    logger.error('Update system settings exception:', error);
+    return sendError(res, 'Internal server error');
+  }
+};

@@ -14,7 +14,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<'resident' | 'staff' | 'admin'>('resident');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,13 +37,6 @@ export default function LoginPage() {
 
       const { accessToken, refreshToken, user } = json.data;
       const actualRole = user.role || "resident";
-
-      // ดักจับ: ถ้าสิทธิ์ที่เลือกไม่ตรงกับสิทธิ์จริงของบัญชี
-      if (actualRole !== selectedRole) {
-        setError("บัญชีของคุณไม่สามารถเข้าสู่ระบบในสิทธิ์ที่เลือกได้");
-        setLoading(false);
-        return;
-      }
 
       // เก็บ accessToken, refreshToken และข้อมูลผู้ใช้ไว้ใน sessionStorage
       sessionStorage.setItem("user", JSON.stringify(user));
@@ -126,29 +118,6 @@ export default function LoginPage() {
 
             {/* Login Form */}
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-              {/* Role Selector */}
-              <div className="flex justify-center gap-8 mb-5 mt-2 w-full">
-                {(['resident', 'staff', 'admin'] as const).map((role) => (
-                  <label
-                    key={role}
-                    onClick={() => setSelectedRole(role)}
-                    className="flex items-center gap-2.5 cursor-pointer group"
-                  >
-                    {/* วงกลม Radio */}
-                    <div className={`w-[18px] h-[18px] rounded-full flex items-center justify-center transition-all duration-200 ${selectedRole === role
-                      ? (role === 'resident' ? 'bg-[#38BC0B]' : role === 'staff' ? 'bg-[#007AFF]' : 'bg-[#B31B1B]')
-                      : 'bg-transparent border-[2px] border-gray-300 group-hover:border-gray-400'
-                      }`} />
-
-                    {/* ข้อความ */}
-                    <span className={`text-[14px] font-medium transition-colors duration-200 ${selectedRole === role ? 'text-[#111]' : 'text-gray-500 group-hover:text-gray-700'
-                      }`}>
-                      {role === 'resident' ? 'ลูกบ้าน' : role === 'staff' ? 'นิติบุคคล' : 'แอดมิน'}
-                    </span>
-                  </label>
-                ))}
-              </div>
-
               {/* Username Field */}
               <div className="flex flex-col gap-2">
                 <label htmlFor="username" className="text-[13px] font-medium text-gray-600 pl-1">
@@ -254,12 +223,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-3.5 mt-2 rounded-xl text-white text-[16px] font-semibold tracking-[0.5px] shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0 disabled:cursor-not-allowed ${selectedRole === 'resident'
-                  ? 'bg-[#38BC0B] hover:bg-[#2e9c09] shadow-[#38BC0B]/20'
-                  : selectedRole === 'staff'
-                    ? 'bg-[#007AFF] hover:bg-[#0062cc] shadow-[#007AFF]/20'
-                    : 'bg-[#B31B1B] hover:bg-[#8f1515] shadow-[#B31B1B]/20'
-                  }`}
+                className="w-full py-3.5 mt-2 rounded-xl text-white text-[16px] font-semibold tracking-[0.5px] shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0 disabled:cursor-not-allowed bg-[#007AFF] hover:bg-[#0062cc] shadow-[#007AFF]/20"
               >
                 {loading ? (
                   <div className="flex items-center justify-center gap-2">

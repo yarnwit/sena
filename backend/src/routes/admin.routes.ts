@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticate } from '../middlewares/auth.middleware';
 import { authorize } from '../middlewares/role.middleware';
-import { getUsers, createUser, updateUser, deleteUser, getReports, getAuditLogs } from '../controllers/admin.controller';
+import { getUsers, createUser, updateUser, deleteUser, getReports, getAuditLogs, getSystemSettings, updateSystemSettings } from '../controllers/admin.controller';
 
 const router = Router();
 
@@ -15,5 +15,7 @@ router.patch('/users/:id', updateUser);
 router.delete('/users/:id', deleteUser);
 router.get('/reports', getReports);
 router.get('/logs', getAuditLogs);
+router.get('/settings', getSystemSettings);
+router.put('/settings', updateSystemSettings);
 
 export default router;

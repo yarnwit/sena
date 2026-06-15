@@ -92,6 +92,13 @@ const CreateComplaintIcon = () => (
   </svg>
 );
 
+const SettingsIcon = () => (
+  <svg className="w-[24px] h-[24px] shrink-0 opacity-80 group-[.active]:opacity-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="3"></circle>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+  </svg>
+);
+
 /* ===== Navigation Items ===== */
 const navItems = [
   { href: "/admin/dashboard", label: "ภาพรวมระบบ", icon: DashboardIcon },
@@ -119,6 +126,7 @@ const navItems = [
   },
   { href: "/admin/reports", label: "รายงานสรุป", icon: ReportsIcon },
   { href: "/admin/logs", label: "Audit Logs", icon: LogsIcon },
+  { href: "/admin/system-settings", label: "ตั้งค่าระบบ", icon: SettingsIcon },
   { href: "/admin/profile", label: "โปรไฟล์", icon: ProfileIcon }
 ];
 
@@ -135,6 +143,7 @@ function getPageInfo(pathname: string) {
   if (pathname.startsWith("/admin/complaints/")) return { icon: LogsIcon, title: "รายละเอียดการร้องเรียน", subtitle: "ข้อมูลเรื่องร้องเรียนและการจัดการของแอดมิน" };
   if (pathname === "/admin/reports") return { icon: ReportsIcon, title: "รายงานสรุป", subtitle: "สถิติและรายงานภาพรวมเรื่องร้องเรียน" };
   if (pathname === "/admin/logs") return { icon: ReportsIcon, title: "Audit Logs", subtitle: "บันทึกการเปลี่ยนแปลงและกิจกรรมในระบบ" };
+  if (pathname === "/admin/system-settings") return { icon: SettingsIcon, title: "ตั้งค่าระบบ", subtitle: "จัดการการเปิด-ปิดระบบและการตั้งค่าอื่นๆ" };
   if (pathname === "/admin/profile") return { icon: ProfileIcon, title: "โปรไฟล์ผู้ดูแลระบบ", subtitle: "จัดการข้อมูลส่วนตัวของผู้ดูแลระบบ" };
   return { icon: DashboardIcon, title: "ผู้ดูแลระบบ", subtitle: "" };
 }

@@ -46,6 +46,14 @@ const processQueue = (error: unknown, token: string | null = null) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // ดักจับระบบปิดปรับปรุง (Maintenance Mode)
+    if (error.response?.status === 503 && error.response?.data?.code === 'MAINTENANCE_MODE') {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/maintenance';
+      }
+      return Promise.reject(error);
+    }
+
     const originalRequest = error.config;
 
     // ถ้าไม่ใช่ 401 หรือ retry แล้ว ให้ reject ทันที

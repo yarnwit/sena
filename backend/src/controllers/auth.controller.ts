@@ -16,10 +16,10 @@ export const login = async (req: Request, res: Response) => {
     }, 'Login successful');
   } catch (error: any) {
     if (error.message === 'Invalid credentials') {
-      logger.warn(`[LOGIN DEBUG] Controller caught Invalid credentials for: ${req.body.username}`);
+      logger.warn(`[AuthController.login] Controller caught Invalid credentials for: ${req.body.username}`);
       return sendError(res, 'Invalid credentials', 401);
     }
-    logger.error('Login error:', error);
+    logger.error('[AuthController.login] Login error:', error);
     return sendError(res, 'Internal server error');
   }
 };
@@ -28,10 +28,10 @@ export const register = async (req: Request, res: Response) => {
   try {
     const result = await AuthService.register(req.body);
 
-    logger.info(`New user registered: ${req.body.email}`);
+    logger.info(`[AuthController.register] New user registered: ${req.body.email}`);
     return sendSuccess(res, result, 'Registration successful', 201);
   } catch (error: any) {
-    logger.error('Registration error:', error);
+    logger.error('[AuthController.register] Registration error:', error);
     return sendError(res, error.message || 'Internal server error', 400);
   }
 };
@@ -75,7 +75,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     if (error.message === 'ข้อมูลไม่ตรงกับที่ลงทะเบียนไว้') {
       return sendError(res, 'ข้อมูลไม่ตรงกับที่ลงทะเบียนไว้ กรุณาตรวจสอบอีกครั้ง', 403);
     }
-    logger.error('Forgot password error:', error);
+    logger.error('[AuthController.forgotPassword] Forgot password error:', error);
     return sendError(res, 'เกิดข้อผิดพลาดภายในระบบ');
   }
 };
@@ -91,7 +91,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     if (error.message.includes('หมดอายุ') || error.message.includes('ไม่ถูกต้อง')) {
       return sendError(res, error.message, 401);
     }
-    logger.error('Reset password error:', error);
+    logger.error('[AuthController.resetPassword] Reset password error:', error);
     return sendError(res, 'เกิดข้อผิดพลาดภายในระบบ');
   }
 };
@@ -112,7 +112,7 @@ export const changePassword = async (req: Request, res: Response) => {
 
     return sendSuccess(res, null, 'เปลี่ยนรหัสผ่านสำเร็จ');
   } catch (error: any) {
-    logger.error('Change password error:', error);
+    logger.error('[AuthController.changePassword] Change password error:', error);
     return sendError(res, 'เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน');
   }
 };
@@ -134,7 +134,7 @@ export const deleteAccount = async (req: Request, res: Response) => {
     await AuthService.deleteAccount(authUser.id);
     return sendSuccess(res, null, 'Account deleted successfully');
   } catch (error: any) {
-    logger.error('Delete account error:', error);
+    logger.error('[AuthController.deleteAccount] Delete account error:', error);
     return sendError(res, error.message || 'Internal server error');
   }
 };
