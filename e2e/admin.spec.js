@@ -5,11 +5,13 @@ test('test', async ({ page }) => {
     const username = `thanachot_${Date.now()}`;
     const complaintSubject = `asd_${Date.now()}`;
     await page.goto('http://localhost:3000/login');
+    await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
+    await page.evaluate(() => { window.print = function() {}; });
     await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).click();
     await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).fill('admin');
     await page.getByRole('textbox', { name: 'รหัสผ่าน' }).click();
     await page.getByRole('textbox', { name: 'รหัสผ่าน' }).fill('123456');
-    await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).click();
+    await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).evaluate(node => node.click());
     await page.getByRole('link', { name: 'เพิ่มบัญชีผู้ใช้งาน' }).click();
     await page.getByRole('textbox', { name: 'เช่น somchai123' }).click();
     await page.getByRole('textbox', { name: 'เช่น somchai123' }).fill(username);

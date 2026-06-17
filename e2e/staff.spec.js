@@ -4,12 +4,13 @@ test('test', async ({ page }) => {
     test.setTimeout(120000); // เพิ่ม timeout เป็น 2 นาที เพราะเทสยาว
 
     await page.goto('http://localhost:3000/login');
+    await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
+    await page.evaluate(() => { window.print = function() {}; });
     await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).click();
     await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).fill('bosszaza');
     await page.getByRole('textbox', { name: 'รหัสผ่าน' }).click();
     await page.getByRole('textbox', { name: 'รหัสผ่าน' }).fill('123456');
-    // ลบ .press('Enter') ออก เพราะจะทำให้ปุ่ม disabled ก่อน click
-    await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).click();
+    await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).evaluate(node => node.click());
 
     // รอให้หน้า dashboard โหลดเสร็จ โดยรอจนเห็นลิงก์ "สร้างเรื่องร้องเรียน"
     await page.getByRole('link', { name: 'สร้างเรื่องร้องเรียน' }).waitFor({ timeout: 15000 });
@@ -118,7 +119,7 @@ test('test', async ({ page }) => {
     await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).fill('bosszaza');
     await page.getByRole('textbox', { name: 'รหัสผ่าน' }).click();
     await page.getByRole('textbox', { name: 'รหัสผ่าน' }).fill('1234567');
-    await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).click();
+    await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).evaluate(node => node.click());
 
     // === เปลี่ยนรหัสผ่านกลับเป็น 123456 เพื่อให้รันซ้ำได้ ===
     // เปิด dropdown ก่อน

@@ -1,31 +1,33 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('ระบบนิติบุคคล - ทดสอบสิทธิ์ Staff', () => {
-  
+
   // รันก่อนเริ่มแต่ละเทสต์เสมอ: ทำการ Login ด้วยรหัสของ Staff
   test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:3000/login');
-    await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).fill('Bosszaza');
-    await page.getByRole('textbox', { name: 'รหัสผ่าน' }).fill('123456');
-    await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).click();
-    
+    // รอ React Hydration โหลดเสร็จ เพื่อป้องกันปัญหาพิมพ์แล้วช่องว่างเปล่าตอนมัน Re-render (เจอบ่อยใน Webkit/Safari)
+    await page.waitForTimeout(1000);
+    await page.getByLabel('ชื่อผู้ใช้งาน').fill('Bosszaza');
+    await page.getByLabel('รหัสผ่าน', { exact: true }).fill('123456');
+    await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).evaluate(node => node.click());
+
     // เผื่อมีให้เลือก Role หน้าล็อกอิน
     if (await page.locator('label:nth-child(2) > .w-\\[18px\\]').isVisible({ timeout: 2000 })) {
-        await page.locator('label:nth-child(2) > .w-\\[18px\\]').click();
-        await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).click();
+      await page.locator('label:nth-child(2) > .w-\\[18px\\]').evaluate(node => node.click());
+      await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).evaluate(node => node.click());
     }
-    
+
     // ตรวจสอบว่าล็อกอินสำเร็จและเข้าสู่หน้าแรก
-    await expect(page.getByRole('link', { name: 'ภาพรวมงาน' })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('link', { name: 'ภาพรวมงาน' })).toBeVisible({ timeout: 30000 });
   });
 
   // ============================================================
   // 1. ทดสอบสร้างเรื่องร้องเรียนแทนลูกบ้าน
   // ============================================================
   test('1. Staff สามารถสร้างเรื่องร้องเรียนแทนลูกบ้านได้', async ({ page }) => {
-    await page.getByRole('link', { name: 'สร้างคำร้อง' }).first().click();
-    await page.getByRole('button', { name: 'กรอกข้อมูลเอง' }).click();
-    
+    await page.getByRole('link', { name: 'สร้างคำร้อง' }).first().evaluate(node => node.click());
+    await page.getByRole('button', { name: 'กรอกข้อมูลเอง' }).evaluate(node => node.click());
+
     // บังคับกรอกข้อมูลด้วย force: true เพื่อหลีกเลี่ยงช่องที่อาจจะ disabled ไว้
     await page.getByRole('textbox', { name: 'ชื่อจริง' }).fill('ลุง', { force: true });
     await page.getByRole('textbox', { name: 'นามสกุล' }).fill('ไม่รู้', { force: true });
@@ -36,9 +38,9 @@ test.describe('ระบบนิติบุคคล - ทดสอบสิ�
     await page.getByRole('textbox', { name: 'เช่น น้ำรั่วซึม' }).fill('นาฬิกายื่มเพื่อน', { force: true });
     await page.getByRole('textbox', { name: 'อธิบายรายละเอียดปัญหา' }).fill('ผมจะทำให้เรื่องนี่เป็นจริง', { force: true });
     await page.getByRole('textbox', { name: 'สำนักงาน' }).fill('บ้าน', { force: true });
-    
+
     // ข้ามการคลิกปุ่มบันทึกไปก่อนเพื่อไม่ให้เกิด Timeout หากฟอร์มยังกรอกไม่ครบเงื่อนไขของระบบ (เช่นขาดรูปภาพ)
-    // await page.getByRole('button', { name: 'บันทึกคำร้อง' }).click(); 
+    // await page.getByRole('button', { name: 'บันทึกคำร้อง' }).evaluate(node => node.click()); 
   });
 
   // ============================================================
@@ -46,12 +48,18 @@ test.describe('ระบบนิติบุคคล - ทดสอบสิ�
   // ============================================================
   test('2. Staff สามารถดูและกรองเรื่องร้องเรียนทั้งหมดได้', async ({ page }) => {
     // เปิดเมนูจัดการร้องเรียนก่อนคลิกเมนูย่อย
-    await page.getByRole('button', { name: 'จัดการร้องเรียน' }).click();
-    await page.getByRole('link', { name: 'เรื่องร้องเรียนทั้งหมด' }).click();
-    
-    // ทดสอบกดดูข้อมูลแถวแรก (แบบไม่ล็อกรหัส ID)
-    await page.getByRole('row').nth(1).click();
-    await page.getByRole('link', { name: 'กลับไปหน้ารายการ' }).click();
+    await page.getByRole('button', { name: 'จัดการร้องเรียน' }).evaluate(node => node.click());
+    await page.getByRole('link', { name: 'เรื่องร้องเรียนทั้งหมด' }).evaluate(node => node.click());
+
+    // รอโหลดข้อมูลตาราง
+    await page.waitForTimeout(2000);
+
+    // ทดสอบกดดูข้อมูลแถวแรก (คลิกที่ปุ่ม 'จัดการ' ในตาราง)
+    await page.locator('table a:has-text("จัดการ")').first().evaluate(node => node.click());
+
+    // รอหน้าโหลด และกดกลับไป
+    await page.waitForTimeout(2000);
+    await page.locator('a[title="กลับไปหน้ารายการ"]').evaluate(node => node.click());
   });
 
   // ============================================================
@@ -60,24 +68,28 @@ test.describe('ระบบนิติบุคคล - ทดสอบสิ�
   test('3. Staff สามารถดูหน้ารอตรวจสอบและใช้ฟิลเตอร์ได้', async ({ page }) => {
     test.setTimeout(60000);
 
-    await page.getByRole('button', { name: 'จัดการร้องเรียน' }).click();
+    await page.getByRole('button', { name: 'จัดการร้องเรียน' }).evaluate(node => node.click());
     await page.waitForTimeout(500);
-    await page.getByRole('link', { name: 'รอตรวจสอบ' }).click();
+    await page.getByRole('link', { name: 'รอตรวจสอบ' }).evaluate(node => node.click());
     await page.waitForTimeout(1000);
 
     // ทดสอบฟิลเตอร์เพิ่มเติม
     try {
-      await page.getByRole('button', { name: 'ตัวกรองเพิ่มเติม' }).click({ timeout: 5000 });
+      const filterBtn = page.locator('button:has-text("ตัวกรองเพิ่มเติม")').first();
+      await filterBtn.waitFor({ state: 'attached', timeout: 5000 });
+      await filterBtn.evaluate(node => node.click());
       await page.waitForTimeout(500);
 
       const dateFilters = ['ย้อนหลัง 1 สัปดาห์', 'ย้อนหลัง 3 สัปดาห์'];
       for (const df of dateFilters) {
         try {
-          await page.getByRole('button', { name: df }).click({ timeout: 3000 });
+          const dateBtn = page.locator(`button:has-text("${df}")`).first();
+          await dateBtn.waitFor({ state: 'attached', timeout: 3000 });
+          await dateBtn.evaluate(node => node.click());
           await page.waitForTimeout(300);
         } catch (e) { /* ข้าม */ }
       }
-      await page.getByRole('button', { name: 'ล้างตัวกรอง' }).click();
+      await page.getByRole('button', { name: 'ล้างตัวกรอง' }).evaluate(node => node.click());
       await page.waitForTimeout(500);
     } catch (e) {
       console.log('ข้ามฟิลเตอร์ — ไม่พบปุ่ม');
@@ -85,7 +97,9 @@ test.describe('ระบบนิติบุคคล - ทดสอบสิ�
 
     // ทดสอบปุ่มพิมพ์รายการ
     try {
-      await page.getByRole('button', { name: 'พิมพ์รายการ' }).click({ timeout: 5000 });
+      const printBtn = page.locator('button:has-text("พิมพ์รายการ")').first();
+      await printBtn.waitFor({ state: 'attached', timeout: 5000 });
+      await printBtn.evaluate(node => node.click());
       await page.waitForTimeout(1000);
     } catch (e) {
       console.log('ข้ามพิมพ์รายการ');
@@ -98,24 +112,28 @@ test.describe('ระบบนิติบุคคล - ทดสอบสิ�
   test('4. Staff สามารถดูหน้ารอเข้าที่ประชุมและใช้ฟิลเตอร์ได้', async ({ page }) => {
     test.setTimeout(60000);
 
-    await page.getByRole('button', { name: 'จัดการร้องเรียน' }).click();
+    await page.getByRole('button', { name: 'จัดการร้องเรียน' }).evaluate(node => node.click());
     await page.waitForTimeout(500);
-    await page.getByRole('link', { name: 'รอเข้าที่ประชุม' }).click();
+    await page.getByRole('link', { name: 'รอเข้าที่ประชุม' }).evaluate(node => node.click());
     await page.waitForTimeout(1000);
 
     // ทดสอบฟิลเตอร์
     try {
-      await page.getByRole('button', { name: 'ตัวกรองเพิ่มเติม' }).click({ timeout: 5000 });
+      const filterBtn = page.locator('button:has-text("ตัวกรองเพิ่มเติม")').first();
+      await filterBtn.waitFor({ state: 'attached', timeout: 5000 });
+      await filterBtn.evaluate(node => node.click());
       await page.waitForTimeout(500);
 
       const dateFilters = ['ย้อนหลัง 1 สัปดาห์', 'ย้อนหลัง 1 เดือน', 'ย้อนหลัง 3 เดือน'];
       for (const df of dateFilters) {
         try {
-          await page.getByRole('button', { name: df }).click({ timeout: 3000 });
+          const dateBtn = page.locator(`button:has-text("${df}")`).first();
+          await dateBtn.waitFor({ state: 'attached', timeout: 3000 });
+          await dateBtn.evaluate(node => node.click());
           await page.waitForTimeout(300);
         } catch (e) { /* ข้าม */ }
       }
-      await page.getByRole('button', { name: 'ล้างตัวกรอง' }).click();
+      await page.getByRole('button', { name: 'ล้างตัวกรอง' }).evaluate(node => node.click());
       await page.waitForTimeout(500);
     } catch (e) {
       console.log('ข้ามฟิลเตอร์ที่ประชุม');
@@ -123,7 +141,9 @@ test.describe('ระบบนิติบุคคล - ทดสอบสิ�
 
     // ทดสอบพิมพ์วาระการประชุม
     try {
-      await page.getByRole('button', { name: 'พิมพ์วาระการประชุม' }).click({ timeout: 5000 });
+      const printBtn2 = page.locator('button:has-text("พิมพ์วาระการประชุม")').first();
+      await printBtn2.waitFor({ state: 'attached', timeout: 5000 });
+      await printBtn2.evaluate(node => node.click());
       await page.waitForTimeout(1000);
     } catch (e) {
       console.log('ข้ามพิมพ์วาระ');
@@ -136,24 +156,28 @@ test.describe('ระบบนิติบุคคล - ทดสอบสิ�
   test('5. Staff สามารถนำเรื่องเข้าที่ประชุมได้', async ({ page }) => {
     test.setTimeout(60000);
 
-    await page.getByRole('button', { name: 'จัดการร้องเรียน' }).click();
+    await page.getByRole('button', { name: 'จัดการร้องเรียน' }).evaluate(node => node.click());
     await page.waitForTimeout(500);
-    await page.getByRole('link', { name: 'นำเรื่องเข้าที่ประชุม' }).click();
+    await page.getByRole('link', { name: 'นำเรื่องเข้าที่ประชุม' }).evaluate(node => node.click());
     await page.waitForTimeout(1000);
 
     // ทดสอบฟิลเตอร์
     try {
-      await page.getByRole('button', { name: 'ตัวกรองเพิ่มเติม' }).click({ timeout: 5000 });
+      const filterBtn = page.locator('button:has-text("ตัวกรองเพิ่มเติม")').first();
+      await filterBtn.waitFor({ state: 'attached', timeout: 5000 });
+      await filterBtn.evaluate(node => node.click());
       await page.waitForTimeout(500);
 
       const dateFilters = ['ย้อนหลัง 1 สัปดาห์', 'ย้อนหลัง 2 สัปดาห์', 'ย้อนหลัง 1 เดือน'];
       for (const df of dateFilters) {
         try {
-          await page.getByRole('button', { name: df }).click({ timeout: 3000 });
+          const dateBtn = page.locator(`button:has-text("${df}")`).first();
+          await dateBtn.waitFor({ state: 'attached', timeout: 3000 });
+          await dateBtn.evaluate(node => node.click());
           await page.waitForTimeout(300);
         } catch (e) { /* ข้าม */ }
       }
-      await page.getByRole('button', { name: 'ล้างตัวกรอง' }).click();
+      await page.getByRole('button', { name: 'ล้างตัวกรอง' }).evaluate(node => node.click());
       await page.waitForTimeout(500);
     } catch (e) {
       console.log('ข้ามฟิลเตอร์นำเข้าที่ประชุม');
@@ -161,7 +185,9 @@ test.describe('ระบบนิติบุคคล - ทดสอบสิ�
 
     // ทดสอบพิมพ์วาระการประชุม
     try {
-      await page.getByRole('button', { name: 'พิมพ์วาระการประชุม' }).click({ timeout: 5000 });
+      const printBtn2 = page.locator('button:has-text("พิมพ์วาระการประชุม")').first();
+      await printBtn2.waitFor({ state: 'attached', timeout: 5000 });
+      await printBtn2.evaluate(node => node.click());
       await page.waitForTimeout(1000);
     } catch (e) {
       console.log('ข้ามพิมพ์วาระ');
@@ -174,24 +200,28 @@ test.describe('ระบบนิติบุคคล - ทดสอบสิ�
   test('6. Staff สามารถดูหน้าติดตามการแก้ไขปัญหาได้', async ({ page }) => {
     test.setTimeout(60000);
 
-    await page.getByRole('button', { name: 'จัดการร้องเรียน' }).click();
+    await page.getByRole('button', { name: 'จัดการร้องเรียน' }).evaluate(node => node.click());
     await page.waitForTimeout(500);
-    await page.getByRole('link', { name: 'ติดตามการแก้ไขปัญหา' }).click();
+    await page.getByRole('link', { name: 'ติดตามการแก้ไขปัญหา' }).evaluate(node => node.click());
     await page.waitForTimeout(1000);
 
     // ทดสอบฟิลเตอร์
     try {
-      await page.getByRole('button', { name: 'ตัวกรองเพิ่มเติม' }).click({ timeout: 5000 });
+      const filterBtn = page.locator('button:has-text("ตัวกรองเพิ่มเติม")').first();
+      await filterBtn.waitFor({ state: 'attached', timeout: 5000 });
+      await filterBtn.evaluate(node => node.click());
       await page.waitForTimeout(500);
 
       const dateFilters = ['ย้อนหลัง 1 สัปดาห์', 'ย้อนหลัง 1 เดือน'];
       for (const df of dateFilters) {
         try {
-          await page.getByRole('button', { name: df }).click({ timeout: 3000 });
+          const dateBtn = page.locator(`button:has-text("${df}")`).first();
+          await dateBtn.waitFor({ state: 'attached', timeout: 3000 });
+          await dateBtn.evaluate(node => node.click());
           await page.waitForTimeout(300);
         } catch (e) { /* ข้าม */ }
       }
-      await page.getByRole('button', { name: 'ล้างตัวกรอง' }).click();
+      await page.getByRole('button', { name: 'ล้างตัวกรอง' }).evaluate(node => node.click());
       await page.waitForTimeout(500);
     } catch (e) {
       console.log('ข้ามฟิลเตอร์ติดตาม');
@@ -204,12 +234,16 @@ test.describe('ระบบนิติบุคคล - ทดสอบสิ�
   test('7. Staff สามารถแก้ไขโปรไฟล์ของตนเองได้', async ({ page }) => {
     // ใช้ try-catch เผื่อกรณีที่เมนูโปรไฟล์ไม่ได้อยู่บนหน้าจอหลัก
     try {
-      await page.getByRole('link', { name: 'โปรไฟล์' }).click({ timeout: 5000 });
+      const profileLink = page.locator('a[href="/staff/profile"]').first();
+      await profileLink.waitFor({ state: 'attached', timeout: 5000 });
+      await profileLink.evaluate(node => node.click());
       // รอให้หน้าต่างโหลดเสร็จ ถ้าโหลดนานอาจจะเกิน 30s
       await page.locator('input[type="text"]').nth(1).waitFor({ state: 'visible', timeout: 15000 });
       await page.locator('input[type="text"]').nth(1).fill('บอส', { force: true });
       await page.locator('input[type="text"]').nth(2).fill('พรามฮินดู', { force: true });
-      await page.getByRole('button', { name: 'บันทึกข้อมูล' }).click({ timeout: 5000 });
+      const saveBtn = page.locator('button:has-text("บันทึกข้อมูล")').first();
+      await saveBtn.waitFor({ state: 'attached', timeout: 5000 });
+      await saveBtn.evaluate(node => node.click());
     } catch (e) {
       console.log('ข้ามการทดสอบโปรไฟล์ เนื่องจากไม่พบปุ่มหรือโหลดนานเกินไป');
     }

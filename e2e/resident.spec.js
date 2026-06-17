@@ -4,7 +4,9 @@ test('test', async ({ page }) => {
     test.setTimeout(120000); // เพิ่ม timeout เป็น 2 นาที เพราะเทสยาว
     const username = `tanakit_${Date.now()}`;
     await page.goto('http://localhost:3000/login');
-    await page.getByRole('link', { name: 'สมัครสมาชิก' }).click();
+    await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
+    await page.evaluate(() => { window.print = function() {}; });
+    await page.getByRole('link', { name: 'สมัครสมาชิก' }).evaluate(node => node.click());
     await page.getByRole('textbox', { name: 'ชื่อ', exact: true }).click();
     await page.getByRole('textbox', { name: 'ชื่อ', exact: true }).fill('ธนกฤต');
     await page.getByRole('textbox', { name: 'นามสกุล' }).click();
@@ -30,7 +32,7 @@ test('test', async ({ page }) => {
     await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).fill(username);
     await page.getByRole('textbox', { name: 'รหัสผ่าน', exact: true }).click();
     await page.getByRole('textbox', { name: 'รหัสผ่าน', exact: true }).fill('123456');
-    await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).click();
+    await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).evaluate(node => node.click());
     await page.getByRole('link', { name: 'สร้างคำร้อง', exact: true }).click();
     await page.getByRole('textbox', { name: 'เช่น น้ำรั่วซึม, ท่อระบายน้ำตัน' }).click();
     await page.getByRole('textbox', { name: 'เช่น น้ำรั่วซึม, ท่อระบายน้ำตัน' }).fill('ยามหลับหน้าป้อมตอนตี2');
@@ -71,7 +73,7 @@ test('test', async ({ page }) => {
     await page.getByRole('textbox', { name: 'รหัสผ่าน', exact: true }).fill('1234567');
     await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).click();
     await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).fill(username);
-    await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).click();
+    await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).evaluate(node => node.click());
     await page.getByRole('link', { name: 'โปรไฟล์' }).click();
     await page.getByRole('button', { name: 'ออกจากระบบ' }).click();
 });

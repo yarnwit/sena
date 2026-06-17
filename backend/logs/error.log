@@ -145,3 +145,4 @@
 {"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-15T07:40:05.572Z"}
 {"level":"error","message":"Invalid password via bcrypt for:","timestamp":"2026-06-15T07:49:22.966Z"}
 [2026-06-15 14:56:09] ERROR: [AuthService.login] Invalid password via bcrypt for:
+[2026-06-16T08:41:14.064Z] ERROR: 400 - Expected property name or '}' in JSON at position 1 (line 1 column 2) - /api/auth/login - POST - 127.0.0.1
