@@ -5,9 +5,7 @@
  */
 
 // API base URL pointing to the Express.js backend
-export const API_URL = __DEV__
-  ? 'http://10.0.2.2:5000/api' // Android emulator localhost
-  : 'https://your-production-api.com/api';
+export const API_URL = 'https://pettiest-ena-brimfully.ngrok-free.dev/api'; // <--- บังคับใช้ Ngrok ชั่วคราว
 
 // For iOS simulator, use: 'http://localhost:5000/api'
 // For physical device, use your machine's local IP: 'http://192.168.x.x:5000/api'

@@ -4,9 +4,9 @@ test('test', async ({ page }) => {
     test.setTimeout(1200000); // เพิ่ม Timeout เป็น 120 วิ
     const username = `thanachot_${Date.now()}`;
     const complaintSubject = `asd_${Date.now()}`;
+    await page.addInitScript(() => { window.print = () => console.log('Mocked window.print()'); });
     await page.goto('http://localhost:3000/login');
-    await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
-    await page.evaluate(() => { window.print = function() {}; });
+    await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => { });
     await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).click();
     await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).fill('admin');
     await page.getByRole('textbox', { name: 'รหัสผ่าน' }).click();
@@ -47,9 +47,9 @@ test('test', async ({ page }) => {
     await page.waitForURL('**/admin/complaints');
     // ใช้ page.goto เพื่อแก้ปัญหา Next.js Link ไม่ทำงานบางครั้ง (flaky)
     await page.goto('http://localhost:3000/admin/complaints/new');
-    
+
     // รอให้โหลดข้อมูลลูกบ้านเสร็จ
-    await page.waitForSelector('.max-h-48 button'); 
+    await page.waitForSelector('.max-h-48 button');
     // กดเลือกลูกบ้านคนแรกในลิสต์ (แทนการระบุบ้านเลขที่ 83/34 ตายตัว)
     await page.locator('.max-h-48 button').first().click();
     await page.getByRole('textbox', { name: 'เช่น น้ำรั่วซึม' }).click();

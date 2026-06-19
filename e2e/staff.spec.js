@@ -4,8 +4,8 @@ test('test', async ({ page }) => {
     test.setTimeout(120000); // เพิ่ม timeout เป็น 2 นาที เพราะเทสยาว
 
     await page.goto('http://localhost:3000/login');
-    await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
-    await page.evaluate(() => { window.print = function() {}; });
+    await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => { });
+    await page.addInitScript(() => { window.print = () => console.log('Mocked window.print()'); });
     await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).click();
     await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).fill('bosszaza');
     await page.getByRole('textbox', { name: 'รหัสผ่าน' }).click();

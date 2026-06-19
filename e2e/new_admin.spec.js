@@ -4,17 +4,18 @@ test.describe('ระบบนิติบุคคล - ทดสอบสิ�
 
   // รันก่อนเริ่มแต่ละเทสต์เสมอ: ทำการ Login ด้วยรหัสของ Admin
   test.beforeEach(async ({ page }) => {
+    // Mock window.print (ใช้ addInitScript เพื่อให้อยู่ตลอดทุกหน้า)
+    // *** ต้องประกาศก่อน page.goto เสมอ ***
+    await page.addInitScript(() => {
+      window.print = () => console.log('Mocked window.print()');
+    });
+
     // Navigate to login
     await page.goto('http://localhost:3000/login');
 
     // รอให้ React hydrate (networkidle = JS bundle โหลดเสร็จ + event handlers ติดแล้ว)
     // cap ที่ 8 วินาที เพื่อไม่ให้ timeout กับ test ที่ทำ network มาก (tests 6, 14)
     await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
-
-    // Mock window.print (ต้อง evaluate หลัง React hydrate)
-    await page.evaluate(() => {
-      window.print = function() {};
-    });
 
     // รอ form field (React hydration เสร็จแล้ว ณ จุดนี้)
     const usernameField = page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' });

@@ -4,6 +4,7 @@ test.describe('ระบบนิติบุคคล - ทดสอบสิ�
 
   // รันก่อนเริ่มแต่ละเทสต์เสมอ: ทำการ Login ด้วยรหัสของ Staff
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => { window.print = () => console.log('Mocked window.print()'); });
     await page.goto('http://localhost:3000/login');
     // รอ React Hydration โหลดเสร็จ เพื่อป้องกันปัญหาพิมพ์แล้วช่องว่างเปล่าตอนมัน Re-render (เจอบ่อยใน Webkit/Safari)
     await page.waitForTimeout(1000);

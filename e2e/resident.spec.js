@@ -5,7 +5,7 @@ test('test', async ({ page }) => {
     const username = `tanakit_${Date.now()}`;
     await page.goto('http://localhost:3000/login');
     await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
-    await page.evaluate(() => { window.print = function() {}; });
+    await page.addInitScript(() => { window.print = () => console.log('Mocked window.print()'); });
     await page.getByRole('link', { name: 'สมัครสมาชิก' }).evaluate(node => node.click());
     await page.getByRole('textbox', { name: 'ชื่อ', exact: true }).click();
     await page.getByRole('textbox', { name: 'ชื่อ', exact: true }).fill('ธนกฤต');

@@ -4,6 +4,7 @@ test.describe('ระบบนิติบุคคล - ทดสอบสิ�
 
   // รันก่อนเริ่มแต่ละเทสต์เสมอ: ทำการ Login ด้วยรหัสของ Resident
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => { window.print = () => console.log('Mocked window.print()'); });
     // Navigate to login
     await page.goto('http://localhost:3000/login');
 
