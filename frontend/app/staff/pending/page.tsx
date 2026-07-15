@@ -328,9 +328,7 @@ function StaffPendingContent() {
                     <th className="px-6 py-3.5 font-medium">ชื่อลูกบ้าน</th>
                     <th className="px-6 py-3.5 font-medium">สถานะ</th>
                     <th className="px-6 py-3.5 font-medium">วันที่แจ้ง</th>
-                  
-                  
-                  
+                    <th className="px-6 py-3.5 font-medium"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -339,8 +337,8 @@ function StaffPendingContent() {
                     return (
                       <tr
                         key={c.complaint_id}
-                        className={`transition-colors cursor-pointer ${isSelected ? 'bg-amber-50/50' : 'hover:bg-gray-50'}`}
-                        onClick={() => handleToggleSelect(c.complaint_id)}
+                        className="hover:bg-amber-50/30 transition-colors cursor-pointer"
+                        onClick={() => window.location.href = `/staff/complaints/${c.complaint_id}`}
                       >
                         
                         <td className="px-6 py-4 font-semibold text-[#d4a574] text-sm">
@@ -373,6 +371,15 @@ function StaffPendingContent() {
                             day: "numeric",
                           })}
                         </td>
+                        <td className="px-6 py-4">
+                          <Link
+                            href={`/staff/complaints/${c.complaint_id}`}
+                            className="text-[#d4a574] hover:text-[#b8865a] text-xs font-medium no-underline transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            จัดการ →
+                          </Link>
+                        </td>
                       </tr>
                     );
                   })}
@@ -385,12 +392,10 @@ function StaffPendingContent() {
               {filtered.map((c) => {
                 const isSelected = selectedIds.includes(c.complaint_id);
                 return (
-                  <div
+                  <Link
                     key={c.complaint_id}
-                    className={`p-4 flex items-start gap-3 transition-colors cursor-pointer ${
-                      isSelected ? "bg-amber-50/50" : "bg-white hover:bg-gray-50"
-                    }`}
-                    onClick={() => handleToggleSelect(c.complaint_id)}
+                    href={`/staff/complaints/${c.complaint_id}`}
+                    className="block bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4 no-underline hover:border-amber-200 transition-colors"
                   >
                     
                     <div className="flex-1 min-w-0">
@@ -418,7 +423,7 @@ function StaffPendingContent() {
                         </span>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
