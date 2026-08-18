@@ -4,25 +4,37 @@ stages:
 deploy_to_local_docker:
   stage: deploy
   tags:
-    - local-docker # ตรงกับ Tag ที่ลงทะเบียนไว้ใน GitLab Runner เครื่องเรา
+    - local-docker
   script:
-    - Write-Host "=========================================="
-    - Write-Host "🚀 Starting Auto-Deploy to Local Docker Desktop"
-    - Write-Host "Branch: $CI_COMMIT_REF_NAME | Commit: $CI_COMMIT_SHORT_SHA"
-    - Write-Host "=========================================="
-    # ตรวจสอบไฟล์ .env หากไม่มีให้คัดลอกจาก .env.example
-    - if (-not (Test-Path "backend\.env") -and (Test-Path "backend\.env.example")) { Copy-Item "backend\.env.example" "backend\.env"; Write-Host "Created backend\.env" }
-    - if (-not (Test-Path "frontend\.env") -and (Test-Path "frontend\.env.example")) { Copy-Item "frontend\.env.example" "frontend\.env"; Write-Host "Created frontend\.env" }
-    # สั่งหยุด Container เดิม
-    - docker compose down --remove-orphans
-    # สั่ง Build Docker Images ใหม่จากโค้ดล่าสุด
-    - docker compose build
-    # รัน Container ขึ้นมาใหม่
-    - docker compose up -d
-    - Write-Host "=========================================="
-    - Write-Host "✅ Deployment completed successfully!"
-    - docker ps --filter "name=sena-"
-    - Write-Host "=========================================="
+    - |
+      Write-Host "=========================================="
+      Write-Host "Starting Auto-Deploy to Local Docker Desktop"
+      Write-Host "Branch: $env:CI_COMMIT_REF_NAME | Commit: $env:CI_COMMIT_SHORT_SHA"
+      Write-Host "=========================================="
+      
+      if (-not (Test-Path "backend\.env") -and (Test-Path "backend\.env.example")) {
+        Copy-Item "backend\.env.example" "backend\.env"
+        Write-Host "Created backend\.env from example"
+      }
+      
+      if (-not (Test-Path "frontend\.env") -and (Test-Path "frontend\.env.example")) {
+        Copy-Item "frontend\.env.example" "frontend\.env"
+        Write-Host "Created frontend\.env from example"
+      }
+      
+      Write-Host "Stopping old containers..."
+      docker compose down --remove-orphans
+      
+      Write-Host "Building latest docker images..."
+      docker compose build
+      
+      Write-Host "Starting containers..."
+      docker compose up -d
+      
+      Write-Host "=========================================="
+      Write-Host "Deployment completed successfully!"
+      docker ps --filter "name=sena-"
+      Write-Host "=========================================="
   only:
     - develop
     - main
