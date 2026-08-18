@@ -5,6 +5,9 @@ deploy_to_local_docker:
   stage: deploy
   tags:
     - local-docker
+  rules:
+    # Trigger เฉพาะเมื่อมีการ push หรือ merge เข้า branch develop เท่านั้น
+    - if: '$CI_COMMIT_BRANCH == "develop"'
   script:
     - |
       Write-Host "=========================================="
@@ -35,7 +38,50 @@ deploy_to_local_docker:
       Write-Host "Deployment completed successfully!"
       docker ps --filter "name=sena-"
       Write-Host "=========================================="
-  only:
-    - develop
-    - main
-    - master
+
+  # ส่งแจ้งเตือนเข้า LINE OA หลังจบงาน (ไม่ว่าจะ Deploy ผ่านหรือพัง ก็จะส่งสถานะแจ้งเตือน)
+  after_script:
+    - |
+      if (-not $env:LINE_CHANNEL_ACCESS_TOKEN -or -not $env:LINE_USER_ID) {
+        Write-Host "LINE Notification skipped: Missing LINE_CHANNEL_ACCESS_TOKEN or LINE_USER_ID."
+        exit 0
+      }
+
+      $statusEmoji = if ($env:CI_JOB_STATUS -eq "success") { "✅ [SUCCESS] Deploy สำเร็จ!" } else { "❌ [FAILED] Deploy ล้มเหลว!" }
+
+      $messageText = @"
+      $statusEmoji
+      ========================
+      📦 Project: $env:CI_PROJECT_NAME
+      🌿 Branch: $env:CI_COMMIT_REF_NAME
+      👤 Author: $env:CI_COMMIT_AUTHOR
+      📝 Message: $env:CI_COMMIT_TITLE
+      🔗 Commit: $env:CI_COMMIT_SHORT_SHA
+      ⏱️ Status: $env:CI_JOB_STATUS
+      🌐 Pipeline: $env:CI_PIPELINE_URL
+      "@
+
+      $headers = @{
+        "Authorization" = "Bearer $env:LINE_CHANNEL_ACCESS_TOKEN"
+        "Content-Type"  = "application/json; charset=utf-8"
+      }
+
+      $payload = @{
+        to = $env:LINE_USER_ID
+        messages = @(
+          @{
+            type = "text"
+            text = $messageText
+          }
+        )
+      } | ConvertTo-Json -Depth 3
+
+      try {
+        $response = Invoke-RestMethod -Uri "https://api.line.me/v2/bot/message/push" `
+                                      -Method Post `
+                                      -Headers $headers `
+                                      -Body ([System.Text.Encoding]::UTF8.GetBytes($payload))
+        Write-Host "LINE Notification sent successfully."
+      } catch {
+        Write-Host "Failed to send LINE notification: $_"
+      }
