@@ -1,10 +1,6 @@
 node_modules
-src
-tests
-*.ts
-check_data.ts
-test_*.ts
+dist
 .git
 .vscode
 logs
-.env.local
+*.log
