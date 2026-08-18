@@ -29,7 +29,7 @@ deploy_to_local_docker:
       docker compose build
       
       Write-Host "Starting containers..."
-      docker compose up -d
+      docker compose up -d --force-recreate
       
       Write-Host "=========================================="
       Write-Host "Deployment completed successfully!"

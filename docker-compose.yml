@@ -1,3 +1,5 @@
+name: sena
+
 services:
   backend:
     build:
