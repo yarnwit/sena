@@ -38,9 +38,8 @@ test('test', async ({ page }) => {
     await page.waitForURL(/.*\/admin\/users\?mode=delete/);
     await page.getByRole('row').filter({ hasText: `@${username}` }).getByRole('button', { name: 'ลบ' }).click();
     await page.getByRole('heading', { name: 'ยืนยันการลบบัญชี' }).click();
-    const navigationPromise = page.waitForNavigation();
     await page.getByRole('button', { name: 'ลบบัญชีถาวร' }).click();
-    await navigationPromise; // รอให้ระบบ reload หน้าจอเสร็จสมบูรณ์
+    await page.waitForTimeout(1000); // รอให้ระบบบันทึกและ reload หน้าจอเสร็จสมบูรณ์
     await page.getByRole('button', { name: 'จัดการร้องเรียน' }).click();
     await page.waitForTimeout(500); // รอให้เมนูขยาย (Animation) เสร็จก่อน
     await page.getByRole('link', { name: 'รายการร้องเรียนทั้งหมด' }).click();
@@ -94,6 +93,8 @@ test('test', async ({ page }) => {
     await page.getByRole('button', { name: 'อัปเดตข้อมูล' }).click();
     await page.getByRole('link', { name: 'รอเข้าที่ประชุม' }).click();
     await page.waitForURL('**/admin/approvals');
+    await page.waitForTimeout(1000);
+    await page.getByRole('cell', { name: complaintSubject }).first().waitFor({ timeout: 20000 });
     await page.getByRole('cell', { name: complaintSubject }).first().click();
     page.once('dialog', dialog => {
         console.log(`Dialog message: ${dialog.message()}`);

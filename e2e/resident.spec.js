@@ -74,6 +74,8 @@ test('test', async ({ page }) => {
     await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).click();
     await page.getByRole('textbox', { name: 'ชื่อผู้ใช้งาน' }).fill(username);
     await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).evaluate(node => node.click());
+    await page.waitForURL('**/resident/**', { timeout: 15000 }).catch(() => {});
+    await page.getByRole('link', { name: 'โปรไฟล์' }).waitFor({ timeout: 15000 });
     await page.getByRole('link', { name: 'โปรไฟล์' }).click();
     await page.getByRole('button', { name: 'ออกจากระบบ' }).click();
 });

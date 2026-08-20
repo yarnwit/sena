@@ -11,12 +11,13 @@ test('test', async ({ page }) => {
     await page.getByRole('textbox', { name: 'รหัสผ่าน' }).click();
     await page.getByRole('textbox', { name: 'รหัสผ่าน' }).fill('123456');
     await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).evaluate(node => node.click());
+    await page.waitForURL('**/staff/**', { timeout: 15000 }).catch(() => {});
 
-    // รอให้หน้า dashboard โหลดเสร็จ โดยรอจนเห็นลิงก์ "สร้างเรื่องร้องเรียน"
-    await page.getByRole('link', { name: 'สร้างเรื่องร้องเรียน' }).waitFor({ timeout: 15000 });
+    // รอให้หน้า dashboard โหลดเสร็จ โดยรอจนเห็นลิงก์ "สร้างคำร้อง"
+    await page.getByRole('link', { name: /สร้าง(คำร้อง|เรื่องร้องเรียน)/ }).first().waitFor({ timeout: 15000 });
 
     // === สร้างคำร้องแบบเลือกลูกบ้านจากระบบ ===
-    await page.getByRole('link', { name: 'สร้างเรื่องร้องเรียน' }).click();
+    await page.getByRole('link', { name: /สร้าง(คำร้อง|เรื่องร้องเรียน)/ }).first().click();
     // รอให้รายชื่อลูกบ้านโหลดจาก API เสร็จก่อน
     await page.getByRole('button', { name: '🏠 83/34' }).first().waitFor({ timeout: 30000 });
     await page.getByRole('button', { name: '🏠 83/34' }).first().click();
@@ -34,7 +35,7 @@ test('test', async ({ page }) => {
     await page.getByRole('cell', { name: 'โปรแมพmlbb' }).first().click();
 
     // === สร้างคำร้องแบบ Manual (กรอกข้อมูลเอง) ===
-    await page.getByRole('link', { name: 'สร้างเรื่องร้องเรียน' }).click();
+    await page.getByRole('link', { name: /สร้าง(คำร้อง|เรื่องร้องเรียน)/ }).first().click();
     await page.getByRole('button', { name: 'กรอกข้อมูลเอง' }).click();
     await page.getByRole('textbox', { name: 'ชื่อจริง' }).click();
     await page.getByRole('textbox', { name: 'ชื่อจริง' }).fill('บอส');
