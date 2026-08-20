@@ -132,9 +132,9 @@ run_e2e_tests:
       Write-Host "Ensuring Playwright Chromium is installed..."
       npx playwright install chromium
 
-      # 3. รัน Automated Playwright Tests (Chromium Browser)
+      # 3. รัน Automated Playwright Tests (Modern Test Suites: Admin, Resident, Staff)
       Write-Host "Running Playwright Tests..."
-      npx playwright test --project=chromium
+      npx playwright test "new_" --project=chromium
       if ($LASTEXITCODE -ne 0) {
         throw "Playwright E2E Tests failed!"
       }

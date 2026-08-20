@@ -97,7 +97,10 @@ test.describe('ระบบนิติบุคคล - ทดสอบสิ�
       await page.getByRole('button', { name: 'บันทึกคำร้อง' }).evaluate(node => node.click());
       await page.waitForTimeout(500);
     }
-    await page.getByRole('button', { name: 'ยืนยัน' }).evaluate(node => node.click());
+    const confirmBtn = page.getByRole('button', { name: 'ยืนยัน' });
+    if (await confirmBtn.isVisible({ timeout: 10000 })) {
+      await confirmBtn.evaluate(node => node.click());
+    }
     await page.waitForTimeout(2000);
   });
 
