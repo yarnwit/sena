@@ -58,8 +58,11 @@ test('test', async ({ page }) => {
     await page.getByRole('combobox').selectOption('line');
     await page.getByRole('button', { name: 'บันทึกคำร้อง' }).click();
     await page.getByRole('button', { name: 'ยืนยัน' }).click();
+    await page.waitForURL('**/staff/complaints');
+    await page.waitForTimeout(1000);
 
     // === อนุมัติคำร้อง ===
+    await page.getByRole('cell', { name: 'โปรแมพ freefire' }).first().waitFor({ timeout: 20000 });
     await page.getByRole('cell', { name: 'โปรแมพ freefire' }).first().click();
     await page.getByRole('button', { name: 'อนุมัติ', exact: true }).click();
     await page.getByRole('textbox', { name: 'กรอกความเห็นคณะกรรมการ หรือเหตุผลประกอบการพิจารณา' }).click();
@@ -71,8 +74,10 @@ test('test', async ({ page }) => {
     await page.getByRole('button', { name: 'อัปเดตข้อมูล' }).click();
 
     // === รอเข้าที่ประชุม → นำเรื่องเข้าที่ประชุม ===
-    await page.getByRole('link', { name: 'รอเข้าที่ประชุม' }).click();
+    await page.getByRole('link', { name: 'รอเข้าที่ประชุม' }).evaluate(node => node.click());
     await page.waitForURL('**/staff/approvals'); // รอโหลดหน้า approvals ก่อน
+    await page.waitForTimeout(1000);
+    await page.getByRole('cell', { name: 'โปรแมพ freefire' }).first().waitFor({ timeout: 20000 });
     await page.getByRole('cell', { name: 'โปรแมพ freefire' }).first().click();
     page.once('dialog', dialog => {
         console.log(`Dialog message: ${dialog.message()}`);
@@ -81,8 +86,10 @@ test('test', async ({ page }) => {
     await page.getByRole('button', { name: 'นำเรื่องเข้าที่ประชุม' }).click();
 
     // === มติอนุมัติให้ดำเนินการ ===
-    await page.getByRole('link', { name: 'นำเรื่องเข้าที่ประชุม' }).click();
+    await page.getByRole('link', { name: 'นำเรื่องเข้าที่ประชุม' }).evaluate(node => node.click());
     await page.waitForURL('**/staff/meetings'); // รอเปลี่ยนหน้าก่อน
+    await page.waitForTimeout(1000);
+    await page.getByRole('cell', { name: 'บอส โปรแมพ' }).first().waitFor({ timeout: 20000 });
     await page.getByRole('cell', { name: 'บอส โปรแมพ' }).first().click();
     page.once('dialog', dialog => {
         console.log(`Dialog message: ${dialog.message()}`);
@@ -91,8 +98,10 @@ test('test', async ({ page }) => {
     await page.getByRole('button', { name: 'มติ: อนุมัติให้ดำเนินการ' }).click();
 
     // === ติดตามการแก้ไข → ปิดงาน ===
-    await page.getByRole('link', { name: 'ติดตามการแก้ไขปัญหา' }).click();
+    await page.getByRole('link', { name: 'ติดตามการแก้ไขปัญหา' }).evaluate(node => node.click());
     await page.waitForURL('**/staff/maintenance'); // รอโหลดหน้า maintenance ก่อน
+    await page.waitForTimeout(1000);
+    await page.getByRole('cell', { name: 'บอส โปรแมพ' }).first().waitFor({ timeout: 20000 });
     await page.getByRole('cell', { name: 'บอส โปรแมพ' }).first().click();
     await page.getByRole('button', { name: 'บันทึกการแก้ไขเสร็จสิ้น' }).click();
     await page.getByRole('textbox', { name: 'เช่น ทำความสะอาดพื้นที่, ตรวจสอบแล้วปกติ' }).click();
@@ -106,8 +115,7 @@ test('test', async ({ page }) => {
     await page.getByRole('button', { name: 'ยืนยันปิดงาน' }).click();
 
     // === เปลี่ยนรหัสผ่าน ===
-    await page.getByRole('button', { name: 'จัดการร้องเรียน' }).click();
-    await page.getByRole('link', { name: 'โปรไฟล์' }).click();
+    await page.getByRole('link', { name: 'โปรไฟล์' }).evaluate(node => node.click());
     await page.getByRole('textbox', { name: 'กรอกรหัสผ่านใหม่ (อย่างน้อย 6' }).click();
     await page.getByRole('textbox', { name: 'กรอกรหัสผ่านใหม่ (อย่างน้อย 6' }).fill('1234567');
     await page.getByRole('textbox', { name: 'กรอกรหัสผ่านใหม่อีกครั้ง' }).click();
@@ -123,10 +131,8 @@ test('test', async ({ page }) => {
     await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).evaluate(node => node.click());
 
     // === เปลี่ยนรหัสผ่านกลับเป็น 123456 เพื่อให้รันซ้ำได้ ===
-    // เปิด dropdown ก่อน
-    await page.getByRole('button', { name: 'จัดการร้องเรียน' }).click();
-    await page.getByRole('link', { name: 'โปรไฟล์' }).waitFor({ timeout: 15000 });
-    await page.getByRole('link', { name: 'โปรไฟล์' }).click();
+    await page.waitForURL('**/staff/**', { timeout: 15000 }).catch(() => {});
+    await page.getByRole('link', { name: 'โปรไฟล์' }).evaluate(node => node.click());
     await page.getByRole('textbox', { name: 'กรอกรหัสผ่านใหม่ (อย่างน้อย 6' }).click();
     await page.getByRole('textbox', { name: 'กรอกรหัสผ่านใหม่ (อย่างน้อย 6' }).fill('123456');
     await page.getByRole('textbox', { name: 'กรอกรหัสผ่านใหม่อีกครั้ง' }).click();

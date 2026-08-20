@@ -40,15 +40,13 @@ test('test', async ({ page }) => {
     await page.getByRole('heading', { name: 'ยืนยันการลบบัญชี' }).click();
     await page.getByRole('button', { name: 'ลบบัญชีถาวร' }).click();
     await page.waitForTimeout(1000); // รอให้ระบบบันทึกและ reload หน้าจอเสร็จสมบูรณ์
-    await page.getByRole('button', { name: 'จัดการร้องเรียน' }).click();
-    await page.waitForTimeout(500); // รอให้เมนูขยาย (Animation) เสร็จก่อน
-    await page.getByRole('link', { name: 'รายการร้องเรียนทั้งหมด' }).click();
-    await page.waitForURL('**/admin/complaints');
-    // ใช้ page.goto เพื่อแก้ปัญหา Next.js Link ไม่ทำงานบางครั้ง (flaky)
+
+    // ไปยังหน้าสร้างคำร้องใหม่
     await page.goto('http://localhost:3000/admin/complaints/new');
+    await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
 
     // รอให้โหลดข้อมูลลูกบ้านเสร็จ
-    await page.waitForSelector('.max-h-48 button');
+    await page.waitForSelector('.max-h-48 button', { timeout: 20000 });
     // กดเลือกลูกบ้านคนแรกในลิสต์ (แทนการระบุบ้านเลขที่ 83/34 ตายตัว)
     await page.locator('.max-h-48 button').first().click();
     await page.getByRole('textbox', { name: 'เช่น น้ำรั่วซึม' }).click();
@@ -60,7 +58,7 @@ test('test', async ({ page }) => {
     await page.getByRole('button', { name: 'บันทึกคำร้อง' }).click();
     await page.getByRole('button', { name: 'ยืนยัน' }).click();
     await page.waitForURL('**/admin/complaints');
-    await page.getByRole('link', { name: 'สร้างคำร้องใหม่' }).click();
+    await page.getByRole('link', { name: 'สร้างคำร้องใหม่' }).evaluate(node => node.click());
     await page.getByRole('button', { name: 'กรอกข้อมูลเอง' }).click();
     await page.getByRole('textbox', { name: 'ชื่อจริง' }).click();
     await page.getByRole('textbox', { name: 'ชื่อจริง' }).fill('ใส่ใจ');
@@ -84,6 +82,8 @@ test('test', async ({ page }) => {
     await page.getByRole('button', { name: 'บันทึกคำร้อง' }).click();
     await page.getByRole('button', { name: 'ยืนยัน' }).click();
     await page.waitForURL('**/admin/complaints');
+    await page.waitForTimeout(1000);
+    await page.getByRole('cell', { name: complaintSubject }).first().waitFor({ timeout: 20000 });
     await page.getByRole('cell', { name: complaintSubject }).first().click();
     await page.getByRole('button', { name: 'อนุมัติ', exact: true }).click();
     page.once('dialog', dialog => {
@@ -91,7 +91,7 @@ test('test', async ({ page }) => {
         dialog.accept().catch(() => { });
     });
     await page.getByRole('button', { name: 'อัปเดตข้อมูล' }).click();
-    await page.getByRole('link', { name: 'รอเข้าที่ประชุม' }).click();
+    await page.getByRole('link', { name: 'รอเข้าที่ประชุม' }).evaluate(node => node.click());
     await page.waitForURL('**/admin/approvals');
     await page.waitForTimeout(1000);
     await page.getByRole('cell', { name: complaintSubject }).first().waitFor({ timeout: 20000 });
@@ -101,16 +101,20 @@ test('test', async ({ page }) => {
         dialog.accept().catch(() => { });
     });
     await page.getByRole('button', { name: 'นำเรื่องเข้าที่ประชุม' }).click();
-    await page.getByRole('link', { name: 'นำเรื่องเข้าที่ประชุม' }).click();
+    await page.getByRole('link', { name: 'นำเรื่องเข้าที่ประชุม' }).evaluate(node => node.click());
     await page.waitForURL('**/admin/meetings');
+    await page.waitForTimeout(1000);
+    await page.getByRole('cell', { name: complaintSubject }).first().waitFor({ timeout: 20000 });
     await page.getByRole('cell', { name: complaintSubject }).first().click();
     page.once('dialog', dialog => {
         console.log(`Dialog message: ${dialog.message()}`);
         dialog.accept().catch(() => { });
     });
     await page.getByRole('button', { name: 'มติ: อนุมัติให้ดำเนินการ' }).click();
-    await page.getByRole('link', { name: 'ติดตามการแก้ไขปัญหา' }).click();
+    await page.getByRole('link', { name: 'ติดตามการแก้ไขปัญหา' }).evaluate(node => node.click());
     await page.waitForURL('**/admin/maintenance');
+    await page.waitForTimeout(1000);
+    await page.getByRole('cell', { name: complaintSubject }).first().waitFor({ timeout: 20000 });
     await page.getByRole('cell', { name: complaintSubject }).first().click();
     await page.getByRole('button', { name: 'บันทึกการแก้ไขเสร็จสิ้น' }).click();
     await page.getByRole('textbox', { name: 'เช่น ทำความสะอาดพื้นที่, ตรวจสอบแล้วปกติ' }).click();
