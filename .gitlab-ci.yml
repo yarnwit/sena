@@ -122,9 +122,17 @@ run_e2e_tests:
 
       # 1. ติดตั้ง Dependencies ใน Root
       Write-Host "Installing Root Dependencies..."
-      npm ci
+      if (Test-Path "package-lock.json") {
+        npm ci
+      } else {
+        npm install
+      }
 
-      # 2. รัน Automated Playwright Tests (Chromium Browser)
+      # 2. ตรวจสอบและติดตั้ง Chromium Browser สำหรับ Playwright
+      Write-Host "Ensuring Playwright Chromium is installed..."
+      npx playwright install chromium
+
+      # 3. รัน Automated Playwright Tests (Chromium Browser)
       Write-Host "Running Playwright Tests..."
       npx playwright test --project=chromium
       if ($LASTEXITCODE -ne 0) {
