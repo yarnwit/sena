@@ -1,5 +1,53 @@
 stages:
+  - verify
   - deploy
+
+verify_code:
+  stage: verify
+  tags:
+    - local-docker
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  script:
+    - |
+      Write-Host "=========================================="
+      Write-Host "🔍 Starting Code Verification (Verify Stage)"
+      Write-Host "Branch: $env:CI_COMMIT_REF_NAME | Commit: $env:CI_COMMIT_SHORT_SHA"
+      Write-Host "=========================================="
+
+      # 1. ตรวจสอบ Backend (TypeScript Type Check)
+      Write-Host "Checking Backend TypeScript..."
+      Set-Location backend
+      npm ci
+      npx tsc --noEmit
+      if ($LASTEXITCODE -ne 0) {
+        Set-Location ..
+        throw "Backend TypeScript check failed!"
+      }
+      Set-Location ..
+
+      # 2. ตรวจสอบ Frontend (ESLint & TypeScript Type Check)
+      Write-Host "Checking Frontend Lint & TypeScript..."
+      Set-Location frontend
+      npm ci
+      npm run lint
+      if ($LASTEXITCODE -ne 0) {
+        Set-Location ..
+        throw "Frontend Lint check failed!"
+      }
+      npx tsc --noEmit
+      if ($LASTEXITCODE -ne 0) {
+        Set-Location ..
+        throw "Frontend TypeScript check failed!"
+      }
+      Set-Location ..
+
+      Write-Host "=========================================="
+      Write-Host "✅ All code verifications passed!"
+      Write-Host "=========================================="
+
 
 deploy_to_local_docker:
   stage: deploy
