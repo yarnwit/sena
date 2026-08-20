@@ -1,5 +1,7 @@
 stages:
   - verify
+  - build
+  - test
   - deploy
 
 verify_code:
@@ -47,6 +49,98 @@ verify_code:
       Write-Host "=========================================="
       Write-Host "✅ All code verifications passed!"
       Write-Host "=========================================="
+
+build_apps:
+  stage: build
+  tags:
+    - local-docker
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  script:
+    - |
+      Write-Host "=========================================="
+      Write-Host "📦 Starting Application Build (Build Stage)"
+      Write-Host "Branch: $env:CI_COMMIT_REF_NAME | Commit: $env:CI_COMMIT_SHORT_SHA"
+      Write-Host "=========================================="
+
+      # เตรียมไฟล์ .env สำหรับการ Build
+      if (-not (Test-Path "backend\.env") -and (Test-Path "backend\.env.example")) {
+        Copy-Item "backend\.env.example" "backend\.env"
+      }
+      if (-not (Test-Path "frontend\.env") -and (Test-Path "frontend\.env.example")) {
+        Copy-Item "frontend\.env.example" "frontend\.env"
+      }
+
+      # 1. Build Backend (TypeScript -> dist/)
+      Write-Host "Building Backend (Express.js)..."
+      Set-Location backend
+      npm ci
+      npm run build
+      if ($LASTEXITCODE -ne 0) {
+        Set-Location ..
+        throw "Backend build failed!"
+      }
+      Set-Location ..
+
+      # 2. Build Frontend (Next.js -> .next/)
+      Write-Host "Building Frontend (Next.js)..."
+      Set-Location frontend
+      npm ci
+      npm run build
+      if ($LASTEXITCODE -ne 0) {
+        Set-Location ..
+        throw "Frontend build failed!"
+      }
+      Set-Location ..
+
+      Write-Host "=========================================="
+      Write-Host "✅ Application build completed successfully!"
+      Write-Host "=========================================="
+  artifacts:
+    name: "build-artifacts-$CI_COMMIT_SHORT_SHA"
+    expire_in: 1 day
+    paths:
+      - backend/dist/
+      - frontend/.next/
+
+run_e2e_tests:
+  stage: test
+  tags:
+    - local-docker
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  script:
+    - |
+      Write-Host "=========================================="
+      Write-Host "🧪 Starting Playwright E2E Tests (Test Stage)"
+      Write-Host "Branch: $env:CI_COMMIT_REF_NAME | Commit: $env:CI_COMMIT_SHORT_SHA"
+      Write-Host "=========================================="
+
+      # 1. ติดตั้ง Dependencies ใน Root
+      Write-Host "Installing Root Dependencies..."
+      npm ci
+
+      # 2. รัน Automated Playwright Tests (Chromium Browser)
+      Write-Host "Running Playwright Tests..."
+      npx playwright test --project=chromium
+      if ($LASTEXITCODE -ne 0) {
+        throw "Playwright E2E Tests failed!"
+      }
+
+      Write-Host "=========================================="
+      Write-Host "✅ All automated tests passed successfully!"
+      Write-Host "=========================================="
+  artifacts:
+    when: always
+    name: "playwright-report-$CI_COMMIT_SHORT_SHA"
+    expire_in: 7 days
+    paths:
+      - playwright-report/
+      - test-results/
 
 
 deploy_to_local_docker:
