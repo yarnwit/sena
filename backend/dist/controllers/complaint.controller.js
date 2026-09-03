@@ -1,0 +1,377 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.createComplaintForStaff = exports.getResidentsList = exports.deleteComplaint = exports.updateComplaintByStaff = exports.updateComplaint = exports.bulkUpdateComplaintStatus = exports.updateComplaintStatus = exports.createComplaint = exports.getUserInfo = exports.getComplaintById = exports.getComplaintByIdForStaff = exports.getAllComplaints = exports.getMyComplaints = void 0;
+const Complaint_model_1 = require("../models/Complaint.model");
+const complaint_service_1 = require("../services/complaint.service");
+const AuditLog_model_1 = require("../models/AuditLog.model");
+const response_util_1 = require("../utils/response.util");
+const upload_service_1 = require("../services/upload.service");
+const logger_1 = __importDefault(require("../config/logger"));
+const supabase_1 = require("../config/supabase");
+// ===== GET /api/complaints/my =====
+const getMyComplaints = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId)
+            return (0, response_util_1.sendError)(res, 'Unauthorized', 401);
+        const residentId = await complaint_service_1.ComplaintService.getResidentId(userId);
+        if (!residentId)
+            return (0, response_util_1.sendSuccess)(res, []);
+        const complaints = await Complaint_model_1.ComplaintModel.findByResidentId(residentId);
+        return (0, response_util_1.sendSuccess)(res, complaints);
+    }
+    catch (error) {
+        logger_1.default.error('Get complaints error:', error);
+        return (0, response_util_1.sendError)(res, 'Internal server error');
+    }
+};
+exports.getMyComplaints = getMyComplaints;
+// ===== GET /api/complaints/all =====
+const getAllComplaints = async (req, res) => {
+    try {
+        const complaints = await Complaint_model_1.ComplaintModel.findAll();
+        const filter = req.query.filter;
+        let filteredComplaints = complaints;
+        const now = new Date();
+        if (filter === 'today') {
+            const todayStr = now.toISOString().split('T')[0];
+            filteredComplaints = complaints.filter(c => c.reported_date && c.reported_date.startsWith(todayStr));
+        }
+        else if (filter === 'week') {
+            const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            filteredComplaints = complaints.filter(c => c.reported_date && new Date(c.reported_date) >= lastWeek);
+        }
+        else if (filter === 'month') {
+            const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+            filteredComplaints = complaints.filter(c => c.reported_date && new Date(c.reported_date) >= lastMonth);
+        }
+        const enriched = await Complaint_model_1.ComplaintModel.enrichMany(filteredComplaints);
+        return (0, response_util_1.sendSuccess)(res, enriched);
+    }
+    catch (error) {
+        logger_1.default.error('Get all complaints error:', error);
+        return (0, response_util_1.sendError)(res, 'Internal server error');
+    }
+};
+exports.getAllComplaints = getAllComplaints;
+// ===== GET /api/complaints/staff/:id =====
+const getComplaintByIdForStaff = async (req, res) => {
+    try {
+        const detail = await complaint_service_1.ComplaintService.getComplaintDetailForStaff(req.params.id);
+        if (!detail)
+            return (0, response_util_1.sendError)(res, 'ไม่พบคำร้องนี้', 404);
+        return (0, response_util_1.sendSuccess)(res, detail);
+    }
+    catch (error) {
+        logger_1.default.error('Get complaint by ID for staff error:', error);
+        return (0, response_util_1.sendError)(res, 'Internal server error');
+    }
+};
+exports.getComplaintByIdForStaff = getComplaintByIdForStaff;
+// ===== GET /api/complaints/:id =====
+const getComplaintById = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId)
+            return (0, response_util_1.sendError)(res, 'Unauthorized', 401);
+        const residentInfo = await complaint_service_1.ComplaintService.getResidentInfo(userId);
+        if (!residentInfo.resident_id)
+            return (0, response_util_1.sendError)(res, 'ไม่พบข้อมูลลูกบ้าน', 404);
+        const complaint = await Complaint_model_1.ComplaintModel.findByIdAndResident(req.params.id, residentInfo.resident_id);
+        if (!complaint)
+            return (0, response_util_1.sendError)(res, 'ไม่พบคำร้องนี้', 404);
+        const reviewer_name = await complaint_service_1.ComplaintService.getReviewerName(req.params.id);
+        return (0, response_util_1.sendSuccess)(res, {
+            ...complaint,
+            first_name: residentInfo.first_name,
+            last_name: residentInfo.last_name,
+            house_no: residentInfo.house_no,
+            phone_number: residentInfo.phone_number,
+            resident_type: residentInfo.resident_type,
+            phase: complaint.phase || residentInfo.phase,
+            soi: complaint.soi || residentInfo.soi,
+            reviewer_name,
+        });
+    }
+    catch (error) {
+        logger_1.default.error('Get complaint by ID error:', error);
+        return (0, response_util_1.sendError)(res, 'Internal server error');
+    }
+};
+exports.getComplaintById = getComplaintById;
+// ===== GET /api/complaints/user-info =====
+const getUserInfo = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId)
+            return (0, response_util_1.sendError)(res, 'Unauthorized', 401);
+        const info = await complaint_service_1.ComplaintService.getResidentInfo(userId);
+        return (0, response_util_1.sendSuccess)(res, info);
+    }
+    catch (error) {
+        logger_1.default.error('Get user info error:', error);
+        return (0, response_util_1.sendError)(res, 'Internal server error');
+    }
+};
+exports.getUserInfo = getUserInfo;
+// ===== POST /api/complaints =====
+const createComplaint = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId)
+            return (0, response_util_1.sendError)(res, 'Unauthorized', 401);
+        let residentId = await complaint_service_1.ComplaintService.getResidentId(userId);
+        // ถ้ายังไม่มี resident record ให้สร้างอัตโนมัติจากข้อมูล user
+        if (!residentId) {
+            try {
+                const { data: userData } = await supabase_1.supabase
+                    .from('users')
+                    .select('first_name, last_name')
+                    .eq('user_id', userId)
+                    .single();
+                if (!userData) {
+                    return (0, response_util_1.sendError)(res, 'ไม่พบข้อมูลผู้ใช้งาน', 400);
+                }
+                const { data: newResident, error: insertError } = await supabase_1.supabase
+                    .from('resident')
+                    .insert({
+                    user_id: userId,
+                    house_no: '',
+                    phone_number: '',
+                    resident_type: 'owner',
+                })
+                    .select('resident_id')
+                    .single();
+                if (insertError) {
+                    logger_1.default.error('Auto-create resident error:', insertError);
+                    return (0, response_util_1.sendError)(res, 'ไม่พบข้อมูลลูกบ้าน กรุณาติดต่อผู้ดูแลระบบ', 400);
+                }
+                residentId = newResident.resident_id;
+                logger_1.default.info(`Auto-created resident record for user ${userId}, resident_id: ${residentId}`);
+            }
+            catch (autoCreateError) {
+                logger_1.default.error('Auto-create resident error:', autoCreateError);
+                return (0, response_util_1.sendError)(res, 'ไม่พบข้อมูลลูกบ้าน กรุณาติดต่อผู้ดูแลระบบ', 400);
+            }
+        }
+        if (req.file) {
+            const ext = req.file.originalname.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+            const url = await upload_service_1.UploadService.uploadFile('attachments', `complaints/${fileName}`, req.file.buffer, req.file.mimetype);
+            if (url)
+                req.body.attachment_url = url;
+        }
+        const result = await complaint_service_1.ComplaintService.createComplaint(residentId, req.body, userId);
+        return (0, response_util_1.sendSuccess)(res, result, 'สร้างคำร้องสำเร็จ', 201);
+    }
+    catch (error) {
+        logger_1.default.error('Create complaint error:', error);
+        return (0, response_util_1.sendError)(res, error.message || 'Internal server error');
+    }
+};
+exports.createComplaint = createComplaint;
+// ===== PATCH /api/complaints/:id/status =====
+const updateComplaintStatus = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        const role = req.user?.role;
+        if (!userId || !role)
+            return (0, response_util_1.sendError)(res, 'Unauthorized', 401);
+        const { status, petition } = req.body;
+        const result = await complaint_service_1.ComplaintService.updateStatus(req.params.id, status, userId, role, petition);
+        return (0, response_util_1.sendSuccess)(res, result, 'อัปเดตสถานะสำเร็จ');
+    }
+    catch (error) {
+        if (error.message.includes('ไม่พบ'))
+            return (0, response_util_1.sendError)(res, error.message, 404);
+        if (error.message.includes('ไม่สามารถเปลี่ยน'))
+            return (0, response_util_1.sendError)(res, error.message, 400);
+        logger_1.default.error('Update complaint status error:', error);
+        return (0, response_util_1.sendError)(res, 'Internal server error');
+    }
+};
+exports.updateComplaintStatus = updateComplaintStatus;
+// ===== PATCH /api/complaints/staff/bulk-status =====
+const bulkUpdateComplaintStatus = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        const role = req.user?.role;
+        if (!userId || !role)
+            return (0, response_util_1.sendError)(res, 'Unauthorized', 401);
+        const { complaintIds, status, petition } = req.body;
+        if (!Array.isArray(complaintIds) || complaintIds.length === 0) {
+            return (0, response_util_1.sendError)(res, 'กรุณาระบุรายการคำร้องที่ต้องการอัปเดต', 400);
+        }
+        if (!status) {
+            return (0, response_util_1.sendError)(res, 'กรุณาระบุสถานะที่ต้องการเปลี่ยน', 400);
+        }
+        const result = await complaint_service_1.ComplaintService.bulkUpdateStatus(complaintIds, status, userId, role, petition);
+        // If there were any successes, we consider the request partially or fully successful
+        if (result.results.length > 0) {
+            return (0, response_util_1.sendSuccess)(res, result, `อัปเดตสำเร็จ ${result.results.length} รายการ${result.errors.length > 0 ? `, ล้มเหลว ${result.errors.length} รายการ` : ''}`);
+        }
+        else {
+            return (0, response_util_1.sendError)(res, `ไม่สามารถอัปเดตสถานะได้เลย: ${result.errors[0]?.message}`, 400);
+        }
+    }
+    catch (error) {
+        logger_1.default.error('Bulk update complaint status error:', error);
+        return (0, response_util_1.sendError)(res, 'Internal server error');
+    }
+};
+exports.bulkUpdateComplaintStatus = bulkUpdateComplaintStatus;
+// ===== PATCH /api/complaints/:id =====
+const updateComplaint = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId)
+            return (0, response_util_1.sendError)(res, 'Unauthorized', 401);
+        const residentId = await complaint_service_1.ComplaintService.getResidentId(userId);
+        if (!residentId)
+            return (0, response_util_1.sendError)(res, 'ไม่พบข้อมูลลูกบ้าน', 404);
+        // Check ownership
+        const complaint = await Complaint_model_1.ComplaintModel.findByIdAndResident(req.params.id, residentId);
+        if (!complaint)
+            return (0, response_util_1.sendError)(res, 'ไม่พบคำร้องนี้', 404);
+        if (req.file) {
+            const ext = req.file.originalname.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+            const url = await upload_service_1.UploadService.uploadFile('attachments', `complaints/${fileName}`, req.file.buffer, req.file.mimetype);
+            if (url)
+                req.body.attachment_url = url;
+        }
+        const result = await Complaint_model_1.ComplaintModel.update(req.params.id, req.body);
+        if (!result)
+            return (0, response_util_1.sendError)(res, 'Failed to update complaint');
+        // --- Audit Log for Complaint Update ---
+        try {
+            const updatedFields = Object.keys(req.body);
+            const oldData = {};
+            const newData = {};
+            updatedFields.forEach(key => {
+                oldData[key] = complaint[key];
+                newData[key] = req.body[key];
+            });
+            await AuditLog_model_1.AuditLogModel.create({
+                user_id: userId,
+                action: 'UPDATE_COMPLAINT',
+                entity: 'complaint',
+                entity_id: req.params.id,
+                details: { from: oldData, to: newData },
+                ip_address: req.ip
+            });
+        }
+        catch (err) {
+            logger_1.default.error('Failed to insert audit log for update:', err);
+        }
+        logger_1.default.info(`Complaint updated: ${req.params.id} by user ${userId}`);
+        return (0, response_util_1.sendSuccess)(res, result, 'อัปเดตคำร้องสำเร็จ');
+    }
+    catch (error) {
+        logger_1.default.error('Update complaint error:', error);
+        return (0, response_util_1.sendError)(res, 'Internal server error');
+    }
+};
+exports.updateComplaint = updateComplaint;
+// ===== PATCH /api/complaints/staff/:id =====
+const updateComplaintByStaff = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId)
+            return (0, response_util_1.sendError)(res, 'Unauthorized', 401);
+        // Staff/Admin ไม่ต้องตรวจ ownership — จัดการได้ทุกเรื่อง
+        const complaint = await Complaint_model_1.ComplaintModel.findById(req.params.id);
+        if (!complaint)
+            return (0, response_util_1.sendError)(res, 'ไม่พบคำร้องนี้', 404);
+        if (req.file) {
+            const ext = req.file.originalname.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+            const url = await upload_service_1.UploadService.uploadFile('attachments', `complaints/${fileName}`, req.file.buffer, req.file.mimetype);
+            if (url)
+                req.body.attachment_url = url;
+        }
+        const result = await Complaint_model_1.ComplaintModel.update(req.params.id, req.body);
+        if (!result)
+            return (0, response_util_1.sendError)(res, 'Failed to update complaint');
+        // --- Audit Log for Complaint Update ---
+        try {
+            const updatedFields = Object.keys(req.body);
+            const oldData = {};
+            const newData = {};
+            updatedFields.forEach(key => {
+                oldData[key] = complaint[key];
+                newData[key] = req.body[key];
+            });
+            await AuditLog_model_1.AuditLogModel.create({
+                user_id: userId,
+                action: 'UPDATE_COMPLAINT_BY_STAFF',
+                entity: 'complaint',
+                entity_id: req.params.id,
+                details: { from: oldData, to: newData },
+                ip_address: req.ip
+            });
+        }
+        catch (err) {
+            logger_1.default.error('Failed to insert audit log for staff update:', err);
+        }
+        logger_1.default.info(`Complaint updated by staff: ${req.params.id} by user ${userId}`);
+        return (0, response_util_1.sendSuccess)(res, result, 'อัปเดตคำร้องสำเร็จ');
+    }
+    catch (error) {
+        logger_1.default.error('Staff update complaint error:', error);
+        return (0, response_util_1.sendError)(res, 'Internal server error');
+    }
+};
+exports.updateComplaintByStaff = updateComplaintByStaff;
+// ===== DELETE /api/complaints/:id =====
+const deleteComplaint = async (req, res) => {
+    try {
+        const success = await Complaint_model_1.ComplaintModel.deleteById(req.params.id);
+        if (!success)
+            return (0, response_util_1.sendError)(res, 'ไม่พบคำร้องนี้', 404);
+        logger_1.default.info(`Complaint deleted: ${req.params.id} by admin ${req.user?.id}`);
+        return (0, response_util_1.sendSuccess)(res, null, 'ลบคำร้องสำเร็จ');
+    }
+    catch (error) {
+        logger_1.default.error('Delete complaint error:', error);
+        return (0, response_util_1.sendError)(res, 'Internal server error');
+    }
+};
+exports.deleteComplaint = deleteComplaint;
+// ===== GET /api/complaints/residents-list =====
+const getResidentsList = async (req, res) => {
+    try {
+        const list = await complaint_service_1.ComplaintService.getResidentsList();
+        return (0, response_util_1.sendSuccess)(res, list);
+    }
+    catch (error) {
+        logger_1.default.error('Get residents list error:', error);
+        return (0, response_util_1.sendError)(res, 'Internal server error');
+    }
+};
+exports.getResidentsList = getResidentsList;
+// ===== POST /api/complaints/staff =====
+const createComplaintForStaff = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId)
+            return (0, response_util_1.sendError)(res, 'Unauthorized', 401);
+        if (req.file) {
+            const ext = req.file.originalname.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+            const url = await upload_service_1.UploadService.uploadFile('attachments', `complaints/${fileName}`, req.file.buffer, req.file.mimetype);
+            if (url)
+                req.body.attachment_url = url;
+        }
+        const result = await complaint_service_1.ComplaintService.createComplaintForStaff(req.body, userId);
+        return (0, response_util_1.sendSuccess)(res, result, 'สร้างคำร้องสำเร็จ', 201);
+    }
+    catch (error) {
+        logger_1.default.error('Staff create complaint error:', error);
+        return (0, response_util_1.sendError)(res, error.message || 'Internal server error');
+    }
+};
+exports.createComplaintForStaff = createComplaintForStaff;

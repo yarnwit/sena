@@ -4,8 +4,16 @@ import axios from 'axios';
  * Axios instance with interceptors
  * ตาม AGENTS.md — ทุกฟังก์ชันที่ต้องดึงข้อมูลให้เรียกใช้ผ่าน Axios instance นี้
  */
+const getApiBaseUrl = () => {
+  const raw = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  const trimmed = raw.trim().replace(/\/+$/, '');
+  return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+};
+
+export const API_BASE_URL = getApiBaseUrl();
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -81,7 +89,7 @@ api.interceptors.response.use(
       }
 
       const { data } = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/refresh`,
+        `${API_BASE_URL}/auth/refresh`,
         { refreshToken },
         { headers: { 'Content-Type': 'application/json' } }
       );
